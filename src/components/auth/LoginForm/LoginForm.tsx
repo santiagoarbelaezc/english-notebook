@@ -10,7 +10,11 @@ interface LoginFormData {
   password: string;
 }
 
-export const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  onSwitchToRegister?: () => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const navigate = useNavigate();
   const { login, isLoading, error: authError } = useAuth();
   const [validationErrors, setValidationErrors] = useState<Partial<LoginFormData>>({});
@@ -137,9 +141,9 @@ export const LoginForm: React.FC = () => {
 
       <div className={styles.footer}>
         Don't have an account?{' '}
-        <Link to="/register" className={styles.link}>
+        <a className={styles.link} onClick={onSwitchToRegister}>
           Create one now
-        </Link>
+        </a>
       </div>
 
       <div className={styles.bottomNote}>

@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LoginForm } from '../../components/auth/LoginForm';
+import { RegisterForm } from '../../components/auth/RegisterForm';
 
 const Login: React.FC = () => {
+  const [isRegister, setIsRegister] = useState(false);
+
   return (
     <div
       style={{
@@ -48,8 +51,43 @@ const Login: React.FC = () => {
         }}
       />
 
-      {/* Contenido principal */}
-      <LoginForm />
+      {/* Contenido principal con transición */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '1300px',
+          display: 'flex',
+          justifyContent: 'center',
+          position: 'relative',
+          margin: '0 auto'
+        }}
+      >
+        <div
+          style={{
+            opacity: isRegister ? 0 : 1,
+            transform: isRegister ? 'translateX(-20px)' : 'translateX(0)',
+            transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: isRegister ? 'none' : 'auto',
+            position: isRegister ? 'absolute' : 'relative',
+            width: '100%'
+          }}
+        >
+          <LoginForm onSwitchToRegister={() => setIsRegister(true)} />
+        </div>
+
+        <div
+          style={{
+            opacity: isRegister ? 1 : 0,
+            transform: isRegister ? 'translateX(0)' : 'translateX(20px)',
+            transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: isRegister ? 'auto' : 'none',
+            position: isRegister ? 'relative' : 'absolute',
+            width: '100%'
+          }}
+        >
+          <RegisterForm onSwitchToLogin={() => setIsRegister(false)} />
+        </div>
+      </div>
     </div>
   );
 };
