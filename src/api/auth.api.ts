@@ -26,6 +26,6 @@ export const getCurrentUser = async (): Promise<{ success: boolean; user: User }
 
 // Verificar token
 export const verifyToken = async (): Promise<{ success: boolean; valid: boolean; user: User }> => {
-  const response = await axiosInstance.get('/auth/verify-token');
+  const response = await axiosInstance.post('/auth/verify-token', {});
   return response.data;
 };

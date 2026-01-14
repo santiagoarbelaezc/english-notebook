@@ -15,16 +15,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const checkAuth = async () => {
       try {
         if (tokenService.hasTokens()) {
-          const data = await verifyToken();
-          if (data.valid) {
-            setUser(data.user);
-          } else {
+          const token = tokenService.getAccessToken();
+          console.log('🔑 Token encontrado, verificando...', token?.substring(0, 20) + '...');
+          
+          try {
+            const data = await verifyToken();
+            console.log('✅ Token verificado correctamente:', data);
+            if (data?.valid && data?.user) {
+              setUser(data.user);
+              console.log('👤 Usuario establecido:', data.user);
+            } else {
+              console.warn('⚠️ Token no válido');
+              tokenService.clearTokens();
+            }
+          } catch (err: any) {
+            // Si hay error verificando token, limpiar tokens y continuar
+            console.warn('⚠️ Error verificando token:', err?.message);
             tokenService.clearTokens();
           }
+        } else {
+          console.log('ℹ️ No hay token guardado, usuario anónimo');
         }
       } catch (err) {
-        console.error('Error verificando token:', err);
-        tokenService.clearTokens();
+        console.error('❌ Error en verificación de autenticación:', err);
       } finally {
         setIsLoading(false);
       }
@@ -37,12 +50,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setError(null);
       setIsLoading(true);
-      const data = await loginAPI(credentials);
+      console.log('🔄 Iniciando login para:', credentials.email);
       
+      const data = await loginAPI(credentials);
+      console.log('✅ Login exitoso:', data);
+      
+      // Guardar token (data.token es el que devuelve el backend)
       tokenService.saveTokens(data.token);
+      console.log('💾 Token guardado');
+      
+      // Establecer usuario
       setUser(data.user);
+      console.log('👤 Usuario establecido:', data.user);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Error en el login';
+      console.error('❌ Error en login:', errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -54,12 +76,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setError(null);
       setIsLoading(true);
-      const response = await registerAPI(data);
+      console.log('🔄 Iniciando registro para:', data.email);
       
+      const response = await registerAPI(data);
+      console.log('✅ Registro exitoso:', response);
+      
+      // Guardar token
       tokenService.saveTokens(response.token);
+      console.log('💾 Token guardado');
+      
+      // Establecer usuario
       setUser(response.user);
+      console.log('👤 Usuario establecido:', response.user);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Error en el registro';
+      console.error('❌ Error en registro:', errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

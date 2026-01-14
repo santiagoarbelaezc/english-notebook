@@ -1,9 +1,9 @@
 // Auth Components
 export { LoginForm } from './auth/LoginForm';
 
-// Common Components
-// export { Button } from './common/Button';
-// export { Card } from './common/Card';
+// Navbar Components
+export { Navbar } from './navbar';
+
 // export { Input } from './common/Input';
 // export { Loader } from './common/Loader';
 // export { Modal } from './common/Modal';

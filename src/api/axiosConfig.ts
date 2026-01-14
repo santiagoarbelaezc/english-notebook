@@ -15,18 +15,31 @@ axiosInstance.interceptors.request.use(
     const token = tokenService.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log(`📤 Enviando petición a: ${config.url} con token`);
+    } else {
+      console.log(`📤 Enviando petición a: ${config.url} sin token`);
     }
     return config;
   },
   (error) => {
+    console.error('❌ Error en interceptor request:', error);
     return Promise.reject(error);
   }
 );
 
 // Interceptor para manejar errores de autenticación
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`✅ Respuesta de ${response.config.url}:`, response.status);
+    return response;
+  },
   async (error) => {
+    console.error('❌ Error en respuesta:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message
+    });
+
     const originalRequest = error.config;
 
     // Si el token expiró, intentar refrescarlo
@@ -34,13 +47,8 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        const refreshToken = tokenService.getRefreshToken();
-        if (refreshToken) {
-          // Aquí iría la llamada a refrescar token si tu backend lo soporta
-          // Por ahora, simplemente limpiar el token
-          tokenService.clearTokens();
-          window.location.href = '/login';
-        }
+        tokenService.clearTokens();
+        window.location.href = '/login';
       } catch (err) {
         tokenService.clearTokens();
         window.location.href = '/login';
