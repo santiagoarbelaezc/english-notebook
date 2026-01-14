@@ -631,3 +631,37 @@
     transform: translateY(0);
   }
 }
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+    max-width: 100%;
+    padding: var(--spacing-xl) var(--spacing-md);
+    padding-top: calc(60px + var(--spacing-xl));
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    margin-left: 0;
+    max-width: 100%;
+    padding: var(--spacing-lg) var(--spacing-sm);
+    padding-top: calc(50px + var(--spacing-lg));
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+}

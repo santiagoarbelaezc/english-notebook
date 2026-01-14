@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './Navbar.module.css';
+import iconSmall from '../../assets/icons/icon-small.png';
 
 interface NavbarProps {
   activeSection?: string;
@@ -7,6 +8,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const sections = [
@@ -29,54 +31,136 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
     if (onSectionChange) {
       onSectionChange(sectionId);
     }
+    setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Aquí iría la lógica de logout
+    console.log('Logout clicked');
   };
 
   return (
-    <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>◆</span>
-          {!isCollapsed && <span className={styles.logoText}>EN</span>}
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={`${styles.overlay} ${isMenuOpen ? styles.visible : ''}`}
+        onClick={() => setIsMenuOpen(false)}
+      ></div>
+
+      {/* Desktop Sidebar */}
+      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+        {/* Desktop Header */}
+        <div className={styles.desktopHeader}>
+          <div className={styles.logo}>
+            <img src={iconSmall} alt="English Notebook" className={styles.logoImg} />
+            {!isCollapsed && <span className={styles.logoText}>EN</span>}
+          </div>
+          <button
+            className={styles.toggleBtn}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? 'Expand' : 'Collapse'}
+          >
+            <span className={styles.toggleIcon}>{isCollapsed ? '▶' : '◀'}</span>
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className={styles.divider}></div>
+
+        {/* Desktop Navigation Menu */}
+        <nav className={styles.nav}>
+          <ul className={styles.menu}>
+            {sections.map((section) => (
+              <li key={section.id}>
+                <button
+                  className={`${styles.navLink} ${activeSection === section.id ? styles.active : ''}`}
+                  onClick={() => handleSectionClick(section.id)}
+                  title={isCollapsed ? section.label : ''}
+                >
+                  <span className={styles.icon}>{section.icon}</span>
+                  {!isCollapsed && <span className={styles.label}>{section.label}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Desktop Footer */}
+        <div className={styles.footer}>
+          <button 
+            className={styles.logoutBtn} 
+            onClick={handleLogout}
+            title={isCollapsed ? 'Logout' : ''}
+          >
+            <span className={styles.logoutIcon}>⊗</span>
+            {!isCollapsed && <span>Logout</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Top Bar */}
+      <header className={styles.mobileHeader}>
+        <div className={styles.mobileLogo}>
+          <img src={iconSmall} alt="English Notebook" className={styles.mobileLogoImg} />
+          <span className={styles.mobileLogoText}>EN</span>
         </div>
         <button
-          className={styles.toggleBtn}
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          title={isCollapsed ? 'Expand' : 'Collapse'}
+          className={styles.hamburger}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          title={isMenuOpen ? 'Close menu' : 'Open menu'}
         >
-          <span className={styles.toggleIcon}>{isCollapsed ? '›' : '‹'}</span>
+          <span className={`${styles.hamburgerLine} ${isMenuOpen ? styles.line1 : ''}`}></span>
+          <span className={`${styles.hamburgerLine} ${isMenuOpen ? styles.line2 : ''}`}></span>
+          <span className={`${styles.hamburgerLine} ${isMenuOpen ? styles.line3 : ''}`}></span>
         </button>
-      </div>
+      </header>
 
-      {/* Divider */}
-      <div className={styles.divider}></div>
+      {/* Mobile Side Menu */}
+      <aside className={`${styles.mobileSidebar} ${isMenuOpen ? styles.open : ''}`}>
+        {/* Mobile Menu Header */}
+        <div className={styles.mobileMenuHeader}>
+          <div className={styles.mobileMenuLogo}>
+            <img src={iconSmall} alt="English Notebook" className={styles.mobileMenuLogoImg} />
+            <span className={styles.mobileMenuLogoText}>English Notebook</span>
+          </div>
+          <button
+            className={styles.closeBtn}
+            onClick={() => setIsMenuOpen(false)}
+            title="Close menu"
+          >
+            <span className={styles.closeIcon}>×</span>
+          </button>
+        </div>
 
-      {/* Navigation Menu */}
-      <nav className={styles.nav}>
-        <ul className={styles.menu}>
-          {sections.map((section) => (
-            <li key={section.id}>
-              <button
-                className={`${styles.navLink} ${activeSection === section.id ? styles.active : ''}`}
-                onClick={() => handleSectionClick(section.id)}
-                title={isCollapsed ? section.label : ''}
-              >
-                <span className={styles.icon}>{section.icon}</span>
-                {!isCollapsed && <span className={styles.label}>{section.label}</span>}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+        {/* Mobile Divider */}
+        <div className={styles.mobileDivider}></div>
 
-      {/* Footer */}
-      <div className={styles.footer}>
-        <button className={styles.logoutBtn} title="Logout">
-          <span className={styles.logoutIcon}>⊗</span>
-          {!isCollapsed && <span>Logout</span>}
-        </button>
-      </div>
-    </aside>
+        {/* Mobile Navigation Menu */}
+        <nav className={styles.mobileNav}>
+          <ul className={styles.mobileMenu}>
+            {sections.map((section) => (
+              <li key={section.id}>
+                <button
+                  className={`${styles.mobileNavLink} ${activeSection === section.id ? styles.mobileActive : ''}`}
+                  onClick={() => handleSectionClick(section.id)}
+                >
+                  <span className={styles.mobileIcon}>{section.icon}</span>
+                  <span className={styles.mobileLabel}>{section.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Mobile Footer */}
+        <div className={styles.mobileFooter}>
+          <button className={styles.mobileLogoutBtn} onClick={handleLogout}>
+            <span className={styles.mobileLogoutIcon}>⊗</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 
