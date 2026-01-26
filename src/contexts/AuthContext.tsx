@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { login as loginAPI, register as registerAPI, logout as logoutAPI, verifyToken } from '../api/auth.api';
 import { tokenService } from '../services/token.service';
 import type { User, LoginRequest, RegisterRequest, AuthContextType } from '../types';

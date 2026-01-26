@@ -1,4 +1,5 @@
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
+import type { ChangeEvent } from 'react';
 
 export const useForm = <T extends Record<string, any>>(initialValues: T) => {
   const [values, setValues] = useState<T>(initialValues);

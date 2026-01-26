@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import iconSmall from '../../assets/icons/icon-small.png';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
   activeSection?: string;
@@ -10,6 +12,9 @@ interface NavbarProps {
 export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const sections = [
     { id: 'dashboard', label: 'Dashboard', icon: '◆' },
@@ -34,21 +39,68 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
     setIsMenuOpen(false);
   };
 
-  const handleLogout = () => {
-    // Aquí iría la lógica de logout
-    console.log('Logout clicked');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if logout fails, clear local state and redirect
+      navigate('/login');
+    }
   };
+
+  const handleKeyDown = (event: React.KeyboardEvent, sectionId: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleSectionClick(sectionId);
+    }
+  };
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const handleHamburgerClick = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Close mobile menu on escape
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMenuOpen]);
+
+  // Focus management for mobile menu
+  useEffect(() => {
+    if (isMenuOpen && sidebarRef.current) {
+      const firstLink = sidebarRef.current.querySelector('[role="menuitem"]') as HTMLElement;
+      if (firstLink) firstLink.focus();
+    }
+  }, [isMenuOpen]);
 
   return (
     <>
       {/* Mobile Overlay */}
-      <div 
+      <div
         className={`${styles.overlay} ${isMenuOpen ? styles.visible : ''}`}
         onClick={() => setIsMenuOpen(false)}
+        aria-hidden={!isMenuOpen}
       ></div>
 
       {/* Desktop Sidebar */}
-      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+      <aside
+        ref={sidebarRef}
+        className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}
+        role="navigation"
+        aria-label="Main navigation"
+      >
         {/* Desktop Header */}
         <div className={styles.desktopHeader}>
           <div className={styles.logo}>
@@ -57,8 +109,9 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
           </div>
           <button
             className={styles.toggleBtn}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? 'Expand' : 'Collapse'}
+            onClick={handleToggleCollapse}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <span className={styles.toggleIcon}>{isCollapsed ? '▶' : '◀'}</span>
           </button>
@@ -69,15 +122,19 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
 
         {/* Desktop Navigation Menu */}
         <nav className={styles.nav}>
-          <ul className={styles.menu}>
+          <ul className={styles.menu} role="menubar">
             {sections.map((section) => (
-              <li key={section.id}>
+              <li key={section.id} role="none">
                 <button
                   className={`${styles.navLink} ${activeSection === section.id ? styles.active : ''}`}
                   onClick={() => handleSectionClick(section.id)}
+                  onKeyDown={(e) => handleKeyDown(e, section.id)}
                   title={isCollapsed ? section.label : ''}
+                  aria-label={section.label}
+                  role="menuitem"
+                  aria-current={activeSection === section.id ? 'page' : undefined}
                 >
-                  <span className={styles.icon}>{section.icon}</span>
+                  <span className={styles.icon} aria-hidden="true">{section.icon}</span>
                   {!isCollapsed && <span className={styles.label}>{section.label}</span>}
                 </button>
               </li>
@@ -87,12 +144,13 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
 
         {/* Desktop Footer */}
         <div className={styles.footer}>
-          <button 
-            className={styles.logoutBtn} 
+          <button
+            className={styles.logoutBtn}
             onClick={handleLogout}
             title={isCollapsed ? 'Logout' : ''}
+            aria-label="Logout"
           >
-            <span className={styles.logoutIcon}>⊗</span>
+            <span className={styles.logoutIcon} aria-hidden="true">⊗</span>
             {!isCollapsed && <span>Logout</span>}
           </button>
         </div>
@@ -106,8 +164,10 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         </div>
         <button
           className={styles.hamburger}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={handleHamburgerClick}
           title={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMenuOpen}
         >
           <span className={`${styles.hamburgerLine} ${isMenuOpen ? styles.line1 : ''}`}></span>
           <span className={`${styles.hamburgerLine} ${isMenuOpen ? styles.line2 : ''}`}></span>
@@ -116,7 +176,11 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
       </header>
 
       {/* Mobile Side Menu */}
-      <aside className={`${styles.mobileSidebar} ${isMenuOpen ? styles.open : ''}`}>
+      <aside
+        className={`${styles.mobileSidebar} ${isMenuOpen ? styles.open : ''}`}
+        role="navigation"
+        aria-label="Mobile navigation"
+      >
         {/* Mobile Menu Header */}
         <div className={styles.mobileMenuHeader}>
           <div className={styles.mobileMenuLogo}>
@@ -127,6 +191,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
             className={styles.closeBtn}
             onClick={() => setIsMenuOpen(false)}
             title="Close menu"
+            aria-label="Close menu"
           >
             <span className={styles.closeIcon}>×</span>
           </button>
@@ -137,14 +202,18 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
 
         {/* Mobile Navigation Menu */}
         <nav className={styles.mobileNav}>
-          <ul className={styles.mobileMenu}>
+          <ul className={styles.mobileMenu} role="menubar">
             {sections.map((section) => (
-              <li key={section.id}>
+              <li key={section.id} role="none">
                 <button
                   className={`${styles.mobileNavLink} ${activeSection === section.id ? styles.mobileActive : ''}`}
                   onClick={() => handleSectionClick(section.id)}
+                  onKeyDown={(e) => handleKeyDown(e, section.id)}
+                  aria-label={section.label}
+                  role="menuitem"
+                  aria-current={activeSection === section.id ? 'page' : undefined}
                 >
-                  <span className={styles.mobileIcon}>{section.icon}</span>
+                  <span className={styles.mobileIcon} aria-hidden="true">{section.icon}</span>
                   <span className={styles.mobileLabel}>{section.label}</span>
                 </button>
               </li>
@@ -154,8 +223,12 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
 
         {/* Mobile Footer */}
         <div className={styles.mobileFooter}>
-          <button className={styles.mobileLogoutBtn} onClick={handleLogout}>
-            <span className={styles.mobileLogoutIcon}>⊗</span>
+          <button
+            className={styles.mobileLogoutBtn}
+            onClick={handleLogout}
+            aria-label="Logout"
+          >
+            <span className={styles.mobileLogoutIcon} aria-hidden="true">⊗</span>
             <span>Logout</span>
           </button>
         </div>

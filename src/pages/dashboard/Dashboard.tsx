@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
 import styles from './Dashboard.module.css';
-import { Navbar } from '../../components';
+import { Navbar } from '../../components/navbar/Navbar';
+import Profile from '../profile';
 
 export const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -31,7 +32,7 @@ export const Dashboard = () => {
       case 'achievements':
         return <AchievementsSection />;
       case 'profile':
-        return <ProfileSection />;
+        return <Profile />;
       default:
         return <MainDashboardSection />;
     }
@@ -333,40 +334,6 @@ const AchievementsSection = () => (
         <h3 className={styles.achievementTitle}>Locutor Fluido</h3>
         <p className={styles.achievementDesc}>Completa 50 conversaciones</p>
       </div>
-    </div>
-  </section>
-);
-
-/* Profile Section */
-const ProfileSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}>👤 Mi Perfil</h1>
-      <p className={styles.subtitle}>Administra tu información personal</p>
-    </div>
-    <div className={styles.profileCard}>
-      <div className={styles.profileHeader}>
-        <div className={styles.profileAvatar}>👨‍💼</div>
-        <div className={styles.profileInfo}>
-          <h2 className={styles.profileName}>Santiago Pérez</h2>
-          <p className={styles.profileEmail}>santiago@example.com</p>
-        </div>
-      </div>
-      <div className={styles.profileStats}>
-        <div className={styles.profileStatItem}>
-          <span className={styles.statLabel}>Nivel Actual</span>
-          <span className={styles.statValue}>Intermedio</span>
-        </div>
-        <div className={styles.profileStatItem}>
-          <span className={styles.statLabel}>Racha</span>
-          <span className={styles.statValue}>7 días</span>
-        </div>
-        <div className={styles.profileStatItem}>
-          <span className={styles.statLabel}>Total de Puntos</span>
-          <span className={styles.statValue}>1,250</span>
-        </div>
-      </div>
-      <button className={styles.primaryButton}>Editar Perfil</button>
     </div>
   </section>
 );
