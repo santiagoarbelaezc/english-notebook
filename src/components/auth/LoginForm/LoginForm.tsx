@@ -76,6 +76,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           </div>
           <h1 className={styles.mainTitle}>English Notebook</h1>
           <p className={styles.subtitle}>Your Personal Learning Companion</p>
+          <div className={styles.creditsSection}>
+            <p className={styles.creditsTitle}>Creator</p>
+            <p className={styles.creditsText}>Made by: Santiago Arbelaez Contreras</p>
+            <p className={styles.creditsYear}>© 2026</p>
+          </div>
           
         </div>
       </div>

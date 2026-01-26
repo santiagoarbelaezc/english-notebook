@@ -18,7 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (tokenService.hasTokens()) {
           const token = tokenService.getAccessToken();
           console.log('🔑 Token encontrado, verificando...', token?.substring(0, 20) + '...');
-          
+
           try {
             const data = await verifyToken();
             console.log('✅ Token verificado correctamente:', data);
@@ -32,7 +32,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           } catch (err: any) {
             // Si hay error verificando token, limpiar tokens y continuar
             console.warn('⚠️ Error verificando token:', err?.message);
-            tokenService.clearTokens();
+
+            // Si el error indica token corrupto, limpiar inmediatamente
+            if (err?.message?.includes('next is not a function') ||
+                err?.message?.includes('Token corrupto')) {
+              console.error('🚨 Token corrupto detectado, limpiando...');
+              tokenService.clearTokens();
+            } else {
+              tokenService.clearTokens();
+            }
           }
         } else {
           console.log('ℹ️ No hay token guardado, usuario anónimo');

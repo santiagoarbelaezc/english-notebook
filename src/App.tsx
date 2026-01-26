@@ -6,6 +6,7 @@ import Login from './pages/auth/Login';
 import { Dashboard } from './pages/dashboard';
 import './App.css';
 
+
 // Componente para rutas protegidas
 const ProtectedDashboard = () => {
   const { user, isLoading } = useAuth();
@@ -29,7 +30,11 @@ const ProtectedDashboard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Dashboard />;
+  return (
+    <>
+      <Dashboard />
+    </>
+  );
 };
 
 function App() {
