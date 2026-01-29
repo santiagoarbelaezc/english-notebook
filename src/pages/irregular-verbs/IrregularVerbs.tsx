@@ -12,6 +12,15 @@ import {
 import type { IrregularVerb, CreateIrregularVerbRequest, UpdateIrregularVerbRequest } from '../../types';
 import styles from './IrregularVerbs.module.css';
 
+interface VerbCardProps {
+  verb: IrregularVerb;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggleFavorite: () => void;
+  onAddExample?: (verbId: string) => void;
+  onRemoveExample?: (verbId: string, exampleIndex: number) => void;
+}
+
 export const IrregularVerbs: React.FC = () => {
   const [verbs, setVerbs] = useState<IrregularVerb[]>([]);
   const [filteredVerbs, setFilteredVerbs] = useState<IrregularVerb[]>([]);
@@ -285,7 +294,7 @@ export const IrregularVerbs: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.pageContent}>
       <div className={styles.header}>
         <h1 className={styles.title}>Irregular Verbs</h1>
         <p className={styles.subtitle}>Master the most common irregular verbs</p>
@@ -447,15 +456,6 @@ export const IrregularVerbs: React.FC = () => {
     </div>
   );
 };
-
-interface VerbCardProps {
-  verb: IrregularVerb;
-  onEdit: () => void;
-  onDelete: () => void;
-  onToggleFavorite: () => void;
-  onAddExample?: (verbId: string) => void;
-  onRemoveExample?: (verbId: string, exampleIndex: number) => void;
-}
 
 const VerbCard: React.FC<VerbCardProps> = ({ verb, onEdit, onDelete, onToggleFavorite, onAddExample, onRemoveExample }) => {
   return (

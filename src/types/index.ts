@@ -6,3 +6,4 @@ export * from './flashcard.types';
 export * from './grammar.types';
 export * from './vocabulary.types';
 export * from './irregularVerbs.types';
+export * from './dailyPhrases.types';

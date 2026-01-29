@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import styles from './Dashboard.module.css';
-import { Navbar } from '../../components/navbar/Navbar';
 import Profile from '../profile';
 import IrregularVerbs from '../irregular-verbs';
 import Grammar from '../grammar';
 import Conversations from '../conversations';
+import { getRandomPhrase } from '../../api/dailyPhrases.api';
+import type { DailyPhrase } from '../../types';
 
 export const Dashboard = () => {
+  // @ts-ignore
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const renderContent = () => {
@@ -42,9 +44,8 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className={styles.dashboardContainer}>
-      <Navbar activeSection={activeSection} onSectionChange={setActiveSection} />
-      <main className={styles.mainContent}>{renderContent()}</main>
+    <div className={styles.pageContent}>
+      {renderContent()}
     </div>
   );
 };
@@ -186,21 +187,50 @@ const VocabularySection = () => (
 /* Conversations Section */
 
 /* Daily Phrases Section */
-const DailyPhrasesSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}>⭐ Daily Phrases</h1>
-      <p className={styles.subtitle}>Learn a new phrase every day</p>
-    </div>
-    <div className={styles.card}>
-      <div className={styles.phraseCard}>
-        <p className={styles.phraseText}>"The early bird catches the worm"</p>
-        <p className={styles.phraseTranslation}>The early bird gets the worm</p>
-        <p className={styles.phraseExample}>Example: If you want to get a good job, you have to be an early bird.</p>
+const DailyPhrasesSection = () => {
+  const [dailyPhrase, setDailyPhrase] = useState<DailyPhrase | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDailyPhrase = async () => {
+      try {
+        const response = await getRandomPhrase();
+        setDailyPhrase(response.phrase);
+      } catch (error) {
+        // No phrases available, keep default
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDailyPhrase();
+  }, []);
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>⭐ Daily Phrases</h1>
+        <p className={styles.subtitle}>Learn a new phrase every day</p>
       </div>
-    </div>
-  </section>
-);
+      <div className={styles.card}>
+        {loading ? (
+          <p>Loading...</p>
+        ) : dailyPhrase ? (
+          <div className={styles.phraseCard}>
+            <p className={styles.phraseText}>"{dailyPhrase.phrase}"</p>
+            <p className={styles.phraseTranslation}>{dailyPhrase.translation}</p>
+            <p className={styles.phraseExample}>Type: {dailyPhrase.type}</p>
+          </div>
+        ) : (
+          <div className={styles.phraseCard}>
+            <p className={styles.phraseText}>"The early bird catches the worm"</p>
+            <p className={styles.phraseTranslation}>The early bird gets the worm</p>
+            <p className={styles.phraseExample}>Example: If you want to get a good job, you have to be an early bird.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
 
 /* Daily Commitments Section */
 const DailyCommitmentsSection = () => (

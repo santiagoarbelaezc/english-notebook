@@ -1,55 +1,97 @@
 /* ==========================================================================
-   PROFILE PAGE STYLES
+   PROFILE PAGE - GLASSMORPHISM DESIGN
    ========================================================================== */
 
-.section {
-  animation: fadeInUp 0.6s var(--transition-normal);
-  width: 100%;
+:root {
+  --glass-bg: rgba(0, 0, 0, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --transition-smooth: all 0.3s ease;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
-.header {
-  margin-bottom: 2.5rem;
-  padding: 1rem 0;
-  animation: slideInDown 0.6s var(--transition-normal);
-}
-
-.title {
-  font-family: 'Poppins', 'Inter', var(--font-secondary);
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #e8e8e8;
-  margin: 0 0 0.5rem 0;
-  background: linear-gradient(135deg, #e8e8e8 0%, rgba(127, 179, 213, 0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-  line-height: 1.2;
-}
-
-.subtitle {
-  font-family: var(--font-primary);
-  font-size: 1.1rem;
-  color: var(--color-gray-light);
-  margin: 0;
-  font-weight: 400;
+.pageContent {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 /* ==========================================================================
-   ERROR BANNER
+   PROFILE CONTAINER
    ========================================================================== */
 
-.errorBanner {
-  padding: 1rem;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  border-radius: 0.75rem;
-  color: #ff6b6b;
-  font-family: var(--font-primary);
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
+.profileContainer {
+  max-width: 1400px;
   width: 100%;
+  padding: 1.25rem;
+  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.profileContainer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: gradientRotate 20s ease-in-out infinite;
+}
+
+.profileContainer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   FORM HEADER
+   ========================================================================== */
+
+.formHeader {
+  margin-bottom: 1.75rem;
+  animation: fadeInDown 0.6s ease-out;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.formTitle {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.4rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.formSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  margin: 0;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
 }
 
 /* ==========================================================================
@@ -57,39 +99,56 @@
    ========================================================================== */
 
 .profileCard {
-  padding: 2.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.05) 0%, rgba(127, 179, 213, 0.02) 100%);
-  border: 2px solid rgba(127, 179, 213, 0.15);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
   width: 100%;
-  max-width: none;
-  animation: fadeInUp 0.6s var(--transition-normal);
-  margin: 1.5rem 0;
+  position: relative;
+  z-index: 2;
 }
+
+.profileCard:hover {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   PROFILE HEADER
+   ========================================================================== */
 
 .profileHeader {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(127, 179, 213, 0.1);
+  gap: 1.75rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   width: 100%;
 }
 
 .profileAvatar {
-  width: 140px;
-  height: 140px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.1) 0%, rgba(127, 179, 213, 0.05) 100%);
-  border: 3px solid rgba(127, 179, 213, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+}
+
+.profileAvatar:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.03);
 }
 
 .avatarImage {
@@ -100,16 +159,20 @@
 }
 
 .avatarPlaceholder {
-  font-size: 3rem;
-  color: #7fb3d5;
+  font-size: 2.75rem;
+  color: #a8edea;
   font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .imageUpload {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(127, 179, 213, 0.9);
+  bottom: 8px;
+  right: 8px;
+  background: rgba(102, 126, 234, 0.9);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -118,12 +181,15 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: all 0.2s ease;
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .imageUpload:hover {
-  background: rgba(127, 179, 213, 1);
+  background: rgba(102, 126, 234, 1);
   transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .profileInfo {
@@ -132,38 +198,51 @@
 }
 
 .profileName {
-  font-family: 'Poppins', var(--font-secondary);
-  font-size: 2.2rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.9rem;
   font-weight: 700;
-  color: #e8e8e8;
-  margin: 0 0 0.75rem 0;
+  color: #ffffff;
+  margin: 0 0 0.4rem 0;
   line-height: 1.2;
   word-break: break-word;
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .profileEmail {
-  font-family: var(--font-primary);
-  font-size: 1.1rem;
-  color: #b8b8b8;
-  margin: 0 0 1rem 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 0.9rem 0;
   word-break: break-all;
 }
 
 .profileBio {
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  color: #a8a8a8;
-  margin: 0 0 0.75rem 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 0.6rem 0;
   line-height: 1.5;
   font-style: italic;
   word-break: break-word;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.9rem;
+  border-radius: 9px;
+  border-left: 3px solid #667eea;
 }
 
 .profileLanguage {
-  font-family: var(--font-primary);
-  font-size: 0.95rem;
-  color: #a8a8a8;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
+  padding: 0.6rem 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 7px;
+  display: inline-block;
+  border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
 /* ==========================================================================
@@ -173,50 +252,69 @@
 .editForm {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.9rem;
   width: 100%;
 }
 
 .editInput {
-  padding: 0.875rem 1rem;
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.5rem;
-  color: #e8e8e8;
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  padding: 0.9rem 1.1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
   width: 100%;
+  backdrop-filter: blur(5px);
+}
+
+.editInput:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .editInput:focus {
   outline: none;
-  border-color: #7fb3d5;
-  background: rgba(127, 179, 213, 0.1);
+  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 0 0 3px rgba(102, 126, 234, 0.15),
+    inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.editInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .editSelect {
-  padding: 0.875rem 1rem;
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.5rem;
-  color: #e8e8e8;
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  padding: 0.9rem 1.1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
   cursor: pointer;
   width: 100%;
+  backdrop-filter: blur(5px);
 }
 
 .editSelect:focus {
   outline: none;
-  border-color: #7fb3d5;
-  background: rgba(127, 179, 213, 0.1);
+  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 0 0 3px rgba(102, 126, 234, 0.15),
+    inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
 }
 
 .editSelect option {
   background: rgba(30, 30, 50, 0.95);
-  color: #e8e8e8;
+  color: #ffffff;
 }
 
 /* ==========================================================================
@@ -226,8 +324,8 @@
 .profileStats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1.1rem;
+  margin-bottom: 2.25rem;
   width: 100%;
 }
 
@@ -235,35 +333,42 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  background: rgba(127, 179, 213, 0.05);
-  min-height: 100px;
-  justify-content: center;
+  padding: 1.25rem;
+  border-radius: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: var(--transition-smooth);
   text-align: center;
-  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .profileStatItem:hover {
-  background: rgba(127, 179, 213, 0.08);
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .statLabel {
-  font-family: var(--font-primary);
-  font-size: 0.85rem;
-  color: #a8a8a8;
-  margin: 0 0 0.75rem 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 0.6rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .statValue {
-  font-family: 'Poppins', var(--font-secondary);
-  font-size: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #7fb3d5;
+  color: #667eea;
   margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ==========================================================================
@@ -271,46 +376,51 @@
    ========================================================================== */
 
 .detailedStats {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2.25rem;
   width: 100%;
 }
 
 .statsTitle {
-  font-family: 'Poppins', var(--font-secondary);
-  font-size: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
   font-weight: 600;
-  color: #e8e8e8;
+  color: #ffffff;
   margin: 0 0 1.5rem 0;
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.1rem;
   width: 100%;
 }
 
 .statCard {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  background: rgba(127, 179, 213, 0.03);
-  border: 1px solid rgba(127, 179, 213, 0.1);
-  transition: all 0.2s ease;
-  min-height: 100px;
+  gap: 1.1rem;
+  padding: 1.25rem;
+  border-radius: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(10px);
 }
 
 .statCard:hover {
-  background: rgba(127, 179, 213, 0.08);
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(127, 179, 213, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .statIcon {
-  font-size: 2.5rem;
-  min-width: 60px;
+  font-size: 2.25rem;
+  min-width: 55px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -322,19 +432,24 @@
 
 .statNumber {
   display: block;
-  font-family: 'Poppins', var(--font-secondary);
-  font-size: 1.8rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #7fb3d5;
-  margin: 0 0 0.25rem 0;
+  color: #667eea;
+  margin: 0 0 0.2rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .statDesc {
-  font-family: var(--font-primary);
-  font-size: 0.9rem;
-  color: #b8b8b8;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
   word-break: break-word;
+  font-weight: 500;
 }
 
 /* ==========================================================================
@@ -343,39 +458,39 @@
 
 .actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.1rem;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  margin-top: 2rem;
-  padding: 1.5rem 0;
+  margin-top: 2.25rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .primaryButton {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #7fb3d5 0%, #5dade2 100%);
+  padding: 0.9rem 2.25rem;
+  background: var(--gradient-primary);
   color: #ffffff;
   border: none;
-  border-radius: 0.75rem;
-  font-family: 'Poppins', var(--font-secondary);
+  border-radius: 11px;
+  font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(127, 179, 213, 0.3);
-  min-width: 180px;
+  box-shadow: 
+    0 7px 22px rgba(102, 126, 234, 0.3),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+  min-width: 190px;
   height: 48px;
   flex: 1;
-  max-width: 250px;
+  max-width: 280px;
   position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .primaryButton::before {
@@ -394,322 +509,184 @@
 }
 
 .primaryButton:hover {
+  background: var(--gradient-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(127, 179, 213, 0.4);
-  background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+  box-shadow: 
+    0 10px 25px rgba(244, 143, 177, 0.4),
+    0 5px 12px rgba(0, 0, 0, 0.3);
 }
 
 .primaryButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
-  box-shadow: 0 2px 8px rgba(127, 179, 213, 0.2);
-}
-
-.primaryButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(127, 179, 213, 0.4);
-}
-
-.primaryButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
+  box-shadow: 0 2px 7px rgba(102, 126, 234, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 .secondaryButton {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.1) 0%, rgba(127, 179, 213, 0.05) 100%);
-  color: #7fb3d5;
-  border: 2px solid rgba(127, 179, 213, 0.3);
-  border-radius: 0.75rem;
-  font-family: 'Poppins', var(--font-secondary);
+  padding: 0.9rem 2.25rem;
+  background: rgba(0, 0, 0, 0.3);
+  color: #a8edea;
+  border: 2px solid rgba(168, 237, 234, 0.3);
+  border-radius: 11px;
+  font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 180px;
+  min-width: 190px;
   height: 48px;
   flex: 1;
-  max-width: 250px;
+  max-width: 280px;
   position: relative;
   backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
 }
 
 .secondaryButton:hover {
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.2) 0%, rgba(127, 179, 213, 0.1) 100%);
-  border-color: rgba(127, 179, 213, 0.6);
+  background: rgba(168, 237, 234, 0.1);
+  border-color: rgba(168, 237, 234, 0.6);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(127, 179, 213, 0.2);
-  color: #5dade2;
+  box-shadow: 0 7px 18px rgba(168, 237, 234, 0.2);
+  color: #ffffff;
 }
 
-/* Estilo especial para el botón de progreso completo */
 .secondaryButton:nth-child(2) {
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(78, 205, 196, 0.05) 100%);
+  background: rgba(0, 0, 0, 0.3);
   border-color: rgba(78, 205, 196, 0.3);
   color: #4ecdc4;
+  padding-left: 3.25rem;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding-left: 3rem;
+  min-width: 235px;
+  max-width: 330px;
 }
 
 .secondaryButton:nth-child(2)::before {
   content: '📊';
   position: absolute;
-  left: 1rem;
+  left: 1.1rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.2rem;
+  z-index: 1;
 }
 
 .secondaryButton:nth-child(2):hover {
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(78, 205, 196, 0.1) 100%);
+  background: rgba(78, 205, 196, 0.1);
   border-color: rgba(78, 205, 196, 0.6);
-  color: #26a69a;
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.3);
+  color: #ffffff;
+  box-shadow: 0 7px 18px rgba(78, 205, 196, 0.3);
+}
+
+/* ==========================================================================
+   ERROR MESSAGES
+   ========================================================================== */
+
+.globalError {
+  padding: 0.9rem 1.25rem;
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff8787;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 11px;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+  animation: slideInDown 0.4s ease-out;
+  font-family: 'Inter', sans-serif;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
 /* ==========================================================================
    LOADING & ERROR STATES
    ========================================================================== */
 
-.loading {
+.loadingContainer,
+.errorContainer {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  min-height: 400px;
+  min-height: 450px;
   width: 100%;
+}
+
+.loadingCard,
+.errorCard {
+  padding: 2.25rem;
+  border-radius: 22px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.loadingCard p,
+.errorCard p {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 1.25rem 0;
 }
 
 .spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(127, 179, 213, 0.1);
-  border-top: 4px solid #7fb3d5;
+  width: 55px;
+  height: 55px;
+  border: 4px solid rgba(102, 126, 234, 0.1);
+  border-top: 4px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 2rem;
-}
-
-.loading p {
-  font-family: var(--font-primary);
-  font-size: 1.2rem;
-  color: #b8b8b8;
-  margin: 0;
-}
-
-.error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  min-height: 400px;
-  text-align: center;
-  width: 100%;
-}
-
-.error p {
-  font-family: var(--font-primary);
-  font-size: 1.3rem;
-  color: #ff6b6b;
-  margin: 0 0 2rem 0;
-  max-width: 500px;
+  margin: 0 auto 1.25rem;
 }
 
 .retryButton {
-  padding: 1rem 2rem;
-  background: rgba(255, 107, 107, 0.1);
-  color: #ff6b6b;
-  border: 1px solid #ff6b6b;
-  border-radius: 0.75rem;
-  font-family: var(--font-primary);
-  font-size: 1.1rem;
+  padding: 0.9rem 2.25rem;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 11px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 180px;
+  transition: var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 190px;
 }
 
 .retryButton:hover {
-  background: rgba(255, 107, 107, 0.2);
+  background: var(--gradient-secondary);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 25px rgba(244, 143, 177, 0.4),
+    0 5px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN
-   ========================================================================== */
-
-@media (max-width: 1024px) {
-  .profileStats {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .profileHeader {
-    gap: 1.5rem;
-  }
-
-  .profileAvatar {
-    width: 130px;
-    height: 130px;
-  }
-
-  .profileName {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .profileCard {
-    padding: 2rem;
-  }
-
-  .profileHeader {
-    flex-direction: column;
-    text-align: center;
-    gap: 1.5rem;
-  }
-
-  .profileAvatar {
-    width: 120px;
-    height: 120px;
-  }
-
-  .avatarPlaceholder {
-    font-size: 2.5rem;
-  }
-
-  .profileName {
-    font-size: 1.8rem;
-  }
-
-  .profileStats {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .profileStatItem {
-    padding: 1.25rem;
-  }
-
-  .statsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .primaryButton,
-  .secondaryButton {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    padding: 0.875rem 1.5rem;
-    height: 44px;
-    font-size: 0.95rem;
-    justify-content: center;
-  }
-
-  .secondaryButton:nth-child(2) {
-    padding-left: 2.5rem;
-    justify-content: center;
-  }
-
-  .secondaryButton:nth-child(2)::before {
-    font-size: 1rem;
-    left: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 2rem;
-  }
-
-  .profileCard {
-    padding: 1.5rem;
-  }
-
-  .profileAvatar {
-    width: 110px;
-    height: 110px;
-  }
-
-  .avatarPlaceholder {
-    font-size: 2rem;
-  }
-
-  .imageUpload {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
-  }
-
-  .profileName {
-    font-size: 1.6rem;
-  }
-
-  .profileEmail {
-    font-size: 1rem;
-  }
-
-  .profileBio,
-  .profileLanguage {
-    font-size: 0.9rem;
-  }
-
-  .statCard {
-    padding: 1.25rem;
-  }
-
-  .statIcon {
-    font-size: 2rem;
-    min-width: 50px;
-  }
-
-  .statNumber {
-    font-size: 1.6rem;
-  }
-
-  .editInput,
-  .editSelect {
-    padding: 0.75rem;
-    font-size: 0.95rem;
-  }
-
-  .primaryButton,
-  .secondaryButton {
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    height: 48px;
-  }
-}
-
-/* ==========================================================================
-   ANIMATIONS
+   KEYFRAME ANIMATIONS
    ========================================================================== */
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-25px);
   }
   to {
     opacity: 1;
@@ -720,7 +697,7 @@
 @keyframes slideInDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-25px);
   }
   to {
     opacity: 1;
@@ -728,7 +705,216 @@
   }
 }
 
+@keyframes gradientRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .pageContent {
+    padding: 1.25rem;
+  }
+  
+  .profileContainer {
+    max-width: 900px;
+    padding: 1.1rem;
+  }
+  
+  .profileCard {
+    padding: 1.75rem;
+  }
+  
+  .formTitle {
+    font-size: 2rem;
+  }
+  
+  .formSubtitle {
+    font-size: 1rem;
+  }
+  
+  .profileStats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .profileAvatar {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profileName {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profileContainer {
+    padding: 0.9rem;
+  }
+  
+  .profileCard {
+    padding: 1.25rem;
+  }
+  
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+  
+  .profileAvatar {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .avatarPlaceholder {
+    font-size: 2.25rem;
+  }
+  
+  .profileName {
+    font-size: 1.5rem;
+  }
+  
+  .profileStats {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+  
+  .profileStatItem {
+    padding: 1.1rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 0.8rem 1.25rem;
+    height: 42px;
+    font-size: 0.9rem;
+    justify-content: center;
+  }
+  
+  .secondaryButton:nth-child(2) {
+    padding-left: 2.25rem;
+    justify-content: center;
+  }
+  
+  .secondaryButton:nth-child(2)::before {
+    font-size: 0.95rem;
+    left: 0.7rem;
+  }
+  
+  .formTitle {
+    font-size: 1.7rem;
+  }
+  
+  .formSubtitle {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContent {
+    padding: 1rem;
+  }
+  
+  .profileContainer {
+    padding: 0.6rem;
+  }
+  
+  .profileCard {
+    padding: 1rem;
+  }
+  
+  .profileAvatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .avatarPlaceholder {
+    font-size: 1.9rem;
+  }
+  
+  .imageUpload {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+  
+  .profileName {
+    font-size: 1.3rem;
+  }
+  
+  .profileEmail {
+    font-size: 0.85rem;
+  }
+  
+  .profileBio,
+  .profileLanguage {
+    font-size: 0.8rem;
+  }
+  
+  .statCard {
+    padding: 0.9rem;
+  }
+  
+  .statIcon {
+    font-size: 1.9rem;
+    min-width: 45px;
+  }
+  
+  .statNumber {
+    font-size: 1.5rem;
+  }
+  
+  .editInput,
+  .editSelect {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    padding: 0.8rem 1.25rem;
+    font-size: 0.85rem;
+    height: 40px;
+  }
+  
+  .formTitle {
+    font-size: 1.4rem;
+  }
+  
+  .formSubtitle {
+    font-size: 0.85rem;
+  }
 }

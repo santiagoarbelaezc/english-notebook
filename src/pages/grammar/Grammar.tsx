@@ -266,7 +266,7 @@ export const Grammar: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.pageContent}>
       <div className={styles.header}>
         <h1 className={styles.title}>Grammar Rules</h1>
         <p className={styles.subtitle}>Master English grammar with detailed explanations</p>

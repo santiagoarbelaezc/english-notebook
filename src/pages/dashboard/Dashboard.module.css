@@ -2,19 +2,8 @@
    DASHBOARD CONTAINER & LAYOUT
    ========================================================================== */
 
-.dashboardContainer {
-  min-height: 100vh;
-  background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(25, 25, 45, 0.98) 100%);
-  color: #e8e8e8;
-}
-
-.mainContent {
-  margin-left: 280px;
-  padding: 2rem 4rem;
-  max-width: calc(100% - 280px);
-  width: 100%;
-  min-height: 100vh;
-  overflow-y: auto;
+.pageContent {
+  padding: 2rem;
 }
 
 /* ==========================================================================

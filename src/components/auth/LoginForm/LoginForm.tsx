@@ -69,7 +69,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
         <div className={styles.header}>
           <div className={styles.logoWrapper}>
             <img 
-              src="/src/assets/icons/icon.png" 
+              src="/src/assets/icons/husky.png" 
               alt="English Notebook Logo" 
               className={styles.logo}
             />
@@ -81,7 +81,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             <p className={styles.creditsText}>Made by: Santiago Arbelaez Contreras</p>
             <p className={styles.creditsYear}>© 2026</p>
           </div>
-          
         </div>
       </div>
 
@@ -95,65 +94,65 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
         {authError && <div className={styles.globalError}>{authError}</div>}
 
         <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label htmlFor="email" className={styles.label}>
-            Email Address
-          </label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            className={styles.input}
-            placeholder="your@email.com"
-            value={values.email}
-            onChange={handleInputChange}
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}>
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              className={styles.input}
+              placeholder="your@email.com"
+              value={values.email}
+              onChange={handleInputChange}
+              disabled={isLoading}
+            />
+            {validationErrors.email && (
+              <span className={styles.error}>{validationErrors.email}</span>
+            )}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="password" className={styles.label}>
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              className={styles.input}
+              placeholder="••••••••"
+              value={values.password}
+              onChange={handleInputChange}
+              disabled={isLoading}
+            />
+            {validationErrors.password && (
+              <span className={styles.error}>{validationErrors.password}</span>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className={styles.button}
             disabled={isLoading}
-          />
-          {validationErrors.email && (
-            <span className={styles.error}>{validationErrors.email}</span>
-          )}
+          >
+            {isLoading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className={styles.divider} />
+
+        <div className={styles.footer}>
+          Don't have an account?{' '}
+          <a className={styles.link} onClick={onSwitchToRegister}>
+            Create one now
+          </a>
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="password" className={styles.label}>
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            className={styles.input}
-            placeholder="••••••••"
-            value={values.password}
-            onChange={handleInputChange}
-            disabled={isLoading}
-          />
-          {validationErrors.password && (
-            <span className={styles.error}>{validationErrors.password}</span>
-          )}
+        <div className={styles.bottomNote}>
+          <p>Start your English learning journey today</p>
         </div>
-
-        <button
-          type="submit"
-          className={styles.button}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Signing in...' : 'Sign In'}
-        </button>
-      </form>
-
-      <div className={styles.divider} />
-
-      <div className={styles.footer}>
-        Don't have an account?{' '}
-        <a className={styles.link} onClick={onSwitchToRegister}>
-          Create one now
-        </a>
-      </div>
-
-      <div className={styles.bottomNote}>
-        <p>Start your English learning journey today</p>
-      </div>
       </div>
     </div>
   );

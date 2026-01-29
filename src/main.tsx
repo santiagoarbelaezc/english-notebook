@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import AppRouter from './router/AppRouter'
 import { tokenService } from './services/token.service'
 
 // Función global para debugging (disponible en consola del navegador)
@@ -49,6 +49,6 @@ console.log('- window.debugTokens.healthCheck() - Health check');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppRouter />
   </StrictMode>,
 )

@@ -394,7 +394,7 @@ export const Conversations: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.pageContent}>
       <div className={styles.header}>
         <h1 className={styles.title}>💬 Conversations</h1>
         <p className={styles.subtitle}>Practice and improve your English conversation skills</p>
