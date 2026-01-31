@@ -147,14 +147,14 @@ const DailyPhrases: React.FC = () => {
       {/* Stats */}
       {stats && (
         <div className={styles.stats}>
-          <div className={styles.stat}>
-            <span className={styles.statNumber}>{stats.totalPhrases}</span>
-            <span className={styles.statLabel}>Total Phrases</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statNumber}>{stats.favoritePhrases}</span>
-            <span className={styles.statLabel}>Favorites</span>
-          </div>
+        <div className={styles.statCard}>
+          <span className={styles.statValue}>{stats.totalPhrases}</span>
+          <span className={styles.statLabel}> Total Phrases</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statValue}>{stats.favoritePhrases}</span>
+          <span className={styles.statLabel}> Favorites</span>
+        </div>
         </div>
       )}
 
@@ -165,7 +165,7 @@ const DailyPhrases: React.FC = () => {
           placeholder="Search phrases..."
           value={filters.search}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, search: e.target.value })}
-          className={styles.input}
+          className={styles.searchInput}
         />
         <select
           value={filters.type}
@@ -181,7 +181,7 @@ const DailyPhrases: React.FC = () => {
           <option value="phrase">Phrase</option>
           <option value="saying">Saying</option>
         </select>
-        <label className={styles.checkbox}>
+        <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             checked={filters.isFavorite}
@@ -189,34 +189,36 @@ const DailyPhrases: React.FC = () => {
           />
           Favorites only
         </label>
-        <button onClick={() => setShowAddModal(true)} className={styles.button}>Add Phrase</button>
+        <button onClick={() => setShowAddModal(true)} className={styles.createButton}>Add Phrase</button>
       </div>
 
       {/* Phrases List */}
       <div className={styles.phrasesList}>
         {phrases.map((phrase) => (
-          <div key={phrase._id} className={styles.phraseItem}>
-            <div className={styles.phraseContent}>
-              <p className={styles.phrase}>{phrase.phrase}</p>
-              <p className={styles.translation}>{phrase.translation}</p>
-              <span className={styles.type}>{phrase.type}</span>
-              {phrase.keywords.length > 0 && (
-                <div className={styles.keywords}>
-                  {phrase.keywords.map((keyword, index) => (
-                    <span key={index} className={styles.keyword}>{keyword}</span>
-                  ))}
-                </div>
-              )}
+          <div key={phrase._id} className={styles.phraseCard}>
+            <div className={styles.phraseHeader}>
+              <h3 className={styles.phraseTitle}>{phrase.phrase}</h3>
+              <span className={styles.phraseType}>{phrase.type}</span>
             </div>
-            <div className={styles.actions}>
+            <p className={styles.phraseTranslation}>{phrase.translation}</p>
+            {phrase.keywords.length > 0 && (
+              <div className={styles.phraseKeywords}>
+                <h4>Keywords:</h4>
+                {phrase.keywords.map((keyword, index) => (
+                  <span key={index} className={styles.keyword}>{keyword}</span>
+                ))}
+              </div>
+            )}
+            <div className={styles.phraseActions}>
               <button
-                className={styles.favoriteBtn}
+                className={styles.favoriteButton}
                 onClick={() => handleToggleFavorite(phrase._id)}
+                title="Toggle favorite"
               >
                 {phrase.isFavorite ? '❤️' : '🤍'}
               </button>
               <button
-                className={styles.secondaryButton}
+                className={styles.editButton}
                 onClick={() => {
                   setEditingPhrase(phrase);
                   setShowEditModal(true);
@@ -225,7 +227,7 @@ const DailyPhrases: React.FC = () => {
                 Edit
               </button>
               <button
-                className={styles.dangerButton}
+                className={styles.deleteButton}
                 onClick={() => handleDeletePhrase(phrase._id)}
               >
                 Delete
@@ -291,58 +293,65 @@ const PhraseForm: React.FC<PhraseFormProps> = ({ initialData, onSubmit, onCancel
   return (
     <div className={styles.modal}>
       <div className={styles.modalContent}>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <h3>{initialData ? 'Edit Phrase' : 'Add New Phrase'}</h3>
-          <div className={styles.formGroup}>
-            <label>Phrase</label>
-            <textarea
-              value={formData.phrase}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, phrase: e.target.value })}
-              required
-              className={styles.textarea}
-              rows={4}
-              placeholder="Enter the English phrase..."
-            />
+        <div className={styles.modalHeader}>
+          <h2>{initialData ? 'Edit Phrase' : 'Add New Phrase'}</h2>
+          <button type="button" onClick={onCancel} className={styles.closeButton}>×</button>
+        </div>
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Phrase</label>
+              <textarea
+                value={formData.phrase}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, phrase: e.target.value })}
+                required
+                rows={4}
+                placeholder="Enter the English phrase..."
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Translation</label>
+              <textarea
+                value={formData.translation}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, translation: e.target.value })}
+                required
+                rows={4}
+                placeholder="Enter the translation..."
+              />
+            </div>
           </div>
-          <div className={styles.formGroup}>
-            <label>Translation</label>
-            <textarea
-              value={formData.translation}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, translation: e.target.value })}
-              required
-              className={styles.textarea}
-              rows={4}
-              placeholder="Enter the translation..."
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>Type</label>
-            <select
-              value={formData.type}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, type: e.target.value as any })}
-              className={styles.select}
-            >
-              <option value="phrase">Phrase</option>
-              <option value="idiom">Idiom</option>
-              <option value="expression">Expression</option>
-              <option value="slang">Slang</option>
-              <option value="proverb">Proverb</option>
-              <option value="quote">Quote</option>
-              <option value="saying">Saying</option>
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label>Keywords (comma separated)</label>
-            <input
-              type="text"
-              value={formData.keywords}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, keywords: e.target.value })}
-              className={styles.input}
-            />
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Type</label>
+              <select
+                value={formData.type}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, type: e.target.value as any })}
+                className={styles.formSelect}
+              >
+                <option value="phrase">Phrase</option>
+                <option value="idiom">Idiom</option>
+                <option value="expression">Expression</option>
+                <option value="slang">Slang</option>
+                <option value="proverb">Proverb</option>
+                <option value="quote">Quote</option>
+                <option value="saying">Saying</option>
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Keywords (comma separated)</label>
+              <input
+                type="text"
+                value={formData.keywords}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, keywords: e.target.value })}
+                placeholder="e.g. greeting, formal, business"
+              />
+            </div>
           </div>
           <div className={styles.formActions}>
-            <button type="submit" className={styles.button}> {initialData ? 'Update' : 'Create'}</button>
-            <button type="button" onClick={onCancel} className={styles.secondaryButton}>Cancel</button>
+            <button type="button" onClick={onCancel} className={styles.cancelButton}>Cancel</button>
+            <button type="submit" className={styles.submitButton} disabled={!formData.phrase.trim() || !formData.translation.trim()}>
+              {initialData ? 'Update Phrase' : 'Create Phrase'}
+            </button>
           </div>
         </form>
       </div>

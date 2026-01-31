@@ -31,6 +31,7 @@ export const IrregularVerbs: React.FC = () => {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingVerb, setEditingVerb] = useState<IrregularVerb | null>(null);
+  const [addingExampleToVerb, setAddingExampleToVerb] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   
   // Estado para paginación
@@ -173,18 +174,15 @@ export const IrregularVerbs: React.FC = () => {
     }
   };
 
-  const handleAddExample = async (verbId: string) => {
-    const infinitive = prompt('Enter infinitive form (e.g., I go):');
-    const pastSimple = prompt('Enter past simple form (e.g., I went):');
-    const pastParticiple = prompt('Enter past participle form (e.g., I have gone):');
+  const handleAddExample = (verbId: string) => {
+    setAddingExampleToVerb(verbId);
+  };
 
-    if (infinitive?.trim() && pastSimple?.trim() && pastParticiple?.trim()) {
+  const handleSubmitAddExample = async (exampleData: { infinitive: string; pastSimple: string; pastParticiple: string }) => {
+    if (addingExampleToVerb) {
       try {
-        await addIrregularVerbExample(verbId, {
-          infinitive: infinitive.trim(),
-          pastSimple: pastSimple.trim(),
-          pastParticiple: pastParticiple.trim()
-        });
+        await addIrregularVerbExample(addingExampleToVerb, exampleData);
+        setAddingExampleToVerb(null);
         await loadVerbs();
         await loadStats();
       } catch (err: any) {
@@ -451,6 +449,14 @@ export const IrregularVerbs: React.FC = () => {
           onClose={() => setEditingVerb(null)}
           onSubmit={(data) => handleUpdateVerb(editingVerb._id, data)}
           title="Edit Irregular Verb"
+        />
+      )}
+
+      {addingExampleToVerb && (
+        <AddExampleModal
+          verbId={addingExampleToVerb}
+          onClose={() => setAddingExampleToVerb(null)}
+          onSubmit={handleSubmitAddExample}
         />
       )}
     </div>
@@ -756,6 +762,88 @@ const VerbFormModal: React.FC<VerbFormModalProps> = ({ verb, onClose, onSubmit, 
             </button>
             <button type="submit" className={styles.submitButton}>
               {verb ? 'Update' : 'Create'} Verb
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+interface AddExampleModalProps {
+  verbId: string;
+  onClose: () => void;
+  onSubmit: (verbId: string, example: { infinitive: string; pastSimple: string; pastParticiple: string }) => void;
+}
+
+const AddExampleModal: React.FC<AddExampleModalProps> = ({ verbId, onClose, onSubmit }) => {
+  const [example, setExample] = useState({
+    infinitive: '',
+    pastSimple: '',
+    pastParticiple: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (example.infinitive.trim() && example.pastSimple.trim() && example.pastParticiple.trim()) {
+      onSubmit(verbId, example);
+      onClose();
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setExample(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Add Example</h2>
+          <button onClick={onClose} className={styles.closeButton}>×</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.verbForm}>
+          <div className={styles.formSection}>
+            <div className={styles.sectionTitle}>Example Forms</div>
+            <div className={styles.addExampleInputs}>
+              <input
+                type="text"
+                placeholder="Infinitive (e.g., I go)"
+                value={example.infinitive}
+                onChange={(e) => handleChange('infinitive', e.target.value)}
+                required
+                className={styles.verbFormInput}
+              />
+              <input
+                type="text"
+                placeholder="Past Simple (e.g., I went)"
+                value={example.pastSimple}
+                onChange={(e) => handleChange('pastSimple', e.target.value)}
+                required
+                className={styles.verbFormInput}
+              />
+              <input
+                type="text"
+                placeholder="Past Participle (e.g., I have gone)"
+                value={example.pastParticiple}
+                onChange={(e) => handleChange('pastParticiple', e.target.value)}
+                required
+                className={styles.verbFormInput}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formActions}>
+            <button type="button" onClick={onClose} className={styles.cancelButton}>
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className={styles.submitButton}
+              disabled={!example.infinitive.trim() || !example.pastSimple.trim() || !example.pastParticiple.trim()}
+            >
+              Add Example
             </button>
           </div>
         </form>

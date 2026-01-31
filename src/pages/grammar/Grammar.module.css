@@ -1,11 +1,42 @@
 /* ==========================================================================
-   GRAMMAR PAGE STYLES - DARK THEME
+   GRAMMAR PAGE STYLES - GLASSMORPHISM DESIGN
    ========================================================================== */
+
+:root {
+  --glass-bg: rgba(0, 0, 0, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --transition-smooth: all 0.3s ease;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
 
 .pageContent {
   padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(25, 25, 45, 0.98) 100%);
+}
+
+.pageContent::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: gradientRotate 20s ease-in-out infinite;
 }
 
 .container::before {
@@ -48,14 +79,18 @@
 .title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #e8e8e8;
+  color: #ffffff;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
   font-size: 1.1rem;
-  color: #b8b8b8;
+  color: rgba(255, 255, 255, 0.8);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -72,35 +107,36 @@
 }
 
 .statCard {
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.08) 0%, rgba(127, 179, 213, 0.03) 100%);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
-  border: 1px solid rgba(127, 179, 213, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .statCard:hover {
-  border-color: rgba(127, 179, 213, 0.4);
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.12) 0%, rgba(127, 179, 213, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(127, 179, 213, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .statValue {
   font-size: 2rem;
   font-weight: 800;
-  color: #7fb3d5;
+  color: #ffffff;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .statLabel {
   font-size: 0.9rem;
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -128,29 +164,27 @@
 
 .filterSelect {
   padding: 1rem 1.25rem;
-  border: 2px solid rgba(127, 179, 213, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-size: 1rem;
   font-family: var(--font-primary);
   color: #e8e8e8;
-  background: rgba(15, 15, 30, 0.7);
+  background: rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   min-width: 160px;
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .filterSelect:hover {
-  border-color: rgba(127, 179, 213, 0.4);
-  background: rgba(20, 20, 35, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .filterSelect:focus {
   outline: none;
-  border-color: #7fb3d5;
-  background: rgba(25, 25, 40, 0.9);
+  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .sortControls {
@@ -163,7 +197,7 @@
 .sortLabel {
   font-family: var(--font-primary);
   font-size: 0.9rem;
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -171,15 +205,15 @@
 
 .sortButton {
   padding: 0.75rem 1.25rem;
-  background: rgba(127, 179, 213, 0.1);
-  color: #c8c8c8;
-  border: 1px solid rgba(127, 179, 213, 0.2);
+  background: rgba(102, 126, 234, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-family: 'Poppins', var(--font-secondary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   position: relative;
@@ -187,20 +221,18 @@
 }
 
 .sortButton:hover {
-  background: rgba(127, 179, 213, 0.2);
-  border-color: rgba(127, 179, 213, 0.4);
-  color: #e8e8e8;
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(127, 179, 213, 0.2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .sortButton.activeSort {
-  background: rgba(127, 179, 213, 0.25);
-  color: #7fb3d5;
-  border-color: rgba(127, 179, 213, 0.4);
-  box-shadow:
-    0 0 0 2px rgba(127, 179, 213, 0.2),
-    0 4px 12px rgba(127, 179, 213, 0.3);
+  background: rgba(102, 126, 234, 0.25);
+  color: #a8edea;
+  border-color: rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .checkboxLabel {
@@ -209,24 +241,24 @@
   gap: 0.75rem;
   font-family: var(--font-primary);
   font-size: 0.9rem;
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: color 0.3s ease;
   padding: 0.5rem 1rem;
-  background: rgba(127, 179, 213, 0.05);
+  background: rgba(102, 126, 234, 0.05);
   border-radius: 0.75rem;
-  border: 1px solid rgba(127, 179, 213, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .checkboxLabel:hover {
-  color: #e8e8e8;
-  background: rgba(127, 179, 213, 0.1);
-  border-color: rgba(127, 179, 213, 0.2);
+  color: #ffffff;
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .createButton {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #7fb3d5 0%, #5dade2 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   border: none;
   border-radius: 0.75rem;
@@ -234,20 +266,16 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow:
-    0 4px 15px rgba(127, 179, 213, 0.4),
-    0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .createButton:hover {
-  background: linear-gradient(135deg, #8fbfdf 0%, #6bb5e8 100%);
+  background: var(--gradient-secondary);
   transform: translateY(-3px);
-  box-shadow:
-    0 6px 20px rgba(127, 179, 213, 0.5),
-    0 3px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(244, 143, 177, 0.4);
 }
 
 /* ==========================================================================
@@ -264,23 +292,22 @@
 }
 
 .ruleCard {
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.08) 0%, rgba(127, 179, 213, 0.03) 100%);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  transition: all 0.4s ease;
-  border: 1px solid rgba(127, 179, 213, 0.15);
+  transition: var(--transition-smooth);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .ruleCard:hover {
-  border-color: rgba(127, 179, 213, 0.4);
-  background: linear-gradient(135deg, rgba(127, 179, 213, 0.12) 0%, rgba(127, 179, 213, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
   transform: translateY(-5px);
-  box-shadow:
-    0 12px 30px rgba(127, 179, 213, 0.2),
-    0 6px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .ruleHeader {
@@ -294,53 +321,53 @@
   font-family: 'Poppins', var(--font-secondary);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #e8e8e8;
+  color: #ffffff;
   margin: 0;
   line-height: 1.3;
 }
 
 .ruleCategory {
   font-size: 0.8rem;
-  color: #7fb3d5;
-  background: rgba(127, 179, 213, 0.1);
+  color: #a8edea;
+  background: rgba(102, 126, 234, 0.1);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(127, 179, 213, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
 .ruleDifficulty {
   font-size: 0.75rem;
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 0.5rem;
   text-transform: capitalize;
 }
 
 .ruleDescription {
-  color: #b8b8b8;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .ruleExplanation {
-  color: #d8d8d8;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 1rem;
   line-height: 1.5;
   font-style: italic;
 }
 
 .ruleStructure {
-  background: rgba(20, 20, 35, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   padding: 0.75rem;
   border-radius: 0.5rem;
-  border-left: 3px solid #7fb3d5;
+  border-left: 3px solid #a8edea;
   margin-bottom: 1rem;
 }
 
 .ruleStructure strong {
-  color: #7fb3d5;
+  color: #a8edea;
   font-weight: 600;
 }
 
@@ -349,7 +376,7 @@
 }
 
 .ruleExamples h4 {
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -357,12 +384,12 @@
 }
 
 .exampleItem {
-  background: rgba(15, 15, 30, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
-  border: 1px solid rgba(127, 179, 213, 0.1);
-  color: #e8e8e8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
 }
@@ -372,7 +399,7 @@
 }
 
 .highlightedWords h4 {
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -381,7 +408,7 @@
 
 .highlightedWord {
   display: inline-block;
-  background: linear-gradient(135deg, #7fb3d5 0%, #5dade2 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
@@ -396,7 +423,7 @@
 }
 
 .relatedVocabulary h4 {
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -405,32 +432,32 @@
 
 .vocabulary {
   display: inline-block;
-  background: rgba(127, 179, 213, 0.1);
-  color: #7fb3d5;
+  background: rgba(102, 126, 234, 0.1);
+  color: #a8edea;
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
   margin: 0.25rem 0.25rem 0.25rem 0;
   font-size: 0.8rem;
   font-weight: 600;
-  border: 1px solid rgba(127, 179, 213, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
 .moreVocabulary {
-  color: #7fb3d5;
+  color: #a8edea;
   font-size: 0.8rem;
   font-weight: 600;
   margin-left: 0.5rem;
 }
 
 .ruleNotes {
-  background: rgba(20, 20, 35, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   padding: 0.75rem;
   border-radius: 0.5rem;
-  border-left: 3px solid #5dade2;
+  border-left: 3px solid #a8edea;
 }
 
 .ruleNotes h4 {
-  color: #5dade2;
+  color: #a8edea;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -463,13 +490,13 @@
 }
 
 .editButton {
-  background: rgba(127, 179, 213, 0.2);
-  color: #7fb3d5;
-  border: 1px solid rgba(127, 179, 213, 0.3);
+  background: rgba(102, 126, 234, 0.2);
+  color: #a8edea;
+  border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
 .editButton:hover {
-  background: rgba(127, 179, 213, 0.3);
+  background: rgba(102, 126, 234, 0.3);
   transform: translateY(-2px);
 }
 
@@ -521,33 +548,30 @@
 
 .pageButton {
   padding: 0.75rem 1rem;
-  background: rgba(127, 179, 213, 0.1);
-  color: #c8c8c8;
-  border: 1px solid rgba(127, 179, 213, 0.2);
+  background: rgba(102, 126, 234, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   font-family: 'Poppins', var(--font-secondary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   min-width: 2.5rem;
   text-align: center;
 }
 
 .pageButton:hover {
-  background: rgba(127, 179, 213, 0.2);
-  border-color: rgba(127, 179, 213, 0.4);
-  color: #e8e8e8;
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
 .pageButton.active {
-  background: rgba(127, 179, 213, 0.25);
-  color: #7fb3d5;
-  border-color: rgba(127, 179, 213, 0.4);
-  box-shadow:
-    0 0 0 2px rgba(127, 179, 213, 0.2),
-    0 4px 12px rgba(127, 179, 213, 0.3);
+  background: rgba(102, 126, 234, 0.25);
+  color: #a8edea;
+  border-color: rgba(102, 126, 234, 0.4);
 }
 
 /* ==========================================================================
@@ -598,8 +622,8 @@
   width: 100%;
   height: 100%;
   background:
-    radial-gradient(circle at 30% 30%, rgba(127, 179, 213, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 70% 70%, rgba(127, 179, 213, 0.08) 0%, transparent 50%);
+    radial-gradient(circle at 30% 30%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(244, 143, 177, 0.08) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -619,8 +643,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(127, 179, 213, 0.2);
-  background: linear-gradient(90deg, rgba(127, 179, 213, 0.05) 0%, rgba(127, 179, 213, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(102, 126, 234, 0.1) 100%);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -688,7 +712,7 @@
 .formGroup label {
   font-family: 'Poppins', var(--font-primary);
   font-weight: 600;
-  color: #c8c8c8;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -698,25 +722,25 @@
 .formGroup select,
 .formGroup textarea {
   padding: 0.75rem 1rem;
-  border: 2px solid rgba(127, 179, 213, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-size: 1rem;
   font-family: var(--font-primary);
-  color: #e8e8e8;
-  background: rgba(15, 15, 30, 0.7);
-  transition: all 0.3s ease;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.4);
+  transition: var(--transition-smooth);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #7fb3d5;
-  background: rgba(25, 25, 40, 0.9);
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 0 0 3px rgba(127, 179, 213, 0.1);
+  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    inset 0 2px 10px rgba(0, 0, 0, 0.3),
+    0 0 0 4px rgba(102, 126, 234, 0.15);
 }
 
 .formGroup textarea {
@@ -1008,33 +1032,33 @@
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(127, 179, 213, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cancelButton {
   padding: 0.75rem 1.5rem;
-  background: rgba(127, 179, 213, 0.1);
-  color: #c8c8c8;
-  border: 1px solid rgba(127, 179, 213, 0.2);
+  background: rgba(102, 126, 234, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-family: 'Poppins', var(--font-secondary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .cancelButton:hover {
-  background: rgba(127, 179, 213, 0.2);
-  border-color: rgba(127, 179, 213, 0.4);
-  color: #e8e8e8;
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 .submitButton {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #7fb3d5 0%, #5dade2 100%);
+  background: var(--gradient-primary);
   color: #ffffff;
   border: none;
   border-radius: 0.75rem;
@@ -1042,16 +1066,16 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(127, 179, 213, 0.4);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .submitButton:hover {
-  background: linear-gradient(135deg, #8fbfdf 0%, #6bb5e8 100%);
+  background: var(--gradient-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(127, 179, 213, 0.5);
+  box-shadow: 0 6px 20px rgba(244, 143, 177, 0.4);
 }
 
 .submitButton:disabled {
@@ -1063,6 +1087,29 @@
 /* ==========================================================================
    ANIMATIONS
    ========================================================================== */
+
+@keyframes gradientRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.05);
+  }
+}
 
 @keyframes fadeInUp {
   from {

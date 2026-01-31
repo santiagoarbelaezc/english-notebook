@@ -276,15 +276,15 @@ export const Grammar: React.FC = () => {
         <div className={styles.stats}>
           <div className={styles.statCard}>
             <span className={styles.statNumber}>{stats.totalRules}</span>
-            <span className={styles.statLabel}>Total Rules</span>
+            <span className={styles.statLabel}>  Total Rules</span>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statNumber}>{stats.favoriteRules}</span>
-            <span className={styles.statLabel}>Favorites</span>
+            <span className={styles.statLabel}>  Favorites</span>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statNumber}>{filteredRules.length}</span>
-            <span className={styles.statLabel}>Showing</span>
+            <span className={styles.statLabel}>  Showing</span>
           </div>
         </div>
       )}
