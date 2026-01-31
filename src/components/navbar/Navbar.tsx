@@ -33,6 +33,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
 
   const handleSectionClick = (sectionId: string) => {
     const pageRoutes: { [key: string]: string } = {
+      'dashboard': '/dashboard',
       'daily-phrases': '/daily-phrases',
       'irregular-verbs': '/irregular-verbs',
       'conversations': '/conversations',
