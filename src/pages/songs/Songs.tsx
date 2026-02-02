@@ -510,92 +510,99 @@ const Songs: React.FC = () => {
                 </div>
               )}
 
-              {/* YouTube Player Section */}
-              {selectedSong.youtubeUrl && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Play Song</h3>
-                  <div className={styles.youtubePlayer}>
-                    <YouTube
-                      videoId={getYouTubeVideoId(selectedSong.youtubeUrl) || ''}
-                      opts={{
-                        height: '200',
-                        width: '100%',
-                        playerVars: {
-                          autoplay: 0,
-                          controls: 1,
-                          modestbranding: 1,
-                        },
-                      }}
-                    />
+              <div className={styles.songViewLayout}>
+                {/* YouTube Player Section */}
+                {selectedSong.youtubeUrl && (
+                  <div className={styles.playerSection}>
+                    <div className={styles.section}>
+                      <h3 className={styles.sectionTitle}>Play Song</h3>
+                      <div className={styles.youtubePlayer}>
+                        <YouTube
+                          videoId={getYouTubeVideoId(selectedSong.youtubeUrl) || ''}
+                          opts={{
+                            height: '250',
+                            width: '100%',
+                            playerVars: {
+                              autoplay: 0,
+                              controls: 1,
+                              modestbranding: 1,
+                            },
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Lyrics Section */}
-              <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Lyrics</h3>
-                <div className={styles.lyricsContainer}>
-                  <pre className={styles.lyrics}>{selectedSong.lyrics}</pre>
+                {/* Lyrics and Other Sections */}
+                <div className={styles.lyricsSection}>
+                  {/* Lyrics Section */}
+                  <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>Lyrics</h3>
+                    <div className={styles.lyricsContainer}>
+                      <pre className={styles.lyrics}>{selectedSong.lyrics}</pre>
+                    </div>
+                  </div>
+
+                  {/* Translation Section */}
+                  {selectedSong.translation && (
+                    <div className={styles.section}>
+                      <h3 className={styles.sectionTitle}>Translation</h3>
+                      <div className={styles.translationContainer}>
+                        <pre className={styles.translation}>{selectedSong.translation}</pre>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notes Section */}
+                  {selectedSong.notes && (
+                    <div className={styles.section}>
+                      <h3 className={styles.sectionTitle}>Notes</h3>
+                      <div className={styles.notesContainer}>
+                        <p className={styles.notes}>{selectedSong.notes}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Annotated Vocabulary Section */}
+                  {selectedSong.annotatedVocabulary && selectedSong.annotatedVocabulary.length > 0 && (
+                    <div className={styles.section}>
+                      <h3 className={styles.sectionTitle}>Vocabulary</h3>
+                      <div className={styles.vocabularyList}>
+                        {selectedSong.annotatedVocabulary.map((vocab, index) => (
+                          <div key={index} className={styles.vocabularyItem}>
+                            <div className={styles.vocabularyWord}>
+                              <strong>{vocab.word}</strong>
+                              {vocab.line && <span className={styles.lineNumber}>(Line {vocab.line})</span>}
+                            </div>
+                            <div className={styles.vocabularyMeaning}>{vocab.meaning}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Key Phrases Section */}
+                  {selectedSong.keyPhrases && selectedSong.keyPhrases.length > 0 && (
+                    <div className={styles.section}>
+                      <h3 className={styles.sectionTitle}>Key Phrases</h3>
+                      <div className={styles.phrasesList}>
+                        {selectedSong.keyPhrases.map((phrase, index) => (
+                          <div key={index} className={styles.phraseItem}>
+                            <div className={styles.phraseText}>
+                              <strong>"{phrase.phrase}"</strong>
+                            </div>
+                            <div className={styles.phraseMeaning}>{phrase.meaning}</div>
+                            {phrase.explanation && (
+                              <div className={styles.phraseExplanation}>{phrase.explanation}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Translation Section */}
-              {selectedSong.translation && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Translation</h3>
-                  <div className={styles.translationContainer}>
-                    <pre className={styles.translation}>{selectedSong.translation}</pre>
-                  </div>
-                </div>
-              )}
-
-              {/* Notes Section */}
-              {selectedSong.notes && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Notes</h3>
-                  <div className={styles.notesContainer}>
-                    <p className={styles.notes}>{selectedSong.notes}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Annotated Vocabulary Section */}
-              {selectedSong.annotatedVocabulary && selectedSong.annotatedVocabulary.length > 0 && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Vocabulary</h3>
-                  <div className={styles.vocabularyList}>
-                    {selectedSong.annotatedVocabulary.map((vocab, index) => (
-                      <div key={index} className={styles.vocabularyItem}>
-                        <div className={styles.vocabularyWord}>
-                          <strong>{vocab.word}</strong>
-                          {vocab.line && <span className={styles.lineNumber}>(Line {vocab.line})</span>}
-                        </div>
-                        <div className={styles.vocabularyMeaning}>{vocab.meaning}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Key Phrases Section */}
-              {selectedSong.keyPhrases && selectedSong.keyPhrases.length > 0 && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Key Phrases</h3>
-                  <div className={styles.phrasesList}>
-                    {selectedSong.keyPhrases.map((phrase, index) => (
-                      <div key={index} className={styles.phraseItem}>
-                        <div className={styles.phraseText}>
-                          <strong>"{phrase.phrase}"</strong>
-                        </div>
-                        <div className={styles.phraseMeaning}>{phrase.meaning}</div>
-                        {phrase.explanation && (
-                          <div className={styles.phraseExplanation}>{phrase.explanation}</div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className={styles.modalActions}>
