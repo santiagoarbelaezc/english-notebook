@@ -146,7 +146,7 @@ const Flashcards: React.FC = () => {
     <div className={styles.pageContent}>
       <div className={styles.mainContent}>
         <div className={styles.header}>
-          <h1 className={styles.title}>🃏 Flashcards</h1>
+          <h1 className={styles.title}>Flashcards</h1>
           <p className={styles.subtitle}>
             Master new vocabulary with interactive flashcards
           </p>

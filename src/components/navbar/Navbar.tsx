@@ -1,7 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Files,
+  BookOpen,
+  Library,
+  MessageCircle,
+  MessageSquare,
+  CheckSquare,
+  Zap,
+  Film,
+  Music,
+  FileText,
+  Trophy,
+  User,
+  LogOut,
+  Menu,
+  X
+} from 'lucide-react';
 import styles from './Navbar.module.css';
-import iconSmall from '../../assets/icons/husky.png'; // Cambiado al mismo logo
+import iconSmall from '../../assets/icons/husky.png';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
@@ -16,19 +34,19 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
   const navigate = useNavigate();
 
   const sections = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'flashcards', label: 'Flashcards', icon: '🎴' },
-    { id: 'vocabulary', label: 'Vocabulary', icon: '📝' },
-    { id: 'grammar', label: 'Grammar', icon: '📚' },
-    { id: 'conversations', label: 'Conversations', icon: '💬' },
-    { id: 'daily-phrases', label: 'Daily Phrases', icon: '🗨️' },
-    { id: 'daily-commitments', label: 'Commitments', icon: '✅' },
-    { id: 'irregular-verbs', label: 'Irregular Verbs', icon: '⚡' },
-    { id: 'movies', label: 'Movies', icon: '🎬' },
-    { id: 'songs', label: 'Songs', icon: '🎵' },
-    { id: 'texts', label: 'Texts', icon: '📄' },
-    { id: 'achievements', label: 'Achievements', icon: '🏆' },
-    { id: 'profile', label: 'Profile', icon: '👤' },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { id: 'flashcards', label: 'Flashcards', icon: <Files size={20} /> },
+    { id: 'vocabulary', label: 'Vocabulary', icon: <BookOpen size={20} /> },
+    { id: 'grammar', label: 'Grammar', icon: <Library size={20} /> },
+    { id: 'conversations', label: 'Conversations', icon: <MessageCircle size={20} /> },
+    { id: 'daily-phrases', label: 'Daily Phrases', icon: <MessageSquare size={20} /> },
+    { id: 'daily-commitments', label: 'Commitments', icon: <CheckSquare size={20} /> },
+    { id: 'irregular-verbs', label: 'Irregular Verbs', icon: <Zap size={20} /> },
+    { id: 'movies', label: 'Movies', icon: <Film size={20} /> },
+    { id: 'songs', label: 'Songs', icon: <Music size={20} /> },
+    { id: 'texts', label: 'Texts', icon: <FileText size={20} /> },
+    { id: 'achievements', label: 'Achievements', icon: <Trophy size={20} /> },
+    { id: 'profile', label: 'Profile', icon: <User size={20} /> },
   ];
 
   const handleSectionClick = (sectionId: string) => {
@@ -145,10 +163,10 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
               </li>
             ))}
           </ul>
-          
+
           {/* Subtle Divider */}
           <div className={styles.subtleDivider}></div>
-          
+
           <ul className={styles.menu} role="menubar">
             {sections.slice(4).map((section) => (
               <li key={section.id} role="none">
@@ -178,7 +196,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
             onClick={handleLogout}
             aria-label="Logout"
           >
-            <span className={styles.logoutIcon} aria-hidden="true">🚪</span>
+            <span className={styles.logoutIcon} aria-hidden="true"><LogOut size={20} /></span>
             <span>Logout</span>
           </button>
         </div>
@@ -227,7 +245,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
             title="Close menu"
             aria-label="Close menu"
           >
-            <span className={styles.closeIcon}>✕</span>
+            <span className={styles.closeIcon}><X size={24} /></span>
           </button>
         </div>
 
@@ -262,7 +280,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
             onClick={handleLogout}
             aria-label="Logout"
           >
-            <span className={styles.mobileLogoutIcon} aria-hidden="true">🚪</span>
+            <span className={styles.mobileLogoutIcon} aria-hidden="true"><LogOut size={20} /></span>
             <span>Logout</span>
           </button>
         </div>

@@ -32,7 +32,7 @@
   width: 200%;
   height: 200%;
   background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
   animation: gradientRotate 20s ease-in-out infinite;
@@ -97,17 +97,10 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   transition: var(--transition-smooth);
-  animation: fadeInUp 0.6s var(--transition-smooth);
-  animation-fill-mode: both;
   min-height: 120px;
   position: relative;
   z-index: 1;
 }
-
-.statCard:nth-child(1) { animation-delay: 0.1s; }
-.statCard:nth-child(2) { animation-delay: 0.2s; }
-.statCard:nth-child(3) { animation-delay: 0.3s; }
-.statCard:nth-child(4) { animation-delay: 0.4s; }
 
 .statCard:hover {
   border-color: rgba(255, 255, 255, 0.2);
@@ -166,7 +159,6 @@
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  animation: fadeInUp 0.6s var(--transition-smooth) 0.2s both;
   transition: var(--transition-smooth);
   min-height: 300px;
   position: relative;
@@ -767,21 +759,140 @@
   0% {
     transform: rotate(0deg);
   }
+
   50% {
     transform: rotate(180deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.1;
     transform: scale(1);
   }
-  50% {
-    opacity: 0.2;
-    transform: scale(1.05);
-  }
+}
+
+/* ==========================================================================
+     FLIP CARD STYLES
+     ========================================================================== */
+
+.flipCardContainer {
+  perspective: 1000px;
+  height: 100%;
+  min-height: 120px;
+  cursor: pointer;
+  animation: fadeInUp 0.6s var(--transition-smooth) backwards;
+}
+
+.statsGrid>div:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.statsGrid>div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.statsGrid>div:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.statsGrid>div:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.contentGrid>div:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.contentGrid>div:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.flipCardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.flipCardContainer.flipped .flipCardInner {
+  transform: rotateY(180deg);
+}
+
+.flipCardFront,
+.flipCardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.flipCardFront {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Stats Card Specific Front Styles override */
+.statsGrid .flipCardContainer {
+  min-height: 120px;
+}
+
+/* Content Card Specific Front Styles override */
+.contentGrid .flipCardContainer {
+  min-height: 300px;
+}
+
+.flipCardBack {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+  color: white;
+  transform: rotateY(180deg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.flipCardBack h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-family: 'Poppins', var(--font-secondary);
+}
+
+.flipCardBack p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.flipCardBack .highlight {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0.5rem 0;
+  display: block;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.flipHint {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  font-style: italic;
 }

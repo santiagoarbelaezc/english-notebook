@@ -73,10 +73,6 @@ const VocabularyPage: React.FC = () => {
     loadStats();
   }, [loadWords, loadStats]);
 
-  useEffect(() => {
-    loadWords();
-  }, [loadWords]);
-
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
@@ -256,7 +252,7 @@ const VocabularyPage: React.FC = () => {
     return labels[pos as keyof typeof labels] || pos;
   };
 
-  if (loading) {
+  if (loading && !showAddModal && !showEditModal) {
     return (
       <div className={styles.pageContent}>
         <div className={styles.loading}>Loading vocabulary...</div>
@@ -266,189 +262,191 @@ const VocabularyPage: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>📝 Vocabulary</h1>
-        <p className={styles.subtitle}>
-          Build your English vocabulary with detailed word definitions and translations
-        </p>
-      </div>
+      <div className={styles.mainContent}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>📝 Vocabulary</h1>
+          <p className={styles.subtitle}>
+            Build your English vocabulary with detailed word definitions and translations
+          </p>
+        </div>
 
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <span className={styles.statNumber}>{stats?.totalWords || 0}</span>
-          <span className={styles.statLabel}>Total Words</span>
+        <div className={styles.stats}>
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{stats?.totalWords || 0}</span>
+            <span className={styles.statLabel}>Total Words</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>{stats?.favoriteWords || 0}</span>
+            <span className={styles.statLabel}>Favorites</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statNumber}>
+              {stats?.byDifficulty.find(d => d._id === 'A1')?.count || 0}
+            </span>
+            <span className={styles.statLabel}>Beginner Words</span>
+          </div>
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statNumber}>{stats?.favoriteWords || 0}</span>
-          <span className={styles.statLabel}>Favorites</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statNumber}>
-            {stats?.byDifficulty.find(d => d._id === 'A1')?.count || 0}
-          </span>
-          <span className={styles.statLabel}>Beginner Words</span>
-        </div>
-      </div>
 
-      <div className={styles.controls}>
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search words, meanings, or examples..."
-            value={filters.search || ''}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className={styles.searchInput}
-          />
-        </div>
-        <div className={styles.filters}>
-          <select
-            value={filters.category || 'all'}
-            onChange={(e) => setFilters({ ...filters, category: e.target.value === 'all' ? undefined : e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Categories</option>
-            <option value="daily-life">Daily Life</option>
-            <option value="business">Business</option>
-            <option value="travel">Travel</option>
-            <option value="food">Food</option>
-            <option value="nature">Nature</option>
-            <option value="technology">Technology</option>
-            <option value="emotions">Emotions</option>
-            <option value="sports">Sports</option>
-            <option value="other">Other</option>
-          </select>
-          <select
-            value={filters.difficulty || 'all'}
-            onChange={(e) => setFilters({ ...filters, difficulty: e.target.value === 'all' ? undefined : e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Levels</option>
-            <option value="A1">Beginner (A1)</option>
-            <option value="A2">Elementary (A2)</option>
-            <option value="B1">Intermediate (B1)</option>
-            <option value="B2">Upper Intermediate (B2)</option>
-            <option value="C1">Advanced (C1)</option>
-            <option value="C2">Proficient (C2)</option>
-          </select>
-          <label className={styles.checkboxLabel}>
+        <div className={styles.controls}>
+          <div className={styles.searchBar}>
             <input
-              type="checkbox"
-              checked={filters.isFavorite || false}
-              onChange={(e) => setFilters({ ...filters, isFavorite: e.target.checked || undefined })}
-              className={styles.checkbox}
+              type="text"
+              placeholder="Search words, meanings, or examples..."
+              value={filters.search || ''}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              className={styles.searchInput}
             />
-            Favorites only
-          </label>
-          <button
-            className={styles.primaryButton}
-            onClick={() => setShowAddModal(true)}
-          >
-            Add Word
-          </button>
-        </div>
-      </div>
-
-      <div className={styles.wordsGrid}>
-        {words.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3>No words found</h3>
-            <p>Start building your vocabulary by adding your first word!</p>
+          </div>
+          <div className={styles.filters}>
+            <select
+              value={filters.category || 'all'}
+              onChange={(e) => setFilters({ ...filters, category: e.target.value === 'all' ? undefined : e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Categories</option>
+              <option value="daily-life">Daily Life</option>
+              <option value="business">Business</option>
+              <option value="travel">Travel</option>
+              <option value="food">Food</option>
+              <option value="nature">Nature</option>
+              <option value="technology">Technology</option>
+              <option value="emotions">Emotions</option>
+              <option value="sports">Sports</option>
+              <option value="other">Other</option>
+            </select>
+            <select
+              value={filters.difficulty || 'all'}
+              onChange={(e) => setFilters({ ...filters, difficulty: e.target.value === 'all' ? undefined : e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Levels</option>
+              <option value="A1">Beginner (A1)</option>
+              <option value="A2">Elementary (A2)</option>
+              <option value="B1">Intermediate (B1)</option>
+              <option value="B2">Upper Intermediate (B2)</option>
+              <option value="C1">Advanced (C1)</option>
+              <option value="C2">Proficient (C2)</option>
+            </select>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={filters.isFavorite || false}
+                onChange={(e) => setFilters({ ...filters, isFavorite: e.target.checked || undefined })}
+                className={styles.checkbox}
+              />
+              Favorites only
+            </label>
             <button
               className={styles.primaryButton}
               onClick={() => setShowAddModal(true)}
             >
-              Add Your First Word
+              Add Word
             </button>
           </div>
-        ) : (
-          words.map((word) => (
-            <div key={word._id} className={styles.wordCard}>
-              <div className={styles.cardHeader}>
-                <div className={styles.wordMeta}>
-                  <span className={`${styles.category} ${styles[word.category] || styles.other}`}>
-                    {getCategoryLabel(word.category)}
-                  </span>
-                  <span className={`${styles.difficulty} ${styles[word.difficulty] || styles.A1}`}>
-                    {getDifficultyLabel(word.difficulty)}
-                  </span>
-                </div>
-                <button
-                  className={`${styles.favoriteButton} ${word.isFavorite ? styles.favorited : ''}`}
-                  onClick={() => handleToggleFavorite(word._id)}
-                  title={word.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  {word.isFavorite ? '❤️' : '🤍'}
-                </button>
-              </div>
+        </div>
 
-              <div className={styles.cardContent}>
-                <div className={styles.wordText}>
-                  {word.word}
-                  {word.pronunciation && (
-                    <span className={styles.pronunciation}>/{word.pronunciation}/</span>
-                  )}
-                </div>
-
-                <div className={styles.meanings}>
-                  {word.meanings.map((meaning, index) => (
-                    <div key={index} className={styles.meaning}>
-                      <span className={styles.partOfSpeech}>
-                        {getPartOfSpeechLabel(meaning.partOfSpeech)}
-                      </span>
-                      <span className={styles.meaningText}>{meaning.meaning}</span>
-                    </div>
-                  ))}
+        <div className={styles.wordsGrid}>
+          {words.length === 0 ? (
+            <div className={styles.emptyState}>
+              <h3>No words found</h3>
+              <p>Start building your vocabulary by adding your first word!</p>
+              <button
+                className={styles.primaryButton}
+                onClick={() => setShowAddModal(true)}
+              >
+                Add Your First Word
+              </button>
+            </div>
+          ) : (
+            words.map((word) => (
+              <div key={word._id} className={styles.wordCard}>
+                <div className={styles.cardHeader}>
+                  <div className={styles.wordMeta}>
+                    <span className={`${styles.category} ${styles[word.category] || styles.other}`}>
+                      {getCategoryLabel(word.category)}
+                    </span>
+                    <span className={`${styles.difficulty} ${styles[word.difficulty] || styles.A1}`}>
+                      {getDifficultyLabel(word.difficulty)}
+                    </span>
+                  </div>
+                  <button
+                    className={`${styles.favoriteButton} ${word.isFavorite ? styles.favorited : ''}`}
+                    onClick={() => handleToggleFavorite(word._id)}
+                    title={word.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {word.isFavorite ? '❤️' : '🤍'}
+                  </button>
                 </div>
 
-                {word.examples && word.examples.length > 0 && (
-                  <div className={styles.examples}>
-                    <h4>Examples:</h4>
-                    {word.examples.map((example, index) => (
-                      <div key={index} className={styles.example}>
-                        <div className={styles.english}>{example.english}</div>
-                        {example.spanish && (
-                          <div className={styles.spanish}>{example.spanish}</div>
-                        )}
+                <div className={styles.cardContent}>
+                  <div className={styles.wordText}>
+                    {word.word}
+                    {word.pronunciation && (
+                      <span className={styles.pronunciation}>/{word.pronunciation}/</span>
+                    )}
+                  </div>
+
+                  <div className={styles.meanings}>
+                    {word.meanings.map((meaning, index) => (
+                      <div key={index} className={styles.meaning}>
+                        <span className={styles.partOfSpeech}>
+                          {getPartOfSpeechLabel(meaning.partOfSpeech)}
+                        </span>
+                        <span className={styles.meaningText}>{meaning.meaning}</span>
                       </div>
                     ))}
                   </div>
-                )}
 
-                {(word.synonyms?.length > 0 || word.antonyms?.length > 0) && (
-                  <div className={styles.wordRelations}>
-                    {word.synonyms?.length > 0 && (
-                      <div className={styles.synonyms}>
-                        <strong>Synonyms:</strong> {word.synonyms.join(', ')}
-                      </div>
-                    )}
-                    {word.antonyms?.length > 0 && (
-                      <div className={styles.antonyms}>
-                        <strong>Antonyms:</strong> {word.antonyms.join(', ')}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                  {word.examples && word.examples.length > 0 && (
+                    <div className={styles.examples}>
+                      <h4>Examples:</h4>
+                      {word.examples.map((example, index) => (
+                        <div key={index} className={styles.example}>
+                          <div className={styles.english}>{example.english}</div>
+                          {example.spanish && (
+                            <div className={styles.spanish}>{example.spanish}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-              <div className={styles.cardActions}>
-                <button
-                  className={styles.editButton}
-                  onClick={() => handleEdit(word)}
-                  title="Edit word"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  className={styles.deleteButton}
-                  onClick={() => handleDelete(word._id)}
-                  title="Delete word"
-                >
-                  🗑️ Delete
-                </button>
+                  {(word.synonyms?.length > 0 || word.antonyms?.length > 0) && (
+                    <div className={styles.wordRelations}>
+                      {word.synonyms?.length > 0 && (
+                        <div className={styles.synonyms}>
+                          <strong>Synonyms:</strong> {word.synonyms.join(', ')}
+                        </div>
+                      )}
+                      {word.antonyms?.length > 0 && (
+                        <div className={styles.antonyms}>
+                          <strong>Antonyms:</strong> {word.antonyms.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.editButton}
+                    onClick={() => handleEdit(word)}
+                    title="Edit word"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(word._id)}
+                    title="Delete word"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
       {/* Add Word Modal */}
@@ -652,7 +650,6 @@ const VocabularyPage: React.FC = () => {
               </button>
             </div>
             <form className={styles.modalForm} onSubmit={handleSubmit}>
-              {/* Same form fields as add modal */}
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label>Word *</label>
