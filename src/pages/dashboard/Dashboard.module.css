@@ -7,9 +7,9 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --transition-smooth: all 0.3s ease;
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #007bff 100%);
+  --gradient-secondary: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+  --gradient-success: linear-gradient(135deg, #00f260 0%, #0575e6 100%);
 }
 
 .pageContent {
@@ -31,8 +31,8 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 30% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(0, 123, 255, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
   animation: gradientRotate 20s ease-in-out infinite;
@@ -191,12 +191,12 @@
 .badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: rgba(102, 126, 234, 0.2);
-  color: #a8edea;
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
   border-radius: 0.75rem;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(0, 212, 255, 0.3);
   min-width: 60px;
   text-align: center;
 }
@@ -216,13 +216,13 @@
   gap: 1rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
-  background: rgba(102, 126, 234, 0.1);
-  border-left: 3px solid #a8edea;
+  background: rgba(0, 123, 255, 0.08);
+  border-left: 3px solid #00d4ff;
   transition: var(--transition-smooth);
 }
 
 .activityItem:hover {
-  background: rgba(102, 126, 234, 0.15);
+  background: rgba(0, 123, 255, 0.15);
   transform: translateX(5px);
 }
 
@@ -268,19 +268,21 @@
   gap: 1rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(0, 212, 255, 0.05);
   transition: var(--transition-smooth);
+  border: 1px solid rgba(0, 212, 255, 0.1);
 }
 
 .commitmentItem:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.2);
 }
 
 .checkbox {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #7fb3d5;
+  accent-color: #00d4ff;
   border-radius: 5px;
   flex-shrink: 0;
 }
@@ -361,6 +363,10 @@
    PHRASE CARD
    ========================================================================== */
 
+/* ==========================================================================
+   PHRASE CARD
+   ========================================================================== */
+
 .phraseCard {
   padding: 2rem;
   border-radius: 1rem;
@@ -381,7 +387,7 @@
   font-family: 'Poppins', var(--font-secondary);
   font-size: 1.6rem;
   font-weight: 700;
-  color: #a8edea;
+  color: #00d4ff;
   margin: 0 0 1rem 0;
   font-style: italic;
   line-height: 1.3;
@@ -401,8 +407,8 @@
   margin: 0;
   font-style: italic;
   padding: 1rem;
-  border-left: 3px solid #a8edea;
-  background: rgba(102, 126, 234, 0.1);
+  border-left: 3px solid #00d4ff;
+  background: rgba(0, 212, 255, 0.05);
   border-radius: 0.5rem;
   line-height: 1.4;
 }
@@ -438,7 +444,7 @@
 }
 
 .achievementCard:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.2);
   background: rgba(0, 0, 0, 0.4);
   transform: translateY(-5px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -529,7 +535,7 @@
   align-items: center;
   padding: 1.25rem;
   border-radius: 0.75rem;
-  background: rgba(127, 179, 213, 0.05);
+  background: rgba(0, 212, 255, 0.05);
   min-height: 90px;
   justify-content: center;
 }
@@ -537,7 +543,7 @@
 .statLabel {
   font-family: var(--font-primary);
   font-size: 0.8rem;
-  color: #a8a8a8;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -547,7 +553,7 @@
   font-family: 'Poppins', var(--font-secondary);
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: #00d4ff;
   margin: 0;
 }
 
