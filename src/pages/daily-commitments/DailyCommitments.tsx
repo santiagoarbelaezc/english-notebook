@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import styles from './DailyCommitments.module.css';
+import {
+  Calendar,
+  Target,
+  CheckCircle2,
+  Clock,
+  BookOpen,
+  Headphones,
+  Layout,
+  MessageCircle,
+  RefreshCw,
+  Plus,
+  Minus,
+  Flame,
+  TrendingUp,
+} from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 
 interface DailyGoal {
   id: string;
@@ -136,10 +152,10 @@ const DailyCommitments: React.FC = () => {
     const updatedGoals = currentCommitment.goals.map(goal =>
       goal.id === goalId
         ? {
-            ...goal,
-            current: Math.min(newCurrent, goal.target),
-            isCompleted: newCurrent >= goal.target,
-          }
+          ...goal,
+          current: Math.min(newCurrent, goal.target),
+          isCompleted: newCurrent >= goal.target,
+        }
         : goal
     );
 
@@ -157,13 +173,13 @@ const DailyCommitments: React.FC = () => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'vocabulary': return '📝';
-      case 'grammar': return '📏';
-      case 'listening': return '🎧';
-      case 'reading': return '📖';
-      case 'practice': return '💬';
-      case 'review': return '🔄';
-      default: return '🎯';
+      case 'vocabulary': return <BookOpen size={24} />;
+      case 'grammar': return <Layout size={24} />;
+      case 'listening': return <Headphones size={24} />;
+      case 'reading': return <BookOpen size={24} />;
+      case 'practice': return <MessageCircle size={24} />;
+      case 'review': return <RefreshCw size={24} />;
+      default: return <Target size={24} />;
     }
   };
 
@@ -203,185 +219,208 @@ const DailyCommitments: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>📅 Daily Commitments</h1>
-        <p className={styles.subtitle}>
-          Set and track your daily English learning goals
-        </p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Daily Commitments</h1>
+          <p className={styles.subtitle}>Track and achieve your daily English learning goals</p>
+        </div>
+      </header>
 
-      <div className={styles.stats}>
-          <div className={styles.statCard}>
+      <section className={styles.stats}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+            <CheckCircle2 size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{getCompletedGoals()}</span>
             <span className={styles.statLabel}>Completed Today</span>
           </div>
-          <div className={styles.statCard}>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+            <TrendingUp size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{currentCommitment?.overallProgress || 0}%</span>
             <span className={styles.statLabel}>Overall Progress</span>
           </div>
-          <div className={styles.statCard}>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)' }}>
+            <Flame size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{getCurrentStreak()}</span>
             <span className={styles.statLabel}>Day Streak</span>
           </div>
         </div>
+      </section>
 
       <div className={styles.dateSelector}>
-          <label htmlFor="date-select" className={styles.dateLabel}>
-            Select Date:
-          </label>
-          <input
-            id="date-select"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className={styles.dateInput}
-            max={new Date().toISOString().split('T')[0]}
-          />
-        </div>
+        <label htmlFor="date-select" className={styles.dateLabel}>
+          <Calendar size={18} style={{ marginRight: '8px' }} />
+          Select Date:
+        </label>
+        <input
+          id="date-select"
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className={styles.dateInput}
+          max={new Date().toISOString().split('T')[0]}
+        />
+      </div>
 
       {currentCommitment && (
-          <div className={styles.commitmentSection}>
-            <div className={styles.commitmentHeader}>
+        <div className={styles.commitmentSection}>
+          <div className={styles.commitmentHeader}>
+            <h2 className={styles.commitmentTitle}>
               <h2 className={styles.commitmentTitle}>
-                {selectedDate === new Date().toISOString().split('T')[0] ? 'Today\'s Goals' : `Goals for ${new Date(selectedDate).toLocaleDateString()}`}
-              </h2>
-              <div className={styles.progressOverview}>
-                <div className={styles.progressCircle}>
-                  <svg width="80" height="80">
-                    <circle
-                      cx="40"
-                      cy="40"
-                      r="35"
-                      stroke="rgba(127, 179, 213, 0.2)"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <circle
-                      cx="40"
-                      cy="40"
-                      r="35"
-                      stroke="#7fb3d5"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 35}`}
-                      strokeDashoffset={`${2 * Math.PI * 35 * (1 - currentCommitment.overallProgress / 100)}`}
-                      transform="rotate(-90 40 40)"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className={styles.progressText}>
-                    {currentCommitment.overallProgress}%
+                {selectedDate === new Date().toISOString().split('T')[0] ? "Today's Goals" : `Goals for ${new Date(selectedDate).toLocaleDateString()}`}
+              </h2>              </h2>
+            <div className={styles.progressOverview}>
+              <div className={styles.progressCircle}>
+                <svg width="80" height="80">
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="35"
+                    stroke="rgba(127, 179, 213, 0.2)"
+                    strokeWidth="6"
+                    fill="none"
+                  />
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="35"
+                    stroke="#7fb3d5"
+                    strokeWidth="6"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 35}`}
+                    strokeDashoffset={`${2 * Math.PI * 35 * (1 - currentCommitment.overallProgress / 100)}`}
+                    transform="rotate(-90 40 40)"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className={styles.progressText}>
+                  {currentCommitment.overallProgress}%
+                </span>
+              </div>
+              {currentCommitment.isCompleted && (
+                <div className={styles.completedBadge}>
+                  🎉 All Done!
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.goalsGrid}>
+            {currentCommitment.goals.map(goal => (
+              <div
+                key={goal.id}
+                className={`${styles.goalCard} ${goal.isCompleted ? styles.completed : ''}`}
+              >
+                <div className={styles.goalHeader}>
+                  <div className={styles.goalIcon}>
+                    {getCategoryIcon(goal.category)}
+                  </div>
+                  <span className={`${styles.categoryBadge} ${getCategoryColor(goal.category)}`}>
+                    {goal.category}
                   </span>
                 </div>
-                {currentCommitment.isCompleted && (
-                  <div className={styles.completedBadge}>
-                    🎉 All Done!
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className={styles.goalsGrid}>
-              {currentCommitment.goals.map(goal => (
-                <div
-                  key={goal.id}
-                  className={`${styles.goalCard} ${goal.isCompleted ? styles.completed : ''}`}
-                >
-                  <div className={styles.goalHeader}>
-                    <div className={styles.goalIcon}>
-                      {getCategoryIcon(goal.category)}
+                <div className={styles.goalContent}>
+                  <h3 className={styles.goalTitle}>{goal.title}</h3>
+                  <p className={styles.goalDescription}>{goal.description}</p>
+
+                  <div className={styles.goalProgress}>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{
+                          width: `${getProgressPercentage(goal.current, goal.target)}%`
+                        }}
+                      />
                     </div>
-                    <span className={`${styles.categoryBadge} ${getCategoryColor(goal.category)}`}>
-                      {goal.category}
+                    <span className={styles.progressNumbers}>
+                      {goal.current} / {goal.target} {goal.unit}
                     </span>
                   </div>
 
-                  <div className={styles.goalContent}>
-                    <h3 className={styles.goalTitle}>{goal.title}</h3>
-                    <p className={styles.goalDescription}>{goal.description}</p>
+                  <div className={styles.goalControls}>
+                    <button
+                      className={styles.adjustButton}
+                      onClick={() => updateGoalProgress(goal.id, goal.current - 1)}
+                      disabled={goal.current <= 0}
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <input
+                      type="number"
+                      value={goal.current}
+                      onChange={(e) => updateGoalProgress(goal.id, parseInt(e.target.value) || 0)}
+                      className={styles.progressInput}
+                      min="0"
+                      max={goal.target}
+                    />
+                    <button
+                      className={styles.adjustButton}
+                      onClick={() => updateGoalProgress(goal.id, goal.current + 1)}
+                      disabled={goal.current >= goal.target}
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
 
-                    <div className={styles.goalProgress}>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{
-                            width: `${getProgressPercentage(goal.current, goal.target)}%`
-                          }}
-                        />
-                      </div>
-                      <span className={styles.progressNumbers}>
-                        {goal.current} / {goal.target} {goal.unit}
+                  <div className={styles.goalFooter}>
+                    <span className={styles.streak}>
+                      <Flame size={16} style={{ marginRight: '4px' }} />
+                      {goal.streak} day streak
+                    </span>
+                    {goal.isCompleted && (
+                      <span className={styles.completedIcon}>
+                        <CheckCircle2 size={24} />
                       </span>
-                    </div>
-
-                    <div className={styles.goalControls}>
-                      <button
-                        className={styles.adjustButton}
-                        onClick={() => updateGoalProgress(goal.id, goal.current - 1)}
-                        disabled={goal.current <= 0}
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        value={goal.current}
-                        onChange={(e) => updateGoalProgress(goal.id, parseInt(e.target.value) || 0)}
-                        className={styles.progressInput}
-                        min="0"
-                        max={goal.target}
-                      />
-                      <button
-                        className={styles.adjustButton}
-                        onClick={() => updateGoalProgress(goal.id, goal.current + 1)}
-                        disabled={goal.current >= goal.target}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div className={styles.goalFooter}>
-                      <span className={styles.streak}>
-                        🔥 {goal.streak} day streak
-                      </span>
-                      {goal.isCompleted && (
-                        <span className={styles.completedIcon}>✓</span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
       {commitmentHistory.length > 0 && (
-          <div className={styles.historySection}>
-            <h2 className={styles.historyTitle}>Recent History</h2>
-            <div className={styles.historyList}>
-              {commitmentHistory.map(commitment => (
-                <div key={commitment.id} className={styles.historyItem}>
-                  <div className={styles.historyDate}>
-                    {new Date(commitment.date).toLocaleDateString()}
-                  </div>
-                  <div className={styles.historyProgress}>
-                    <div className={styles.historyBar}>
-                      <div
-                        className={styles.historyFill}
-                        style={{ width: `${commitment.overallProgress}%` }}
-                      />
-                    </div>
-                    <span className={styles.historyPercent}>
-                      {commitment.overallProgress}%
-                    </span>
-                  </div>
-                  <div className={styles.historyStatus}>
-                    {commitment.isCompleted ? '✅' : '⏳'}
-                  </div>
+        <div className={styles.historySection}>
+          <h2 className={styles.historyTitle}>Recent History</h2>
+          <div className={styles.historyList}>
+            {commitmentHistory.map(commitment => (
+              <div key={commitment.id} className={styles.historyItem}>
+                <div className={styles.historyDate}>
+                  {new Date(commitment.date).toLocaleDateString()}
                 </div>
-              ))}
-            </div>
+                <div className={styles.historyProgress}>
+                  <div className={styles.historyBar}>
+                    <div
+                      className={styles.historyFill}
+                      style={{ width: `${commitment.overallProgress}%` }}
+                    />
+                  </div>
+                  <span className={styles.historyPercent}>
+                    {commitment.overallProgress}%
+                  </span>
+                </div>
+                <div className={styles.historyStatus}>
+                  {commitment.isCompleted ? <CheckCircle2 size={20} color="#4caf50" /> : <Clock size={20} color="#7fb3d5" />}
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

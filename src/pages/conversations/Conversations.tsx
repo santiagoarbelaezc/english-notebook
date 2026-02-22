@@ -1,4 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  Search,
+  Filter,
+  Layers,
+  Activity,
+  Star,
+  Heart,
+  Edit2,
+  Trash2,
+  Plus,
+  X,
+  MessageSquare,
+  Archive,
+  ChevronLeft,
+  ChevronRight,
+  Send,
+  MoreVertical,
+  Check,
+  Save,
+  AlertCircle,
+  List,
+  Calendar,
+  User,
+  History
+} from 'lucide-react';
 import {
   getAllConversations,
   createConversation,
@@ -21,6 +46,7 @@ import type {
 } from '../../types/conversation.types';
 import { tokenService } from '../../services/token.service';
 import styles from './Conversations.module.css';
+import huskyIcon from '../../assets/icons/husky.png';
 
 export const Conversations: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -44,25 +70,36 @@ export const Conversations: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<'you' | 'other'>('you');
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [showMessageActions, setShowMessageActions] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const [itemsPerPage] = useState(12);
   const [sortBy, setSortBy] = useState<'title' | 'topic' | 'createdAt' | 'messageCount'>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  useEffect(() => {
-    console.log('🔍 Conversations component mounted');
-    console.log('🔑 Token available:', !!tokenService.getAccessToken());
-    loadConversations();
-    loadStats();
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleAuthError = useCallback((err: any) => {
+    if (err.response?.status === 401 ||
+      err.message?.includes('token') ||
+      err.message?.includes('Sesión') ||
+      err.message?.includes('No autorizado')) {
+      setError('Your session has expired. Redirecting to login...');
+      setTimeout(() => {
+        tokenService.clearTokens();
+        window.location.href = '/login';
+      }, 2000);
+    } else {
+      setError(err.message || 'Operation error');
+      showToast(err.message || 'Operation error', 'error');
+    }
   }, []);
 
-  useEffect(() => {
-    filterAndSortConversations();
-  }, [conversations, searchTerm, topicFilter, showFavoritesOnly, showArchivedOnly, sortBy, sortOrder]);
-
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     try {
       setLoading(true);
       const params: any = {};
@@ -71,38 +108,32 @@ export const Conversations: React.FC = () => {
       if (showFavoritesOnly) params.isFavorite = true;
       if (showArchivedOnly) params.isArchived = true;
 
-      console.log('📡 Loading conversations with params:', params);
       const response = await getAllConversations(params);
       setConversations(response.conversations);
       setError(null);
     } catch (err: any) {
-      console.error('❌ Error loading conversations:', err);
-      
-      // Specific authentication error handling
-      if (err.response?.status === 401 || err.message?.includes('token') || err.message?.includes('Sesión')) {
-        setError('Your session has expired. Redirecting to login...');
-        setTimeout(() => {
-          tokenService.clearTokens();
-          window.location.href = '/login';
-        }, 2000);
-      } else {
-        setError(err.message || 'Failed to load conversations');
-      }
+      console.error('Error loading conversations:', err);
+      handleAuthError(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, topicFilter, showFavoritesOnly, showArchivedOnly, handleAuthError]);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const response = await getConversationStats();
       setStats(response.stats);
     } catch (err: any) {
-      console.error('❌ Error loading statistics:', err);
+      console.error('Error loading statistics:', err);
     }
-  };
+  }, []);
 
-  const filterAndSortConversations = () => {
+  useEffect(() => {
+    loadConversations();
+    loadStats();
+  }, [loadConversations, loadStats]);
+
+  const filterAndSortConversations = useCallback(() => {
     let filtered = [...conversations];
 
     // Apply filters
@@ -128,7 +159,6 @@ export const Conversations: React.FC = () => {
     // Apply sorting
     filtered.sort((a, b) => {
       let comparison = 0;
-
       switch (sortBy) {
         case 'title':
           comparison = a.title.localeCompare(b.title);
@@ -142,16 +172,17 @@ export const Conversations: React.FC = () => {
         case 'messageCount':
           comparison = a.messageCount - b.messageCount;
           break;
-        default:
-          comparison = 0;
       }
-
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
     setFilteredConversations(filtered);
     setCurrentPage(1);
-  };
+  }, [conversations, searchTerm, topicFilter, showFavoritesOnly, showArchivedOnly, sortBy, sortOrder]);
+
+  useEffect(() => {
+    filterAndSortConversations();
+  }, [filterAndSortConversations]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredConversations.length / itemsPerPage);
@@ -163,80 +194,48 @@ export const Conversations: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this conversation?')) {
       try {
         await deleteConversation(id);
+        showToast('Conversation deleted');
         await loadConversations();
         await loadStats();
       } catch (err: any) {
-        console.error('❌ Error deleting conversation:', err);
         handleAuthError(err);
       }
     }
   };
 
-  const handleToggleFavorite = async (id: string) => {
+  const handleToggleFavorite = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       await toggleConversationFavorite(id);
       await loadConversations();
       await loadStats();
     } catch (err: any) {
-      console.error('❌ Error toggling favorite:', err);
       handleAuthError(err);
     }
   };
 
-  const handleToggleArchived = async (id: string) => {
+  const handleToggleArchived = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       await toggleConversationArchived(id);
       await loadConversations();
       await loadStats();
     } catch (err: any) {
-      console.error('❌ Error toggling archived:', err);
       handleAuthError(err);
     }
   };
 
-  // Function to handle authentication errors
-  const handleAuthError = (err: any) => {
-    if (err.response?.status === 401 || 
-        err.message?.includes('token') || 
-        err.message?.includes('Sesión') ||
-        err.message?.includes('No autorizado')) {
-      setError('Your session has expired. Redirecting to login...');
-      setTimeout(() => {
-        tokenService.clearTokens();
-        window.location.href = '/login';
-      }, 2000);
-    } else {
-      setError(err.message || 'Operation error');
-    }
-  };
-
-  const handleCreateConversation = async (conversationData: CreateConversationRequest | UpdateConversationRequest) => {
-    console.log('📝 Attempting to create conversation with data:', conversationData);
-    console.log('🔑 Token:', tokenService.getAccessToken()?.substring(0, 20) + '...');
-    
+  const handleCreateConversation = async (conversationData: CreateConversationRequest) => {
     try {
       setIsCreating(true);
-      setError(null); // Clear previous errors
-      
-      const result = await createConversation(conversationData as CreateConversationRequest);
-      console.log('✅ Conversation created:', result);
-      
-      if (result?.conversation) {
-        setShowCreateForm(false);
-        await loadConversations();
-        await loadStats();
-      } else {
-        throw new Error('No conversation received');
-      }
-      
+      setError(null);
+      await createConversation(conversationData);
+      showToast('Conversation created!');
+      setShowCreateForm(false);
+      await loadConversations();
+      await loadStats();
     } catch (err: any) {
-      console.error('❌ Complete error creating conversation:', err);
-      console.error('❌ Response data:', err.response?.data);
-      console.error('❌ Response status:', err.response?.status);
-      
-      // Specific error handling
       handleAuthError(err);
-      
     } finally {
       setIsCreating(false);
     }
@@ -247,10 +246,10 @@ export const Conversations: React.FC = () => {
       setIsUpdating(true);
       setError(null);
       await updateConversation(id, conversationData);
+      showToast('Conversation updated!');
       setEditingConversation(null);
       await loadConversations();
     } catch (err: any) {
-      console.error('❌ Error updating conversation:', err);
       handleAuthError(err);
     } finally {
       setIsUpdating(false);
@@ -264,7 +263,6 @@ export const Conversations: React.FC = () => {
       const response = await getMessages(conversation._id);
       setMessages(response.messages);
     } catch (err: any) {
-      console.error('Error loading messages:', err);
       handleAuthError(err);
     }
   };
@@ -274,21 +272,15 @@ export const Conversations: React.FC = () => {
 
     try {
       setIsSendingMessage(true);
-      setError(null);
       await createMessage(selectedConversation._id, {
         content: newMessage.trim(),
         role: selectedRole
       });
       setNewMessage('');
-
-      // Reload messages
       const response = await getMessages(selectedConversation._id);
       setMessages(response.messages);
-
-      // Reload conversations to update message count
       await loadConversations();
     } catch (err: any) {
-      console.error('Error sending message:', err);
       handleAuthError(err);
     } finally {
       setIsSendingMessage(false);
@@ -303,37 +295,28 @@ export const Conversations: React.FC = () => {
         content: updatedContent.trim(),
         role: editingMessage?.role || 'you'
       });
-      
       setEditingMessage(null);
-      
-      // Reload messages
       const response = await getMessages(selectedConversation._id);
       setMessages(response.messages);
     } catch (err: any) {
-      console.error('Error updating message:', err);
       handleAuthError(err);
     }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (!selectedConversation || !window.confirm('Are you sure you want to delete this message?')) return;
+    if (!selectedConversation || !window.confirm('Delete this message?')) return;
 
     try {
       await deleteMessage(selectedConversation._id, messageId);
-      
-      // Reload messages
       const response = await getMessages(selectedConversation._id);
       setMessages(response.messages);
-      
-      // Reload conversations to update message count
       await loadConversations();
     } catch (err: any) {
-      console.error('Error deleting message:', err);
       handleAuthError(err);
     }
   };
 
-  const handleSortChange = (newSortBy: 'title' | 'topic' | 'createdAt' | 'messageCount') => {
+  const handleSortChange = (newSortBy: typeof sortBy) => {
     if (sortBy === newSortBy) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -345,19 +328,6 @@ export const Conversations: React.FC = () => {
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
     return (
       <div className={styles.pagination}>
         <button
@@ -365,10 +335,10 @@ export const Conversations: React.FC = () => {
           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
           disabled={currentPage === 1}
         >
-          ‹
+          <ChevronLeft size={18} />
         </button>
 
-        {pageNumbers.map(number => (
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
           <button
             key={number}
             className={`${styles.pageBtn} ${currentPage === number ? styles.active : ''}`}
@@ -383,58 +353,70 @@ export const Conversations: React.FC = () => {
           onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
           disabled={currentPage === totalPages}
         >
-          ›
+          <ChevronRight size={18} />
         </button>
       </div>
     );
   };
 
   if (loading && conversations.length === 0) {
-    return <div className={styles.loading}>Loading conversations...</div>;
+    return (
+      <div className={styles.pageContent}>
+        <div className={styles.loading}>
+          <Activity className={styles.spinning} /> Loading conversations...
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>💬 Conversations</h1>
-        <p className={styles.subtitle}>Practice and improve your English conversation skills</p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Conversations</h1>
+          <p className={styles.subtitle}>Practice and improve your English conversation skills</p>
+        </div>
+      </header>
 
       {stats && (
-        <div className={styles.stats}>
+        <section className={styles.stats}>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>💬</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Total Conversations</h3>
-              <p className={styles.statValue}>{stats.totalConversations}</p>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <MessageSquare size={24} />
             </div>
+            <span className={styles.statNumber}>{stats.totalConversations}</span>
+            <span className={styles.statLabel}>Total</span>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>⭐</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Favorites</h3>
-              <p className={styles.statValue}>{stats.favoriteConversations}</p>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+              <Star size={24} />
             </div>
+            <span className={styles.statNumber}>{stats.favoriteConversations}</span>
+            <span className={styles.statLabel}>Favorites</span>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>📦</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Archived</h3>
-              <p className={styles.statValue}>{stats.archivedConversations}</p>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+              <Archive size={24} />
             </div>
+            <span className={styles.statNumber}>{stats.archivedConversations}</span>
+            <span className={styles.statLabel}>Archived</span>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>💭</div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Total Messages</h3>
-              <p className={styles.statValue}>{stats.totalMessages}</p>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <List size={24} />
             </div>
+            <span className={styles.statNumber}>{stats.totalMessages}</span>
+            <span className={styles.statLabel}>Messages</span>
           </div>
-        </div>
+        </section>
       )}
 
       <div className={styles.controls}>
         <div className={styles.searchBar}>
+          <Search className={styles.searchIcon} size={20} />
           <input
             type="text"
             placeholder="Search conversations..."
@@ -445,20 +427,23 @@ export const Conversations: React.FC = () => {
         </div>
 
         <div className={styles.filters}>
-          <select
-            value={topicFilter}
-            onChange={(e) => setTopicFilter(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Topics</option>
-            <option value="casual">Casual</option>
-            <option value="formal">Formal</option>
-            <option value="business">Business</option>
-            <option value="travel">Travel</option>
-            <option value="daily-life">Daily Life</option>
-            <option value="interview">Interview</option>
-            <option value="other">Other</option>
-          </select>
+          <div className={styles.filterGroup}>
+            <Layers className={styles.filterIcon} size={18} />
+            <select
+              value={topicFilter}
+              onChange={(e) => setTopicFilter(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="">All Topics</option>
+              <option value="casual">Casual</option>
+              <option value="formal">Formal</option>
+              <option value="business">Business</option>
+              <option value="travel">Travel</option>
+              <option value="daily-life">Daily Life</option>
+              <option value="interview">Interview</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
           <label className={styles.checkboxLabel}>
             <input
@@ -466,7 +451,7 @@ export const Conversations: React.FC = () => {
               checked={showFavoritesOnly}
               onChange={(e) => setShowFavoritesOnly(e.target.checked)}
             />
-            Favorites only
+            Favorites
           </label>
 
           <label className={styles.checkboxLabel}>
@@ -475,7 +460,7 @@ export const Conversations: React.FC = () => {
               checked={showArchivedOnly}
               onChange={(e) => setShowArchivedOnly(e.target.checked)}
             />
-            Archived only
+            Archived
           </label>
         </div>
 
@@ -484,18 +469,18 @@ export const Conversations: React.FC = () => {
           onClick={() => setShowCreateForm(true)}
           disabled={isCreating}
         >
-          + New Conversation
+          <Plus size={20} /> New Conversation
         </button>
       </div>
 
       {error && (
-        <div className={`${styles.error} ${error.includes('Redirigiendo') ? styles.sessionError : ''}`}>
-          {error}
+        <div className={styles.error}>
+          <AlertCircle size={20} /> {error}
         </div>
       )}
 
       <div className={styles.resultsInfo}>
-        <span>{filteredConversations.length} conversations found</span>
+        <span><List size={16} /> {filteredConversations.length} conversations found</span>
         <div className={styles.sortControls}>
           <span>Sort by:</span>
           <button
@@ -511,12 +496,6 @@ export const Conversations: React.FC = () => {
             Title {sortBy === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}
           </button>
           <button
-            className={`${styles.sortBtn} ${sortBy === 'topic' ? styles.active : ''}`}
-            onClick={() => handleSortChange('topic')}
-          >
-            Topic {sortBy === 'topic' && (sortOrder === 'asc' ? '↑' : '↓')}
-          </button>
-          <button
             className={`${styles.sortBtn} ${sortBy === 'messageCount' ? styles.active : ''}`}
             onClick={() => handleSortChange('messageCount')}
           >
@@ -525,35 +504,35 @@ export const Conversations: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.content}>
-        <div className={styles.conversationsList}>
-          {currentConversations.map((conversation) => (
-            <ConversationCard
-              key={conversation._id}
-              conversation={conversation}
-              onEdit={() => setEditingConversation(conversation)}
-              onDelete={() => handleDeleteConversation(conversation._id)}
-              onToggleFavorite={() => handleToggleFavorite(conversation._id)}
-              onToggleArchived={() => handleToggleArchived(conversation._id)}
-              onSelect={() => handleSelectConversation(conversation)}
-              isSelected={false}
-            />
-          ))}
-        </div>
+      <div className={styles.conversationsList}>
+        {currentConversations.map((conversation) => (
+          <ConversationCard
+            key={conversation._id}
+            conversation={conversation}
+            onEdit={() => setEditingConversation(conversation)}
+            onDelete={() => handleDeleteConversation(conversation._id)}
+            onToggleFavorite={(e) => handleToggleFavorite(conversation._id, e)}
+            onToggleArchived={(e) => handleToggleArchived(conversation._id, e)}
+            onSelect={() => handleSelectConversation(conversation)}
+            isSelected={selectedConversation?._id === conversation._id}
+          />
+        ))}
       </div>
 
       {renderPagination()}
 
       {filteredConversations.length === 0 && !loading && (
         <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <MessageSquare size={48} />
+          </div>
           <h3>No conversations found</h3>
           <p>Start a new conversation to practice your English!</p>
           <button
             className={styles.primaryButton}
             onClick={() => setShowCreateForm(true)}
-            disabled={isCreating}
           >
-            Create your first conversation
+            <Plus size={20} /> Create your first conversation
           </button>
         </div>
       )}
@@ -603,6 +582,13 @@ export const Conversations: React.FC = () => {
           setShowMessageActions={setShowMessageActions}
         />
       )}
+
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
@@ -611,8 +597,8 @@ interface ConversationCardProps {
   conversation: Conversation;
   onEdit: () => void;
   onDelete: () => void;
-  onToggleFavorite: () => void;
-  onToggleArchived: () => void;
+  onToggleFavorite: (e: React.MouseEvent) => void;
+  onToggleArchived: (e: React.MouseEvent) => void;
   onSelect: () => void;
   isSelected: boolean;
 }
@@ -628,62 +614,63 @@ const ConversationCard: React.FC<ConversationCardProps> = ({
 }) => {
   return (
     <div className={`${styles.conversationCard} ${isSelected ? styles.selected : ''}`} onClick={onSelect}>
-      <div className={styles.cardHeader}>
+      <header className={styles.cardHeader}>
         <div className={styles.cardMeta}>
           <span className={`${styles.topicBadge} ${styles[conversation.topic]}`}>
             {conversation.topic.replace('-', ' ')}
           </span>
           <span className={styles.messageCount}>
-            {conversation.messageCount} messages
+            <MessageSquare size={12} /> {conversation.messageCount}
           </span>
         </div>
-        <div className={styles.cardActions}>
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            className={`${styles.actionBtn} ${conversation.isFavorite ? styles.active : ''}`}
-            title={conversation.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            ⭐
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleArchived(); }}
-            className={`${styles.actionBtn} ${conversation.isArchived ? styles.active : ''}`}
-            title={conversation.isArchived ? 'Unarchive' : 'Archive'}
-          >
-            📦
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className={styles.actionBtn}
-            title="Edit conversation"
-          >
-            ✏️
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            className={styles.actionBtn}
-            title="Delete conversation"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
+      </header>
 
       <div className={styles.cardContent}>
         <h3 className={styles.cardTitle}>{conversation.title}</h3>
         {conversation.description && (
           <p className={styles.cardDescription}>{conversation.description}</p>
         )}
-        <div className={styles.cardFooter}>
+        <footer className={styles.cardFooter}>
           <span className={styles.cardDate}>
-            {new Date(conversation.createdAt).toLocaleDateString('en-US')}
+            <Calendar size={12} /> {new Date(conversation.createdAt).toLocaleDateString()}
           </span>
           {conversation.lastMessageDate && (
             <span className={styles.lastMessage}>
-              Last: {new Date(conversation.lastMessageDate).toLocaleDateString('en-US')}
+              <History size={12} /> {new Date(conversation.lastMessageDate).toLocaleDateString()}
             </span>
           )}
-        </div>
+        </footer>
+      </div>
+
+      <div className={styles.cardActions}>
+        <button
+          className={`${styles.favoriteAction} ${conversation.isFavorite ? styles.isFavorite : ''}`}
+          onClick={onToggleFavorite}
+          title={conversation.isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
+        >
+          <Heart size={18} fill={conversation.isFavorite ? "#ff6384" : "none"} color={conversation.isFavorite ? "#ff6384" : "rgba(255, 255, 255, 0.4)"} />
+        </button>
+        <button
+          onClick={onSelect}
+          className={styles.actionBtn}
+          title="Ver conversación"
+        >
+          Ver
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
+          className={styles.actionBtn}
+          title="Editar conversación"
+        >
+          Editar
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className={`${styles.actionBtn} ${styles.deleteBtn}`}
+          title="Eliminar conversación"
+        >
+          Eliminar
+        </button>
       </div>
     </div>
   );
@@ -692,7 +679,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({
 interface ConversationFormModalProps {
   conversation?: Conversation;
   onClose: () => void;
-  onSubmit: (data: CreateConversationRequest | UpdateConversationRequest) => Promise<void>;
+  onSubmit: (data: CreateConversationRequest) => Promise<void>;
   title: string;
   isLoading?: boolean;
 }
@@ -720,32 +707,22 @@ const ConversationFormModal: React.FC<ConversationFormModalProps> = ({
     }
   }, [conversation]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) {
-      alert('Title is required');
-      return;
-    }
-    
-    try {
-      await onSubmit(formData);
-    } catch (err: any) {
-      console.error('Error submitting form:', err);
-      // The error will be handled by the parent component
-    }
+    onSubmit(formData);
   };
 
-  const handleInputChange = (field: keyof CreateConversationRequest, value: any) => {
+  const handleInputChange = (field: keyof CreateConversationRequest, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2>{title}</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
-        </div>
+        <header className={styles.modalHeader}>
+          <h2>{conversation ? <Edit2 size={24} /> : <Plus size={24} />} {title}</h2>
+          <button className={styles.closeButton} onClick={onClose}><X size={24} /></button>
+        </header>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div className={styles.formGroup}>
@@ -756,22 +733,7 @@ const ConversationFormModal: React.FC<ConversationFormModalProps> = ({
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
               required
-              minLength={3}
-              maxLength={200}
-              placeholder="Enter the conversation title"
-              disabled={isLoading}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              maxLength={1000}
-              placeholder="Enter a description (optional)"
-              rows={3}
+              placeholder="e.g., Weekend Plans"
               disabled={isLoading}
             />
           </div>
@@ -794,23 +756,25 @@ const ConversationFormModal: React.FC<ConversationFormModalProps> = ({
             </select>
           </div>
 
-          <div className={styles.modalActions}>
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className={styles.cancelButton}
+          <div className={styles.formGroup}>
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="What is this conversation about?"
+              rows={4}
               disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              disabled={isLoading || !formData.title.trim()} 
-              className={styles.submitButton}
-            >
-              {isLoading ? 'Saving...' : 'Save'}
-            </button>
+            />
           </div>
+
+          <footer className={styles.modalActions}>
+            <button type="button" onClick={onClose} className={styles.cancelButton} disabled={isLoading}>Cancel</button>
+            <button type="submit" disabled={isLoading} className={styles.primaryButton}>
+              {isLoading ? <Activity className={styles.spinning} size={18} /> : <Save size={18} />}
+              {conversation ? 'Update' : 'Create'}
+            </button>
+          </footer>
         </form>
       </div>
     </div>
@@ -821,16 +785,16 @@ interface ConversationModalProps {
   conversation: Conversation;
   messages: Message[];
   onClose: () => void;
-  onSendMessage: () => void;
-  onUpdateMessage: (messageId: string, content: string) => void;
-  onDeleteMessage: (messageId: string) => void;
+  onSendMessage: () => Promise<void>;
+  onUpdateMessage: (id: string, content: string) => Promise<void>;
+  onDeleteMessage: (id: string) => Promise<void>;
   newMessage: string;
-  setNewMessage: (message: string) => void;
+  setNewMessage: (msg: string) => void;
   selectedRole: 'you' | 'other';
   setSelectedRole: (role: 'you' | 'other') => void;
   isSendingMessage: boolean;
   editingMessage: Message | null;
-  setEditingMessage: (message: Message | null) => void;
+  setEditingMessage: (msg: Message | null) => void;
   showMessageActions: string | null;
   setShowMessageActions: (id: string | null) => void;
 }
@@ -852,139 +816,127 @@ const ConversationModal: React.FC<ConversationModalProps> = ({
   showMessageActions,
   setShowMessageActions
 }) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingMessage && editingMessage.content.trim()) {
+      onUpdateMessage(editingMessage._id, editingMessage.content);
+    }
+  };
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-    <div className={`${styles.modal} ${styles.conversationModal}`} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <div>
-            <h2>{conversation.title}</h2>
-            <p>{conversation.description}</p>
-            <span className={`${styles.topicBadge} ${styles[conversation.topic]}`}>
-              {conversation.topic.replace('-', ' ')}
-            </span>
+      <div className={`${styles.modal} ${styles.conversationModal}`} onClick={(e) => e.stopPropagation()}>
+        <header className={styles.modalHeader}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className={styles.statIcon} style={{ width: '40px', height: '40px', marginBottom: 0 }}>
+              <MessageSquare size={20} />
+            </div>
+            <div>
+              <h2>{conversation.title}</h2>
+              <span className={styles.lastMessage}>{conversation.topic}</span>
+            </div>
           </div>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
-        </div>
+          <button className={styles.closeButton} onClick={onClose}><X size={24} /></button>
+        </header>
 
         <div className={styles.messagesContainer}>
-          {messages.map((message) => (
-            <div
-              key={message._id}
-              className={`${styles.message} ${styles[message.role]}`}
-              onDoubleClick={() => {
-                if (message.role === selectedRole) {
-                  setEditingMessage(message);
-                }
-              }}
-              onMouseEnter={() => setShowMessageActions(message._id)}
-              onMouseLeave={() => setShowMessageActions(null)}
-            >
-              <div className={styles.messageHeader}>
-                <span className={styles.messageRole}>
-                  {message.role === 'you' ? '👤 You' : '🤖 Other'}
-                </span>
-                {showMessageActions === message._id && (
-                  <div className={styles.messageActions}>
-                    {message.role === selectedRole && (
-                      <button
-                        className={styles.messageActionBtn}
-                        onClick={() => setEditingMessage(message)}
-                        title="Edit message"
-                      >
-                        ✏️
-                      </button>
-                    )}
-                    <button
-                      className={styles.messageActionBtn}
-                      onClick={() => onDeleteMessage(message._id)}
-                      title="Delete message"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              {editingMessage?._id === message._id ? (
-                <div className={styles.messageEditForm}>
-                  <textarea
-                    value={editingMessage.content}
-                    onChange={(e) => setEditingMessage({
-                      ...editingMessage,
-                      content: e.target.value
-                    })}
-                    className={styles.messageEditInput}
-                    rows={3}
-                    autoFocus
-                  />
-                  <div className={styles.messageEditActions}>
-                    <button
-                      onClick={() => onUpdateMessage(message._id, editingMessage.content)}
-                      className={styles.saveEditBtn}
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingMessage(null)}
-                      className={styles.cancelEditBtn}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.messageContent}>
-                  {message.content}
-                </div>
-              )}
-              
-              {message.correction && (
-                <div className={styles.correction}>
-                  <small>💡 {message.correction.explanation}</small>
-                </div>
-              )}
+          {messages.length === 0 ? (
+            <div className={styles.emptyState} style={{ background: 'transparent', border: 'none', padding: '2rem 1rem' }}>
+              <MessageSquare size={32} style={{ opacity: 0.2 }} />
+              <p style={{ opacity: 0.5 }}>No messages yet. Start practicing!</p>
             </div>
-          ))}
+          ) : (
+            messages.map((msg) => (
+              <div key={msg._id} className={`${styles.message} ${styles[msg.role]}`}>
+                <div className={styles.messageHeader}>
+                  <span className={styles.roleLabel}>
+                    {msg.role === 'you' ? <User size={10} /> : <Activity size={10} />} {msg.role}
+                  </span>
+                  <span className={styles.messageTime}>
+                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+
+                <div className={styles.messageContent}>
+                  {editingMessage?._id === msg._id ? (
+                    <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <textarea
+                        autoFocus
+                        value={editingMessage.content}
+                        onChange={(e) => setEditingMessage({ ...editingMessage, content: e.target.value })}
+                        className={styles.messageTextarea}
+                        style={{ background: 'rgba(255,255,255,0.1)', minHeight: '60px' }}
+                      />
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                        <button type="button" onClick={() => setEditingMessage(null)} className={styles.cancelButton} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>Cancel</button>
+                        <button type="submit" className={styles.primaryButton} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}><Save size={12} /> Save</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      {msg.content}
+                      <div className={styles.messageActions}>
+                        <button onClick={() => setEditingMessage(msg)} className={styles.actionBtn} style={{ width: '28px', height: '28px' }}><Edit2 size={12} /></button>
+                        <button onClick={() => onDeleteMessage(msg._id)} className={`${styles.actionBtn} ${styles.deleteBtn}`} style={{ width: '28px', height: '28px' }}><Trash2 size={12} /></button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className={styles.messageInputContainer}>
-          <div className={styles.roleSelector}>
-            <span>Write as:</span>
-            <div className={styles.roleButtons}>
+          <div className={styles.chatControls}>
+            <div className={styles.roleSelector}>
               <button
-                className={`${styles.roleBtn} ${selectedRole === 'you' ? styles.active : ''}`}
+                className={`${styles.roleBtn} ${selectedRole === 'you' ? styles.active : ''} ${styles.you}`}
                 onClick={() => setSelectedRole('you')}
               >
-                👤 You
+                You
               </button>
               <button
-                className={`${styles.roleBtn} ${selectedRole === 'other' ? styles.active : ''}`}
+                className={`${styles.roleBtn} ${selectedRole === 'other' ? styles.active : ''} ${styles.other}`}
                 onClick={() => setSelectedRole('other')}
               >
-                🤖 Other
+                Translator/Other
               </button>
             </div>
+            {newMessage.length > 0 && <span className={styles.messageTime}>{newMessage.length} chars</span>}
           </div>
-          
-          <div className={styles.messageInput}>
+
+          <div className={styles.messageInputWrapper}>
             <textarea
+              placeholder="Type your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder={`Write a message as ${selectedRole === 'you' ? 'you' : 'the other'}...`}
-              rows={3}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   onSendMessage();
                 }
               }}
+              className={styles.messageTextarea}
+              rows={1}
             />
             <button
+              className={styles.sendBtn}
               onClick={onSendMessage}
-              disabled={!newMessage.trim() || isSendingMessage}
-              className={styles.sendButton}
+              disabled={isSendingMessage || !newMessage.trim()}
             >
-              {isSendingMessage ? 'Sending...' : 'Send'}
+              {isSendingMessage ? <Activity className={styles.spinning} size={20} /> : <Send size={20} />}
             </button>
           </div>
         </div>

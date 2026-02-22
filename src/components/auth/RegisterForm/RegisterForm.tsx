@@ -4,6 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useForm } from '../../../hooks/useForm';
 import type { ChangeEvent, FormEvent } from 'react';
 import styles from './RegisterForm.module.css';
+import huskyIcon from '../../../assets/icons/husky.png';
 
 interface RegisterFormData {
   name: string;
@@ -96,9 +97,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
       <div className={styles.rightSection}>
         <div className={styles.header}>
           <div className={styles.logoWrapper}>
-            <img 
-              src="/src/assets/icons/husky.png" 
-              alt="English Notebook Logo" 
+            <img
+              src={huskyIcon}
+              alt="English Notebook Logo"
               className={styles.logo}
             />
           </div>

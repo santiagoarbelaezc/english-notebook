@@ -508,35 +508,71 @@
 }
 
 .actionButton {
-  width: 38px;
-  height: 38px;
-  display: flex;
+  width: auto;
+  height: auto;
+  padding: 0.45rem 1rem;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  color: #ffffff !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: var(--transition-smooth);
+  position: relative;
+  z-index: 5;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.favoriteButton.favorited {
-  color: #f093fb;
-  background: rgba(240, 147, 251, 0.1);
-  border-color: rgba(240, 147, 251, 0.3);
+.favoriteAction {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 5;
 }
+
+.favoriteAction:hover {
+  transform: scale(1.15);
+  background: rgba(255, 99, 132, 0.1);
+  border-color: rgba(255, 99, 132, 0.3);
+}
+
+.favoriteAction.isFavorite {
+  background: rgba(255, 99, 132, 0.15);
+  border-color: rgba(255, 99, 132, 0.4);
+}
+
+/* Favorite classes replaced by favoriteAction above */
 
 .editButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+.deleteButton {
+  background: rgba(245, 87, 108, 0.15) !important;
+  border-color: rgba(245, 87, 108, 0.3) !important;
+  color: #f5576c !important;
+}
+
 .deleteButton:hover {
-  background: rgba(245, 87, 108, 0.1);
-  color: #f5576c;
-  border-color: rgba(245, 87, 108, 0.3);
+  background: rgba(245, 87, 108, 0.3) !important;
+  border-color: rgba(245, 87, 108, 0.5) !important;
+  color: #ffffff !important;
 }
 
 .ruleContent {
@@ -703,7 +739,7 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #white;
+  color: white;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-smooth);

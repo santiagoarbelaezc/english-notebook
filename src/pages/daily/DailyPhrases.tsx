@@ -10,6 +10,15 @@ import {
   getStats
 } from '../../api/dailyPhrases.api';
 import type { DailyPhrase, CreateDailyPhraseRequest, UpdateDailyPhraseRequest } from '../../types';
+import {
+  Plus,
+  Search,
+  Filter,
+  BookOpen,
+  Heart,
+  Zap
+} from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 
 const DailyPhrases: React.FC = () => {
   const [phrases, setPhrases] = useState<DailyPhrase[]>([]);
@@ -127,10 +136,15 @@ const DailyPhrases: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>⭐ Daily Phrases</h1>
-        <p className={styles.subtitle}>Manage your daily phrases and expressions</p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Daily Phrases</h1>
+          <p className={styles.subtitle}>Explore and master common English expressions and idioms</p>
+        </div>
+      </header>
 
       {/* Daily Phrase Section */}
       {dailyPhrase && (
@@ -146,50 +160,78 @@ const DailyPhrases: React.FC = () => {
 
       {/* Stats */}
       {stats && (
-        <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{stats.totalPhrases}</span>
-          <span className={styles.statLabel}> Total Phrases</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statValue}>{stats.favoritePhrases}</span>
-          <span className={styles.statLabel}> Favorites</span>
-        </div>
-        </div>
+        <section className={styles.stats}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <BookOpen size={24} />
+            </div>
+            <span className={styles.statNumber}>{stats.totalPhrases}</span>
+            <span className={styles.statLabel}>Total Phrases</span>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+              <Heart size={24} />
+            </div>
+            <span className={styles.statNumber}>{stats.favoritePhrases}</span>
+            <span className={styles.statLabel}>Favorites</span>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+              <Zap size={24} />
+            </div>
+            <span className={styles.statNumber}>{phrases.length}</span>
+            <span className={styles.statLabel}>Current Filter</span>
+          </div>
+        </section>
       )}
 
       {/* Filters */}
-      <div className={styles.filters}>
-        <input
-          type="text"
-          placeholder="Search phrases..."
-          value={filters.search}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, search: e.target.value })}
-          className={styles.searchInput}
-        />
-        <select
-          value={filters.type}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, type: e.target.value })}
-          className={styles.select}
-        >
-          <option value="">All Types</option>
-          <option value="idiom">Idiom</option>
-          <option value="expression">Expression</option>
-          <option value="slang">Slang</option>
-          <option value="proverb">Proverb</option>
-          <option value="quote">Quote</option>
-          <option value="phrase">Phrase</option>
-          <option value="saying">Saying</option>
-        </select>
-        <label className={styles.checkboxLabel}>
+      <div className={styles.controls}>
+        <div className={styles.searchBar}>
+          <Search className={styles.searchIcon} size={20} />
           <input
-            type="checkbox"
-            checked={filters.isFavorite}
-            onChange={(e) => setFilters({ ...filters, isFavorite: e.target.checked })}
+            type="text"
+            placeholder="Search phrases..."
+            value={filters.search}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, search: e.target.value })}
+            className={styles.searchInput}
           />
-          Favorites only
-        </label>
-        <button onClick={() => setShowAddModal(true)} className={styles.createButton}>Add Phrase</button>
+        </div>
+
+        <div className={styles.filtersActions}>
+          <div className={styles.filterWrapper}>
+            <Filter size={18} className={styles.filterIcon} />
+            <select
+              value={filters.type}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, type: e.target.value })}
+              className={styles.select}
+            >
+              <option value="">All Types</option>
+              <option value="idiom">Idioms</option>
+              <option value="expression">Expressions</option>
+              <option value="slang">Slang</option>
+              <option value="proverb">Proverbs</option>
+              <option value="quote">Quotes</option>
+              <option value="phrase">Phrases</option>
+              <option value="saying">Sayings</option>
+            </select>
+          </div>
+
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              className={styles.checkbox}
+              checked={filters.isFavorite}
+              onChange={(e) => setFilters({ ...filters, isFavorite: e.target.checked })}
+            />
+            <span>Favorites</span>
+          </label>
+
+          <button onClick={() => setShowAddModal(true)} className={styles.createButton}>
+            <Plus size={18} style={{ marginRight: '8px' }} />
+            Add Phrase
+          </button>
+        </div>
       </div>
 
       {/* Phrases List */}
@@ -211,26 +253,25 @@ const DailyPhrases: React.FC = () => {
             )}
             <div className={styles.phraseActions}>
               <button
-                className={styles.favoriteButton}
+                className={`${styles.favoriteAction} ${phrase.isFavorite ? styles.isFavorite : ''}`}
                 onClick={() => handleToggleFavorite(phrase._id)}
-                title="Toggle favorite"
               >
-                {phrase.isFavorite ? '❤️' : '🤍'}
+                <Heart size={20} fill={phrase.isFavorite ? "#ff6384" : "none"} color={phrase.isFavorite ? "#ff6384" : "rgba(255, 255, 255, 0.4)"} />
               </button>
               <button
-                className={styles.editButton}
+                className={styles.editAction}
                 onClick={() => {
                   setEditingPhrase(phrase);
                   setShowEditModal(true);
                 }}
               >
-                Edit
+                Editar
               </button>
               <button
-                className={styles.deleteButton}
+                className={styles.deleteAction}
                 onClick={() => handleDeletePhrase(phrase._id)}
               >
-                Delete
+                Eliminar
               </button>
             </div>
           </div>

@@ -10,6 +10,16 @@ import {
   getIrregularVerbsStats
 } from '../../api';
 import type { IrregularVerb, CreateIrregularVerbRequest, UpdateIrregularVerbRequest } from '../../types';
+import {
+  Search,
+  Plus,
+  Heart,
+  Layers,
+  Zap,
+  BookOpen,
+  Info
+} from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 import styles from './IrregularVerbs.module.css';
 
 interface VerbCardProps {
@@ -33,7 +43,7 @@ export const IrregularVerbs: React.FC = () => {
   const [editingVerb, setEditingVerb] = useState<IrregularVerb | null>(null);
   const [addingExampleToVerb, setAddingExampleToVerb] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
@@ -100,7 +110,7 @@ export const IrregularVerbs: React.FC = () => {
     // Aplicar ordenamiento
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'infinitive':
           comparison = a.infinitive.localeCompare(b.infinitive);
@@ -113,7 +123,7 @@ export const IrregularVerbs: React.FC = () => {
           comparison = (a.isFavorite === b.isFavorite) ? 0 : a.isFavorite ? -1 : 1;
           break;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -293,28 +303,53 @@ export const IrregularVerbs: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Irregular Verbs</h1>
-        <p className={styles.subtitle}>Master the most common irregular verbs</p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky Mascot" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Irregular Verbs</h1>
+          <p className={styles.subtitle}>Master the most common irregular verbs</p>
+        </div>
+      </header>
 
       {stats && (
         <div className={styles.stats}>
           <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.totalVerbs}</span>
-            <span className={styles.statLabel}>Total Verbs</span>
+            <div className={styles.statIcon} style={{ background: 'var(--gradient-primary)' }}>
+              <Layers size={24} />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statNumber}>{stats.totalVerbs}</span>
+              <span className={styles.statLabel}>Total Verbs</span>
+            </div>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.favoriteVerbs}</span>
-            <span className={styles.statLabel}>Favorites</span>
+            <div className={styles.statIcon} style={{ background: 'var(--gradient-secondary)' }}>
+              <Heart size={24} />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statNumber}>{stats.favoriteVerbs}</span>
+              <span className={styles.statLabel}>Favorites</span>
+            </div>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.verbsWithExamples}</span>
-            <span className={styles.statLabel}>With Examples</span>
+            <div className={styles.statIcon} style={{ background: 'var(--gradient-success)' }}>
+              <Zap size={24} />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statNumber}>{stats.verbsWithExamples}</span>
+              <span className={styles.statLabel}>With Examples</span>
+            </div>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statNumber}>{filteredVerbs.length}</span>
-            <span className={styles.statLabel}>Showing</span>
+            <div className={styles.statIcon} style={{ background: 'rgba(255, 255, 255, 0.1)' }}>
+              <Search size={24} />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statNumber}>{filteredVerbs.length}</span>
+              <span className={styles.statLabel}>Showing</span>
+            </div>
           </div>
         </div>
       )}
@@ -468,96 +503,98 @@ const VerbCard: React.FC<VerbCardProps> = ({ verb, onEdit, onDelete, onToggleFav
     <div className={styles.verbCard}>
       <div className={styles.verbHeader}>
         <div className={styles.verbMeta}>
-          <span className={`${styles.difficulty}`}>
+          <span className={`${styles.difficulty} ${styles[`difficulty${verb.difficulty}`]}`}>
             {verb.difficulty}
           </span>
         </div>
-        <div className={styles.verbActions}>
-          <button
-            onClick={onToggleFavorite}
-            className={`${styles.favoriteButton} ${verb.isFavorite ? styles.favorited : ''}`}
-            title={verb.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            ★
-          </button>
-          <button onClick={onEdit} className={styles.editButton} title="Edit verb">
-            ✏️
+      </div>
+
+      <div className={styles.verbContent}>
+        {/* Nueva tabla horizontal para las formas del verbo */}
+        <table className={styles.verbFormsTable}>
+          <thead className={styles.verbFormsHeader}>
+            <tr>
+              <th>Infinitive</th>
+              <th>Past Simple</th>
+              <th>Past Participle</th>
+            </tr>
+          </thead>
+          <tbody className={styles.verbFormsBody}>
+            <tr>
+              <td className={styles.verbFormValue}>{verb.infinitive}</td>
+              <td className={styles.verbFormValue}>{verb.pastSimple}</td>
+              <td className={styles.verbFormValue}>{verb.pastParticiple}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {verb.notes && (
+          <div className={styles.verbNotes}>
+            <Info size={14} />
+            <p>{verb.notes}</p>
+          </div>
+        )}
+
+        {verb.examples.length > 0 && (
+          <div className={styles.verbExamples}>
+            <div className={styles.examplesHeader}>
+              <BookOpen size={16} />
+              <h4>Examples:</h4>
+            </div>
+            {verb.examples.map((example, index) => (
+              <div key={index} className={styles.example}>
+                <div className={styles.exampleContent}>
+                  <span className={styles.exampleWord}>{example.infinitive}</span>
+                  <span className={styles.exampleArrow}>→</span>
+                  <span className={styles.exampleWord}>{example.pastSimple}</span>
+                  <span className={styles.exampleArrow}>→</span>
+                  <span className={styles.exampleWord}>{example.pastParticiple}</span>
+                </div>
+                {onRemoveExample && (
+                  <button
+                    onClick={() => onRemoveExample(verb._id, index)}
+                    className={styles.removeExampleButtonSmall}
+                    title="Remove example"
+                  >
+                    <Plus size={14} style={{ transform: 'rotate(45deg)' }} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {verb.examples.length === 0 && onAddExample && (
+          <div className={styles.noExamples}>
+            <button onClick={() => onAddExample(verb._id)} className={styles.addFirstExampleButton}>
+              <Plus size={14} /> Add Example
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.verbActions}>
+        <button
+          onClick={onToggleFavorite}
+          className={`${styles.favoriteAction} ${verb.isFavorite ? styles.isFavorite : ''}`}
+          title={verb.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Heart size={18} fill={verb.isFavorite ? "#ff6384" : "none"} color={verb.isFavorite ? "#ff6384" : "rgba(255, 255, 255, 0.4)"} />
+        </button>
+        <div className={styles.mainActions}>
+          <button onClick={onEdit} className={styles.actionBtn} title="Editar verbo">
+            Editar
           </button>
           {onAddExample && (
-            <button onClick={() => onAddExample(verb._id)} className={styles.addExampleButton} title="Add example">
-              ➕
+            <button onClick={() => onAddExample(verb._id)} className={styles.actionBtn} title="Añadir ejemplo">
+              + Ejemplo
             </button>
           )}
-          <button onClick={onDelete} className={styles.deleteButton} title="Delete verb">
-            🗑️
+          <button onClick={onDelete} className={`${styles.actionBtn} ${styles.deleteBtn}`} title="Eliminar verbo">
+            Eliminar
           </button>
         </div>
       </div>
-
-      {/* Nueva tabla horizontal para las formas del verbo */}
-      <table className={styles.verbFormsTable}>
-        <thead className={styles.verbFormsHeader}>
-          <tr>
-            <th>Infinitive</th>
-            <th>Past Simple</th>
-            <th>Past Participle</th>
-          </tr>
-        </thead>
-        <tbody className={styles.verbFormsBody}>
-          <tr>
-            <td className={styles.verbFormValue}>{verb.infinitive}</td>
-            <td className={styles.verbFormValue}>{verb.pastSimple}</td>
-            <td className={styles.verbFormValue}>{verb.pastParticiple}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {verb.notes && (
-        <div className={styles.verbNotes}>
-          <p>{verb.notes}</p>
-        </div>
-      )}
-
-      {verb.examples.length > 0 && (
-        <div className={styles.verbExamples}>
-          <div className={styles.examplesHeader}>
-            <h4>Examples:</h4>
-            {onAddExample && (
-              <button onClick={() => onAddExample(verb._id)} className={styles.addExampleButtonSmall} title="Add example">
-                +
-              </button>
-            )}
-          </div>
-          {verb.examples.map((example, index) => (
-            <div key={index} className={styles.example}>
-              <div className={styles.exampleContent}>
-                <span className={styles.exampleWord}>{example.infinitive}</span>
-                <span className={styles.exampleArrow}>→</span>
-                <span className={styles.exampleWord}>{example.pastSimple}</span>
-                <span className={styles.exampleArrow}>→</span>
-                <span className={styles.exampleWord}>{example.pastParticiple}</span>
-              </div>
-              {onRemoveExample && (
-                <button
-                  onClick={() => onRemoveExample(verb._id, index)}
-                  className={styles.removeExampleButtonSmall}
-                  title="Remove example"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {verb.examples.length === 0 && onAddExample && (
-        <div className={styles.noExamples}>
-          <button onClick={() => onAddExample(verb._id)} className={styles.addFirstExampleButton}>
-            + Add Example
-          </button>
-        </div>
-      )}
     </div>
   );
 };
@@ -694,7 +731,7 @@ const VerbFormModal: React.FC<VerbFormModalProps> = ({ verb, onClose, onSubmit, 
           {/* Sección de ejemplos */}
           <div className={styles.formSection}>
             <div className={styles.sectionTitle}>Examples</div>
-            
+
             {/* Lista de ejemplos existentes */}
             {(formData.examples || []).length > 0 && (
               <div className={styles.examplesList}>
@@ -838,8 +875,8 @@ const AddExampleModal: React.FC<AddExampleModalProps> = ({ verbId, onClose, onSu
             <button type="button" onClick={onClose} className={styles.cancelButton}>
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.submitButton}
               disabled={!example.infinitive.trim() || !example.pastSimple.trim() || !example.pastParticiple.trim()}
             >

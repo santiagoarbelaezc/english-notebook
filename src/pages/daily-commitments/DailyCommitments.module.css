@@ -1,9 +1,31 @@
 /* ==========================================================================
-   DAILY COMMITMENTS PAGE STYLES - DARK THEME
+   DAILY COMMITMENTS PAGE STYLES - GLASSMORPHISM DESIGN
    ========================================================================== */
 
 .pageContent {
-  padding: 2rem;
+  padding: 2.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.pageContent::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ==========================================================================
@@ -11,25 +33,58 @@
    ========================================================================== */
 
 .header {
-  text-align: center;
-  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   position: relative;
   z-index: 1;
 }
 
+.huskyContainer {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn 0.7s ease-out;
+}
+
+.huskyImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+
+.headerContent {
+  flex: 1;
+}
+
 .title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #e8e8e8;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
 }
 
 .subtitle {
+  font-family: 'Inter', sans-serif;
   font-size: 1.1rem;
-  color: #b8b8b8;
-  max-width: 600px;
-  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
 }
 
 /* ==========================================================================
@@ -38,37 +93,62 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .statCard {
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
   padding: 1.5rem;
-  text-align: center;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .statCard:hover {
-  background: rgba(127, 179, 213, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.statIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.statContent {
+  flex: 1;
 }
 
 .statNumber {
   display: block;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #7fb3d5;
-  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 0.25rem;
 }
 
 .statLabel {
-  color: #b8b8b8;
+  display: block;
   font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* ==========================================================================
@@ -79,31 +159,39 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .dateLabel {
-  color: #b8b8b8;
-  font-size: 1rem;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
 }
 
 .dateInput {
-  padding: 0.75rem 1rem;
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.5rem;
-  color: #e8e8e8;
+  padding: 0.8rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .dateInput:focus {
   outline: none;
-  border-color: #7fb3d5;
-  background: rgba(127, 179, 213, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #667eea;
 }
 
 /* ==========================================================================
@@ -112,6 +200,8 @@
 
 .commitmentSection {
   margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .commitmentHeader {
@@ -119,21 +209,21 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .commitmentTitle {
-  color: #e8e8e8;
-  font-size: 1.8rem;
-  font-weight: 600;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
   margin: 0;
 }
 
 .progressOverview {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .progressCircle {
@@ -145,19 +235,19 @@
 
 .progressText {
   position: absolute;
-  color: #7fb3d5;
+  color: #ffffff;
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .completedBadge {
-  background: linear-gradient(135deg, #4caf50, #66bb6a);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: #000;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
 }
 
 /* ==========================================================================
@@ -167,192 +257,150 @@
 .goalsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 2rem;
 }
 
 .goalCard {
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 .goalCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(127, 179, 213, 0.2);
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .goalCard.completed {
-  background: rgba(76, 175, 80, 0.05);
-  border-color: rgba(76, 175, 80, 0.3);
+  border-color: rgba(67, 233, 123, 0.3);
+  background: rgba(67, 233, 123, 0.05);
 }
 
-.goalCard.completed::before {
+.goalCard.completed::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #4caf50, #66bb6a);
-  border-radius: 0.75rem 0.75rem 0 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #43e97b, #38f9d7);
 }
 
 .goalHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .goalIcon {
-  font-size: 2.5rem;
-  opacity: 0.8;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a8edea;
 }
 
 .categoryBadge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 30px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.category.vocabulary {
-  background: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
-}
-
-.category.grammar {
-  background: rgba(156, 39, 176, 0.2);
-  color: #9c27b0;
-}
-
-.category.listening {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
-}
-
-.category.reading {
-  background: rgba(33, 150, 243, 0.2);
-  color: #2196f3;
-}
-
-.category.practice {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-}
-
-.category.review {
-  background: rgba(244, 67, 54, 0.2);
-  color: #f44336;
-}
-
-.goalContent {
-  flex: 1;
+  letter-spacing: 1px;
 }
 
 .goalTitle {
-  color: #e8e8e8;
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .goalDescription {
-  color: #b8b8b8;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 1rem 0;
-}
-
-.goalProgress {
-  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
 }
 
 .progressBar {
   width: 100%;
   height: 8px;
-  background: rgba(127, 179, 213, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #7fb3d5, #5dade2);
+  background: linear-gradient(90deg, #667eea, #764ba2);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .goalCard.completed .progressFill {
-  background: linear-gradient(90deg, #4caf50, #66bb6a);
+  background: linear-gradient(90deg, #43e97b, #38f9d7);
 }
 
 .progressNumbers {
-  color: #a8a8a8;
-  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  font-weight: 600;
   text-align: right;
   display: block;
+  margin-bottom: 1.5rem;
 }
 
 .goalControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .adjustButton {
-  background: rgba(127, 179, 213, 0.1);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  color: #b8b8b8;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .adjustButton:hover:not(:disabled) {
-  background: rgba(127, 179, 213, 0.2);
-  color: #7fb3d5;
-  border-color: #7fb3d5;
-}
-
-.adjustButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
 }
 
 .progressInput {
   flex: 1;
-  padding: 0.5rem;
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.5rem;
-  color: #e8e8e8;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  padding: 0.6rem;
   text-align: center;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.progressInput:focus {
-  outline: none;
-  border-color: #7fb3d5;
-  background: rgba(127, 179, 213, 0.1);
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .goalFooter {
@@ -360,18 +408,20 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .streak {
+  display: flex;
+  align-items: center;
   color: #ff9800;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .completedIcon {
-  color: #4caf50;
-  font-size: 1.5rem;
-  font-weight: bold;
+  color: #43e97b;
 }
 
 /* ==========================================================================
@@ -379,79 +429,111 @@
    ========================================================================== */
 
 .historySection {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(127, 179, 213, 0.2);
+  margin-top: 4rem;
+  padding: 2.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .historyTitle {
-  color: #e8e8e8;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
   text-align: center;
-}
-
-.historyList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .historyItem {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(127, 179, 213, 0.05);
-  border: 1px solid rgba(127, 179, 213, 0.2);
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  gap: 2rem;
+  padding: 1.2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .historyItem:hover {
-  background: rgba(127, 179, 213, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(10px);
 }
 
 .historyDate {
-  color: #b8b8b8;
-  font-size: 0.9rem;
-  font-weight: 500;
-  min-width: 120px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  min-width: 150px;
 }
 
 .historyProgress {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .historyBar {
   flex: 1;
   height: 8px;
-  background: rgba(127, 179, 213, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .historyFill {
   height: 100%;
-  background: linear-gradient(90deg, #7fb3d5, #5dade2);
+  background: linear-gradient(90deg, #667eea, #764ba2);
   border-radius: 4px;
-  transition: width 0.3s ease;
 }
 
 .historyPercent {
-  color: #a8a8a8;
-  font-size: 0.8rem;
-  font-weight: 500;
+  color: white;
+  font-weight: 700;
   min-width: 50px;
   text-align: right;
 }
 
-.historyStatus {
-  font-size: 1.2rem;
+/* ==========================================================================
+   CATEGORIES COLORS
+   ========================================================================== */
+
+.category.vocabulary {
+  background: rgba(102, 126, 234, 0.15);
+  color: #a8edea;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.category.grammar {
+  background: rgba(240, 147, 251, 0.15);
+  color: #f093fb;
+  border: 1px solid rgba(240, 147, 251, 0.2);
+}
+
+.category.listening {
+  background: rgba(67, 233, 123, 0.15);
+  color: #43e97b;
+  border: 1px solid rgba(67, 233, 123, 0.2);
+}
+
+.category.reading {
+  background: rgba(79, 172, 254, 0.15);
+  color: #4facfe;
+  border: 1px solid rgba(79, 172, 254, 0.2);
+}
+
+.category.practice {
+  background: rgba(251, 171, 126, 0.15);
+  color: #fbab7e;
+  border: 1px solid rgba(251, 171, 126, 0.2);
+}
+
+.category.review {
+  background: rgba(245, 87, 108, 0.15);
+  color: #f5576c;
+  border: 1px solid rgba(245, 87, 108, 0.2);
 }
 
 /* ==========================================================================
@@ -459,73 +541,45 @@
    ========================================================================== */
 
 .loading {
-  text-align: center;
-  padding: 3rem;
-  color: #b8b8b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #ffffff;
+  font-weight: 600;
   font-size: 1.2rem;
+  letter-spacing: 1px;
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN
-   ========================================================================== */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 @media (max-width: 768px) {
-  .mainContent {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .commitmentHeader {
+  .header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .progressOverview {
-    width: 100%;
-    justify-content: center;
+    text-align: center;
   }
 
   .goalsGrid {
     grid-template-columns: 1fr;
   }
 
-  .goalHeader {
+  .historyItem {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
 
-  .goalControls {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .progressInput {
-    width: 100%;
-  }
-
-  .adjustButton {
-    width: 100%;
-  }
-
-  .goalFooter {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .historyItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .historyProgress {
-    width: 100%;
+  .historyDate {
+    min-width: auto;
   }
 }

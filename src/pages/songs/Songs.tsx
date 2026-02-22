@@ -3,6 +3,12 @@ import YouTube from 'react-youtube';
 import styles from './Songs.module.css';
 import { getAllSongs, toggleSongFavorite, getSongStats, createSong, updateSong, uploadCoverImage } from '../../api';
 import type { CreateSongRequest } from '../../types';
+import {
+  Music,
+  Heart,
+  Plus
+} from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 
 // Function to extract YouTube video ID from URL
 const getYouTubeVideoId = (url: string): string | null => {
@@ -282,7 +288,7 @@ const Songs: React.FC = () => {
       setSongs(prev => [updatedSong, ...prev]);
       setShowCreateModal(false);
       resetForm();
-      
+
       // Refresh stats
       const statsResponse = await getSongStats();
       setStats({
@@ -348,105 +354,118 @@ const Songs: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>🎵 Songs</h1>
-        <p className={styles.subtitle}>
-          Improve your English listening skills with curated songs for different levels
-        </p>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Songs & Lyrics</h1>
+          <p className={styles.subtitle}>Improve your English listening skills with curated songs for different levels</p>
+        </div>
         <button
           className={styles.addButton}
           onClick={() => setShowCreateModal(true)}
         >
-          ➕ Add New Song
+          <Plus size={20} />
+          <span>Add New Song</span>
         </button>
-      </div>
+      </header>
 
-        <div className={styles.stats}>
-          <div className={styles.statCard}>
+      <div className={styles.stats}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-primary)' }}>
+            <Music size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{stats.totalSongs}</span>
             <span className={styles.statLabel}>Total Songs</span>
           </div>
-          <div className={styles.statCard}>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-secondary)' }}>
+            <Heart size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{stats.favoriteSongs}</span>
             <span className={styles.statLabel}>Favorites</span>
           </div>
         </div>
+      </div>
 
-        <div className={styles.controls}>
-          <div className={styles.searchBar}>
-            <input
-              type="text"
-              placeholder="Search songs or artists..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-          <div className={styles.filters}>
-            <select
-              value={selectedTopic}
-              onChange={(e) => setSelectedTopic(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Topics</option>
-              {getAllTopics().map(topic => (
-                <option key={topic} value={topic}>{topic}</option>
-              ))}
-            </select>
-          </div>
+      <div className={styles.controls}>
+        <div className={styles.searchBar}>
+          <input
+            type="text"
+            placeholder="Search songs or artists..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
         </div>
+        <div className={styles.filters}>
+          <select
+            value={selectedTopic}
+            onChange={(e) => setSelectedTopic(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="all">All Topics</option>
+            {getAllTopics().map(topic => (
+              <option key={topic} value={topic}>{topic}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-        {filteredSongs.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>No songs found matching your criteria.</p>
-          </div>
-        ) : (
-          <div className={styles.songsGrid}>
-            {filteredSongs.map(song => (
-              <div key={song._id} className={styles.songCard} onClick={() => handleSongClick(song)}>
-                <div className={styles.songImage}>
-                  {song.coverImage ? (
-                    <img src={song.coverImage} alt={song.title} className={styles.coverImage} />
-                  ) : (
-                    <span className={styles.songIcon}>🎵</span>
-                  )}
+      {filteredSongs.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p>No songs found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className={styles.songsGrid}>
+          {filteredSongs.map(song => (
+            <div key={song._id} className={styles.songCard} onClick={() => handleSongClick(song)}>
+              <div className={styles.songImage}>
+                {song.coverImage ? (
+                  <img src={song.coverImage} alt={song.title} className={styles.coverImage} />
+                ) : (
+                  <span className={styles.songIcon}>🎵</span>
+                )}
+              </div>
+              <div className={styles.songContent}>
+                <h3 className={styles.songTitle}>{song.title}</h3>
+                <p className={styles.songArtist}>{song.artist}</p>
+                <div className={styles.songMeta}>
+                  <span className={`${styles.topic} ${getTopicColor(song.topic)}`}>
+                    {song.topic}
+                  </span>
                 </div>
-                <div className={styles.songContent}>
-                  <h3 className={styles.songTitle}>{song.title}</h3>
-                  <p className={styles.songArtist}>{song.artist}</p>
-                  <div className={styles.songMeta}>
-                    <span className={`${styles.topic} ${getTopicColor(song.topic)}`}>
-                      {song.topic}
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.songActions} onClick={(e) => e.stopPropagation()}>
-                  <button 
-                    className={`${styles.songAction} ${styles.play}`}
+              </div>
+              <div className={styles.songActions} onClick={(e) => e.stopPropagation()}>
+                <button
+                  className={`${styles.favoriteAction}`}
+                  onClick={() => toggleFavorite(song._id)}
+                >
+                  <Heart size={18} fill={song.isFavorite ? 'currentColor' : 'none'} />
+                </button>
+                <div className={styles.mainActions}>
+                  <button
+                    className={styles.actionBtn}
                     onClick={() => song.youtubeUrl && window.open(song.youtubeUrl, '_blank')}
                   >
-                    <span>▶️</span>
-                    <span>Play</span>
+                    Escuchar
                   </button>
                   <button
-                    className={`${styles.songAction} ${styles.favorite}`}
-                    onClick={() => toggleFavorite(song._id)}
-                  >
-                    <span>{song.isFavorite ? '❤️' : '🤍'}</span>
-                    <span>{song.isFavorite ? 'Favorited' : 'Favorite'}</span>
-                  </button>
-                  <button
-                    className={`${styles.songAction} ${styles.edit}`}
+                    className={styles.actionBtn}
                     onClick={() => handleEditSong(song)}
                   >
-                    <span>✏️</span>
-                    <span>Edit</span>
+                    Editar
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Song View Modal */}
       {showViewModal && selectedSong && (
@@ -536,28 +555,29 @@ const Songs: React.FC = () => {
 
                 {/* Lyrics and Other Sections */}
                 <div className={styles.lyricsSection}>
-                  {/* Lyrics Section */}
-                  <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Lyrics</h3>
-                    <div className={styles.lyricsContainer}>
-                      <pre className={styles.lyrics}>{selectedSong.lyrics}</pre>
-                    </div>
-                  </div>
-
-                  {/* Translation Section */}
-                  {selectedSong.translation && (
+                  {/* Lyrics & Translation side-by-side if available */}
+                  <div className={selectedSong.translation ? styles.dualViewContainer : styles.singleViewContainer}>
                     <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Translation</h3>
-                      <div className={styles.translationContainer}>
-                        <pre className={styles.translation}>{selectedSong.translation}</pre>
+                      <h3 className={styles.sectionTitle}>Letra (Lyrics)</h3>
+                      <div className={styles.lyricsContainer}>
+                        <pre className={styles.lyrics}>{selectedSong.lyrics}</pre>
                       </div>
                     </div>
-                  )}
+
+                    {selectedSong.translation && (
+                      <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Traducción (Translation)</h3>
+                        <div className={styles.translationContainer}>
+                          <pre className={styles.translation}>{selectedSong.translation}</pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Notes Section */}
                   {selectedSong.notes && (
                     <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Notes</h3>
+                      <h3 className={styles.sectionTitle}>Notas</h3>
                       <div className={styles.notesContainer}>
                         <p className={styles.notes}>{selectedSong.notes}</p>
                       </div>
@@ -567,13 +587,13 @@ const Songs: React.FC = () => {
                   {/* Annotated Vocabulary Section */}
                   {selectedSong.annotatedVocabulary && selectedSong.annotatedVocabulary.length > 0 && (
                     <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Vocabulary</h3>
+                      <h3 className={styles.sectionTitle}>Vocabulario Clave</h3>
                       <div className={styles.vocabularyList}>
                         {selectedSong.annotatedVocabulary.map((vocab, index) => (
                           <div key={index} className={styles.vocabularyItem}>
                             <div className={styles.vocabularyWord}>
                               <strong>{vocab.word}</strong>
-                              {vocab.line && <span className={styles.lineNumber}>(Line {vocab.line})</span>}
+                              {vocab.line && <span className={styles.lineNumber}>(Línea {vocab.line})</span>}
                             </div>
                             <div className={styles.vocabularyMeaning}>{vocab.meaning}</div>
                           </div>
@@ -585,7 +605,7 @@ const Songs: React.FC = () => {
                   {/* Key Phrases Section */}
                   {selectedSong.keyPhrases && selectedSong.keyPhrases.length > 0 && (
                     <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Key Phrases</h3>
+                      <h3 className={styles.sectionTitle}>Frases Importantes</h3>
                       <div className={styles.phrasesList}>
                         {selectedSong.keyPhrases.map((phrase, index) => (
                           <div key={index} className={styles.phraseItem}>

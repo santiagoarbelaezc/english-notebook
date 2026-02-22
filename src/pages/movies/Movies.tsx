@@ -1,17 +1,17 @@
-import React from 'react';
 import {
   Film,
   Clock,
-  PlayCircle,
-  Heart,
   Plus,
+  Heart,
   Search,
   Filter,
   Video,
   Clapperboard,
   TrendingUp,
-  Award
+  Award,
+  PlayCircle
 } from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 import styles from './Movies.module.css';
 
 export const Movies: React.FC = () => {
@@ -45,15 +45,20 @@ export const Movies: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Movies & TV</h1>
-        <p className={styles.subtitle}>Improve your English by watching your favorite movies and shows</p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Movies & TV</h1>
+          <p className={styles.subtitle}>Improve your English by watching your favorite movies and shows</p>
+        </div>
+      </header>
 
       <div className={styles.stats}>
         <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <Film size={24} className={styles.statIcon} />
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-primary)' }}>
+            <Film size={24} />
           </div>
           <div className={styles.statInfo}>
             <span className={styles.statNumber}>{movies.length}</span>
@@ -61,8 +66,8 @@ export const Movies: React.FC = () => {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <TrendingUp size={24} className={styles.statIcon} />
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-secondary)' }}>
+            <TrendingUp size={24} />
           </div>
           <div className={styles.statInfo}>
             <span className={styles.statNumber}>3</span>
@@ -70,8 +75,8 @@ export const Movies: React.FC = () => {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <Award size={24} className={styles.statIcon} />
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-success)' }}>
+            <Award size={24} />
           </div>
           <div className={styles.statInfo}>
             <span className={styles.statNumber}>8</span>
@@ -161,10 +166,20 @@ export const Movies: React.FC = () => {
             </div>
 
             <div className={styles.movieActions}>
-              <button className={styles.watchButton}>
-                <PlayCircle size={18} />
-                <span>Watch Now</span>
+              <button className={`${styles.favoriteAction}`}>
+                <Heart size={18} />
               </button>
+              <div className={styles.mainActions}>
+                <button className={styles.actionBtn}>
+                  Ver Ahora
+                </button>
+                <button className={styles.actionBtn}>
+                  Editar
+                </button>
+                <button className={`${styles.actionBtn} ${styles.deleteBtn}`}>
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         ))}

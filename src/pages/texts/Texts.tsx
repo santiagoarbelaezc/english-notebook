@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import {
+  CheckCircle,
+  Heart,
+  Book
+} from 'lucide-react';
+import huskyIcon from '../../assets/icons/husky.png';
 import styles from './Texts.module.css';
 
 interface Text {
@@ -171,112 +177,128 @@ const Texts: React.FC = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>📖 Texts</h1>
-        <p className={styles.subtitle}>
-          Improve your reading comprehension with curated texts for different levels
-        </p>
-      </div>
+      <header className={styles.header}>
+        <div className={styles.huskyContainer}>
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+        </div>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Readings & Texts</h1>
+          <p className={styles.subtitle}>Improve your reading comprehension with curated texts for different levels</p>
+        </div>
+      </header>
 
-        <div className={styles.stats}>
-          <div className={styles.statCard}>
+      <div className={styles.stats}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-primary)' }}>
+            <Book size={24} />
+          </div>
+          <div className={styles.statContent}>
             <span className={styles.statNumber}>{texts.length}</span>
             <span className={styles.statLabel}>Total Texts</span>
           </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>
-              {texts.filter(t => t.isRead).length}
-            </span>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-success)' }}>
+            <CheckCircle size={24} />
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statNumber}>{texts.filter(t => t.isRead).length}</span>
             <span className={styles.statLabel}>Read</span>
           </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>
-              {texts.filter(t => t.isFavorite).length}
-            </span>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-secondary)' }}>
+            <Heart size={24} />
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statNumber}>{texts.filter(t => t.isFavorite).length}</span>
             <span className={styles.statLabel}>Favorites</span>
           </div>
         </div>
+      </div>
 
-        <div className={styles.controls}>
-          <div className={styles.searchBar}>
-            <input
-              type="text"
-              placeholder="Search texts, authors, or categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-          <div className={styles.filters}>
-            <select
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Levels</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Categories</option>
-              {getAllCategories().map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+      <div className={styles.controls}>
+        <div className={styles.searchBar}>
+          <input
+            type="text"
+            placeholder="Search texts, authors, or categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
         </div>
+        <div className={styles.filters}>
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="all">All Levels</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="all">All Categories</option>
+            {getAllCategories().map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-        {filteredTexts.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>No texts found matching your criteria.</p>
-          </div>
-        ) : (
-          <div className={styles.textsGrid}>
-            {filteredTexts.map(text => (
-              <div key={text.id} className={styles.textCard}>
-                <div className={styles.textImage}>
-                  <span className={styles.textIcon}>📖</span>
+      {filteredTexts.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p>No texts found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className={styles.textsGrid}>
+          {filteredTexts.map(text => (
+            <div key={text.id} className={styles.textCard}>
+              <div className={styles.textImage}>
+                <span className={styles.textIcon}>📖</span>
+              </div>
+              <div className={styles.textContent}>
+                <h3 className={styles.textTitle}>{text.title}</h3>
+                <p className={styles.textAuthor}>by {text.author}</p>
+                <div className={styles.textMeta}>
+                  <span className={`${styles.level} ${getLevelColor(text.level)}`}>
+                    {text.level}
+                  </span>
+                  <span className={styles.category}>{text.category}</span>
+                  <span className={styles.readTime}>{text.readTime}</span>
                 </div>
-                <div className={styles.textContent}>
-                  <h3 className={styles.textTitle}>{text.title}</h3>
-                  <p className={styles.textAuthor}>by {text.author}</p>
-                  <div className={styles.textMeta}>
-                    <span className={`${styles.level} ${getLevelColor(text.level)}`}>
-                      {text.level}
-                    </span>
-                    <span className={styles.category}>{text.category}</span>
-                    <span className={styles.readTime}>{text.readTime}</span>
-                  </div>
-                  <p className={styles.excerpt}>{text.excerpt}</p>
-                  <div className={styles.textStats}>
-                    <span className={styles.wordCount}>{text.wordCount.toLocaleString()} words</span>
-                    {text.isRead && <span className={styles.readBadge}>✓ Read</span>}
-                  </div>
+                <p className={styles.excerpt}>{text.excerpt}</p>
+                <div className={styles.textStats}>
+                  <span className={styles.wordCount}>{text.wordCount.toLocaleString()} words</span>
+                  {text.isRead && <span className={styles.readBadge}>✓ Read</span>}
                 </div>
-                <div className={styles.textActions}>
+              </div>
+              <div className={styles.textActions} onClick={(e) => e.stopPropagation()}>
+                <button
+                  className={`${styles.favoriteAction}`}
+                  onClick={() => toggleFavorite(text.id)}
+                >
+                  <Heart size={18} fill={text.isFavorite ? 'currentColor' : 'none'} />
+                </button>
+                <div className={styles.mainActions}>
                   <button
-                    className={styles.readButton}
+                    className={styles.actionBtn}
                     onClick={() => markAsRead(text.id)}
                     disabled={text.isRead}
                   >
-                    {text.isRead ? '✓ Read' : '📖 Read'}
-                  </button>
-                  <button
-                    className={styles.favoriteButton}
-                    onClick={() => toggleFavorite(text.id)}
-                  >
-                    {text.isFavorite ? '❤️' : '🤍'}
+                    {text.isRead ? 'Leído' : 'Leer'}
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -4,12 +4,13 @@ import {
   Filter,
   Layers,
   Activity,
-  Star,
-  Edit2,
-  Trash2,
   Plus,
   X,
   FileText,
+  Star,
+  Heart,
+  Edit2,
+  Trash2,
   ChevronLeft,
   ChevronRight,
   Book,
@@ -29,6 +30,7 @@ import {
 } from '../../api';
 import type { GrammarRule, CreateGrammarRuleRequest, UpdateGrammarRuleRequest, HighlightedWord } from '../../types';
 import styles from './Grammar.module.css';
+import huskyIcon from '../../assets/icons/husky.png';
 
 export const Grammar: React.FC = () => {
   const [rules, setRules] = useState<GrammarRule[]>([]);
@@ -305,7 +307,7 @@ export const Grammar: React.FC = () => {
     <div className={styles.pageContent}>
       <header className={styles.header}>
         <div className={styles.huskyContainer}>
-          <img src="/husky.png" alt="Husky" className={styles.huskyImg} />
+          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
         </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Grammar Rules</h1>
@@ -553,16 +555,15 @@ const GrammarRuleCard: React.FC<GrammarRuleCardProps> = ({ rule, onEdit, onDelet
         <div className={styles.ruleActions}>
           <button
             onClick={onToggleFavorite}
-            className={`${styles.actionButton} ${styles.favoriteButton} ${rule.isFavorite ? styles.favorited : ''}`}
-            title={rule.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            className={`${styles.favoriteAction} ${rule.isFavorite ? styles.isFavorite : ''}`}
           >
-            <Star size={18} fill={rule.isFavorite ? 'currentColor' : 'none'} />
+            <Heart size={18} fill={rule.isFavorite ? "#ff6384" : "none"} color={rule.isFavorite ? "#ff6384" : "rgba(255, 255, 255, 0.4)"} />
           </button>
-          <button onClick={onEdit} className={`${styles.actionButton} ${styles.editButton}`} title="Edit rule">
-            <Edit2 size={16} />
+          <button onClick={onEdit} className={`${styles.actionButton} ${styles.editButton}`}>
+            Editar
           </button>
-          <button onClick={onDelete} className={`${styles.actionButton} ${styles.deleteButton}`} title="Delete rule">
-            <Trash2 size={16} />
+          <button onClick={onDelete} className={`${styles.actionButton} ${styles.deleteButton}`}>
+            Eliminar
           </button>
         </div>
       </header>
