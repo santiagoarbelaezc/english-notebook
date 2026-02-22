@@ -1,4 +1,25 @@
 import { useState, useEffect } from 'react';
+import {
+  LayoutDashboard,
+  BookOpen,
+  Trophy,
+  Zap,
+  Files,
+  CheckCircle,
+  MessageCircle,
+  Music,
+  Calendar,
+  ChevronRight,
+  Star,
+  Target,
+  Film,
+  FileText,
+  Book,
+  Flame,
+  CheckSquare,
+  Activity,
+  Award
+} from 'lucide-react';
 
 import styles from './Dashboard.module.css';
 import Profile from '../profile';
@@ -7,6 +28,7 @@ import Grammar from '../grammar';
 import Conversations from '../conversations';
 import { getRandomPhrase } from '../../api/dailyPhrases.api';
 import type { DailyPhrase } from '../../types';
+import huskyIcon from '../../assets/icons/husky.png';
 
 export const Dashboard = () => {
   // @ts-ignore
@@ -82,15 +104,20 @@ const DashboardFlipCard = ({ frontContent, backContent, className = '' }: Dashbo
 const MainDashboardSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>Welcome Back!</h1>
-      <p className={styles.subtitle}>Continue learning English in a fun and effective way</p>
+      <div className={styles.huskyContainer}>
+        <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+      </div>
+      <div className={styles.headerContent}>
+        <h1 className={styles.title}>Welcome Back!</h1>
+        <p className={styles.subtitle}>Continue learning English in a fun and effective way</p>
+      </div>
     </div>
 
     <div className={styles.statsGrid}>
       <DashboardFlipCard
         frontContent={
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>📚</div>
+            <div className={styles.statIcon}><BookOpen size={28} /></div>
             <div className={styles.statContent}>
               <h3 className={styles.statLabel}>Words Learned</h3>
               <p className={styles.statValue}>245</p>
@@ -109,7 +136,7 @@ const MainDashboardSection = () => (
       <DashboardFlipCard
         frontContent={
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>🎴</div>
+            <div className={styles.statIcon}><Files size={28} /></div>
             <div className={styles.statContent}>
               <h3 className={styles.statLabel}>Flashcards</h3>
               <p className={styles.statValue}>89</p>
@@ -128,7 +155,7 @@ const MainDashboardSection = () => (
       <DashboardFlipCard
         frontContent={
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>🏆</div>
+            <div className={styles.statIcon}><Trophy size={28} /></div>
             <div className={styles.statContent}>
               <h3 className={styles.statLabel}>Achievements</h3>
               <p className={styles.statValue}>12</p>
@@ -147,7 +174,7 @@ const MainDashboardSection = () => (
       <DashboardFlipCard
         frontContent={
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>🔥</div>
+            <div className={styles.statIcon}><Flame size={28} /></div>
             <div className={styles.statContent}>
               <h3 className={styles.statLabel}>Current Streak</h3>
               <p className={styles.statValue}>7 days</p>
@@ -174,21 +201,21 @@ const MainDashboardSection = () => (
             </div>
             <div className={styles.activityList}>
               <div className={styles.activityItem}>
-                <span className={styles.activityIcon}>✅</span>
+                <span className={styles.activityIcon}><CheckCircle size={20} color="#43e97b" /></span>
                 <div className={styles.activityContent}>
                   <p className={styles.activityTitle}>Completed 10 vocabulary flashcards</p>
                   <p className={styles.activityTime}>2 hours ago</p>
                 </div>
               </div>
               <div className={styles.activityItem}>
-                <span className={styles.activityIcon}>💬</span>
+                <span className={styles.activityIcon}><MessageCircle size={20} color="#667eea" /></span>
                 <div className={styles.activityContent}>
                   <p className={styles.activityTitle}>Practiced a conversation</p>
                   <p className={styles.activityTime}>5 hours ago</p>
                 </div>
               </div>
               <div className={styles.activityItem}>
-                <span className={styles.activityIcon}>🎵</span>
+                <span className={styles.activityIcon}><Music size={20} color="#f093fb" /></span>
                 <div className={styles.activityContent}>
                   <p className={styles.activityTitle}>Listened to an English song</p>
                   <p className={styles.activityTime}>8 hours ago</p>
@@ -202,7 +229,7 @@ const MainDashboardSection = () => (
             <h3>Activity History</h3>
             <div className={styles.activityList}>
               <div className={styles.activityItem}>
-                <span className={styles.activityIcon}>📅</span>
+                <span className={styles.activityIcon}><Calendar size={20} /></span>
                 <div className={styles.activityContent}>
                   <p className={styles.activityTitle}>View full history</p>
                   <p className={styles.activityTime}>Check your past progress</p>
@@ -263,7 +290,7 @@ const MainDashboardSection = () => (
 const FlashcardsSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>🎴 Flashcards</h1>
+      <h1 className={styles.title}><Files size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Flashcards</h1>
       <p className={styles.subtitle}>Study and practice with interactive flashcards</p>
     </div>
     <div className={styles.emptyState}>
@@ -277,7 +304,7 @@ const FlashcardsSection = () => (
 const VocabularySection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>📚 Vocabulary</h1>
+      <h1 className={styles.title}><BookOpen size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Vocabulary</h1>
       <p className={styles.subtitle}>Expand your English vocabulary</p>
     </div>
     <div className={styles.emptyState}>
@@ -312,7 +339,7 @@ const DailyPhrasesSection = () => {
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h1 className={styles.title}>⭐ Daily Phrases</h1>
+        <h1 className={styles.title}><Star size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Daily Phrases</h1>
         <p className={styles.subtitle}>Learn a new phrase every day</p>
       </div>
       <div className={styles.card}>
@@ -340,7 +367,7 @@ const DailyPhrasesSection = () => {
 const DailyCommitmentsSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>🎯 Daily Commitments</h1>
+      <h1 className={styles.title}><Target size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Daily Commitments</h1>
       <p className={styles.subtitle}>Maintain your learning streak</p>
     </div>
     <div className={styles.card}>
@@ -366,7 +393,7 @@ const DailyCommitmentsSection = () => (
 const MoviesSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>🎬 Movies</h1>
+      <h1 className={styles.title}><Film size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Movies</h1>
       <p className={styles.subtitle}>Improve your English by watching movies</p>
     </div>
     <div className={styles.emptyState}>
@@ -380,7 +407,7 @@ const MoviesSection = () => (
 const SongsSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>🎵 Songs</h1>
+      <h1 className={styles.title}><Music size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Songs</h1>
       <p className={styles.subtitle}>Learn English through music</p>
     </div>
     <div className={styles.emptyState}>
@@ -394,7 +421,7 @@ const SongsSection = () => (
 const TextsSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>📖 Texts</h1>
+      <h1 className={styles.title}><FileText size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Texts</h1>
       <p className={styles.subtitle}>Read interesting texts in English</p>
     </div>
     <div className={styles.emptyState}>
@@ -408,27 +435,27 @@ const TextsSection = () => (
 const AchievementsSection = () => (
   <section className={styles.section}>
     <div className={styles.header}>
-      <h1 className={styles.title}>🏆 Achievements</h1>
+      <h1 className={styles.title}><Trophy size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Achievements</h1>
       <p className={styles.subtitle}>Unlock achievements as you learn</p>
     </div>
     <div className={styles.achievementsGrid}>
       <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}>🌟</div>
+        <div className={styles.achievementIcon}><Star size={40} color="#f093fb" /></div>
         <h3 className={styles.achievementTitle}>First Step</h3>
         <p className={styles.achievementDesc}>Complete your first lesson</p>
       </div>
       <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}>🔥</div>
+        <div className={styles.achievementIcon}><Flame size={40} color="#f5576c" /></div>
         <h3 className={styles.achievementTitle}>On a Streak</h3>
         <p className={styles.achievementDesc}>Maintain a 7-day streak</p>
       </div>
       <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}>📚</div>
+        <div className={styles.achievementIcon}><Book size={40} color="#667eea" /></div>
         <h3 className={styles.achievementTitle}>Avid Reader</h3>
         <p className={styles.achievementDesc}>Read 10 complete texts</p>
       </div>
       <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}>🎤</div>
+        <div className={styles.achievementIcon}><Award size={40} color="#43e97b" /></div>
         <h3 className={styles.achievementTitle}>Fluent Speaker</h3>
         <p className={styles.achievementDesc}>Complete 50 conversations</p>
       </div>

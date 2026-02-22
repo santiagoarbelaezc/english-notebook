@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Search,
+  Filter,
+  Heart,
+  Files,
+  BookOpen,
+  Shield,
+  Star,
+  Flame,
+  Award,
+  ChevronRight,
+  Clock,
+  Layers
+} from 'lucide-react';
 import styles from './Flashcards.module.css';
+import huskyIcon from '../../assets/icons/husky.png';
 
 interface Flashcard {
   id: string;
@@ -146,24 +161,32 @@ const Flashcards: React.FC = () => {
     <div className={styles.pageContent}>
       <div className={styles.mainContent}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Flashcards</h1>
-          <p className={styles.subtitle}>
-            Master new vocabulary with interactive flashcards
-          </p>
+          <div className={styles.huskyContainer}>
+            <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+          </div>
+          <div className={styles.headerContent}>
+            <h1 className={styles.title}>Flashcards</h1>
+            <p className={styles.subtitle}>
+              Master new vocabulary with interactive flashcards
+            </p>
+          </div>
         </div>
 
         <div className={styles.stats}>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Layers size={24} /></div>
             <span className={styles.statNumber}>{flashcards.length}</span>
             <span className={styles.statLabel}>Total Cards</span>
           </div>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Heart size={24} /></div>
             <span className={styles.statNumber}>
               {flashcards.filter(c => c.isFavorite).length}
             </span>
             <span className={styles.statLabel}>Favorites</span>
           </div>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Star size={24} /></div>
             <span className={styles.statNumber}>
               {flashcards.filter(c => c.difficulty === 'easy').length}
             </span>
@@ -173,25 +196,39 @@ const Flashcards: React.FC = () => {
 
         <div className={styles.controls}>
           <div className={styles.searchBar}>
-            <input
-              type="text"
-              placeholder="Search flashcards..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
+            <div style={{ position: 'relative' }}>
+              <Search
+                size={18}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }}
+              />
+              <input
+                type="text"
+                placeholder="Search flashcards..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+                style={{ paddingLeft: '40px' }}
+              />
+            </div>
           </div>
           <div className={styles.filters}>
-            <select
-              value={difficultyFilter}
-              onChange={(e) => setDifficultyFilter(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Difficulties</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
+            <div style={{ position: 'relative' }}>
+              <Filter
+                size={18}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }}
+              />
+              <select
+                value={difficultyFilter}
+                onChange={(e) => setDifficultyFilter(e.target.value)}
+                className={styles.filterSelect}
+                style={{ paddingLeft: '40px' }}
+              >
+                <option value="all">All Difficulties</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
             <label className={styles.checkboxLabel}>
               <input
                 type="checkbox"
@@ -234,8 +271,11 @@ const Flashcards: React.FC = () => {
                         toggleFavorite(card.id);
                       }}
                     >
-                      {card.isFavorite ? '❤️' : '🤍'}
+                      {card.isFavorite ? <Heart size={20} fill="#ff6384" color="#ff6384" /> : <Heart size={20} color="rgba(255,255,255,0.4)" />}
                     </button>
+                    <div className={styles.flipHint} style={{ position: 'absolute', bottom: '10px', right: '10px', fontSize: '0.7rem', opacity: '0.6', fontStyle: 'italic' }}>
+                      Click to flip ↻
+                    </div>
                   </div>
                   <div className={styles.flashcardBack}>
                     <div className={styles.cardContent}>
@@ -254,8 +294,11 @@ const Flashcards: React.FC = () => {
                         toggleFavorite(card.id);
                       }}
                     >
-                      {card.isFavorite ? '❤️' : '🤍'}
+                      {card.isFavorite ? <Heart size={20} fill="#ff6384" color="#ff6384" /> : <Heart size={20} color="rgba(255,255,255,0.4)" />}
                     </button>
+                    <div className={styles.flipHint} style={{ position: 'absolute', bottom: '10px', right: '10px', fontSize: '0.7rem', opacity: '0.8', fontStyle: 'italic' }}>
+                      Click to flip ↻
+                    </div>
                   </div>
                 </div>
               </div>

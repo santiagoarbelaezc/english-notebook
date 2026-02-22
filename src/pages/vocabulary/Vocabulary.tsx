@@ -1,5 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Search,
+  Filter,
+  Heart,
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  BookOpen,
+  Award,
+  Type,
+  AlignLeft,
+  Volume2,
+  Layers,
+  Save,
+  Trash
+} from 'lucide-react';
 import styles from './Vocabulary.module.css';
+import huskyIcon from '../../assets/icons/husky.png';
 import {
   getAllVocabulary,
   createVocabularyWord,
@@ -264,22 +282,30 @@ const VocabularyPage: React.FC = () => {
     <div className={styles.pageContent}>
       <div className={styles.mainContent}>
         <div className={styles.header}>
-          <h1 className={styles.title}>📝 Vocabulary</h1>
-          <p className={styles.subtitle}>
-            Build your English vocabulary with detailed word definitions and translations
-          </p>
+          <div className={styles.huskyContainer}>
+            <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+          </div>
+          <div className={styles.headerContent}>
+            <h1 className={styles.title}>Vocabulary</h1>
+            <p className={styles.subtitle}>
+              Build your English vocabulary with detailed word definitions and translations
+            </p>
+          </div>
         </div>
 
         <div className={styles.stats}>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Layers size={24} /></div>
             <span className={styles.statNumber}>{stats?.totalWords || 0}</span>
             <span className={styles.statLabel}>Total Words</span>
           </div>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Heart size={24} /></div>
             <span className={styles.statNumber}>{stats?.favoriteWords || 0}</span>
             <span className={styles.statLabel}>Favorites</span>
           </div>
           <div className={styles.statCard}>
+            <div className={styles.statIcon}><Award size={24} /></div>
             <span className={styles.statNumber}>
               {stats?.byDifficulty.find(d => d._id === 'A1')?.count || 0}
             </span>
@@ -289,44 +315,67 @@ const VocabularyPage: React.FC = () => {
 
         <div className={styles.controls}>
           <div className={styles.searchBar}>
-            <input
-              type="text"
-              placeholder="Search words, meanings, or examples..."
-              value={filters.search || ''}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className={styles.searchInput}
-            />
+            <div style={{ position: 'relative' }}>
+              <Search
+                size={18}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }}
+              />
+              <input
+                type="text"
+                placeholder="Search words, meanings, or examples..."
+                value={filters.search || ''}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className={styles.searchInput}
+                style={{ paddingLeft: '40px' }}
+              />
+            </div>
           </div>
           <div className={styles.filters}>
-            <select
-              value={filters.category || 'all'}
-              onChange={(e) => setFilters({ ...filters, category: e.target.value === 'all' ? undefined : e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Categories</option>
-              <option value="daily-life">Daily Life</option>
-              <option value="business">Business</option>
-              <option value="travel">Travel</option>
-              <option value="food">Food</option>
-              <option value="nature">Nature</option>
-              <option value="technology">Technology</option>
-              <option value="emotions">Emotions</option>
-              <option value="sports">Sports</option>
-              <option value="other">Other</option>
-            </select>
-            <select
-              value={filters.difficulty || 'all'}
-              onChange={(e) => setFilters({ ...filters, difficulty: e.target.value === 'all' ? undefined : e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Levels</option>
-              <option value="A1">Beginner (A1)</option>
-              <option value="A2">Elementary (A2)</option>
-              <option value="B1">Intermediate (B1)</option>
-              <option value="B2">Upper Intermediate (B2)</option>
-              <option value="C1">Advanced (C1)</option>
-              <option value="C2">Proficient (C2)</option>
-            </select>
+            <div style={{ position: 'relative' }}>
+              <Filter
+                size={18}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }}
+              />
+              <select
+                value={filters.category || 'all'}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value === 'all' ? undefined : e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
+                className={styles.filterSelect}
+                style={{ paddingLeft: '40px' }}
+              >
+                <option value="all">All Categories</option>
+                <option value="daily-life">Daily Life</option>
+                <option value="business">Business</option>
+                <option value="travel">Travel</option>
+                <option value="food">Food</option>
+                <option value="nature">Nature</option>
+                <option value="technology">Technology</option>
+                <option value="emotions">Emotions</option>
+                <option value="sports">Sports</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <Award
+                size={18}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }}
+              />
+              <select
+                value={filters.difficulty || 'all'}
+                onChange={(e) => setFilters({ ...filters, difficulty: e.target.value === 'all' ? undefined : e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
+                className={styles.filterSelect}
+                style={{ paddingLeft: '40px' }}
+              >
+                <option value="all">All Levels</option>
+                <option value="A1">Beginner (A1)</option>
+                <option value="A2">Elementary (A2)</option>
+                <option value="B1">Intermediate (B1)</option>
+                <option value="B2">Upper Intermediate (B2)</option>
+                <option value="C1">Advanced (C1)</option>
+                <option value="C2">Proficient (C2)</option>
+              </select>
+            </div>
+
             <label className={styles.checkboxLabel}>
               <input
                 type="checkbox"
@@ -340,7 +389,7 @@ const VocabularyPage: React.FC = () => {
               className={styles.primaryButton}
               onClick={() => setShowAddModal(true)}
             >
-              Add Word
+              <Plus size={18} style={{ marginRight: '8px' }} /> Add Word
             </button>
           </div>
         </div>
@@ -348,13 +397,15 @@ const VocabularyPage: React.FC = () => {
         <div className={styles.wordsGrid}>
           {words.length === 0 ? (
             <div className={styles.emptyState}>
+              <BookOpen size={48} color="rgba(255,255,255,0.2)" style={{ marginBottom: '1rem' }} />
               <h3>No words found</h3>
               <p>Start building your vocabulary by adding your first word!</p>
               <button
                 className={styles.primaryButton}
                 onClick={() => setShowAddModal(true)}
+                style={{ marginTop: '1.5rem' }}
               >
-                Add Your First Word
+                <Plus size={18} style={{ marginRight: '8px' }} /> Add Your First Word
               </button>
             </div>
           ) : (
@@ -374,7 +425,7 @@ const VocabularyPage: React.FC = () => {
                     onClick={() => handleToggleFavorite(word._id)}
                     title={word.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                   >
-                    {word.isFavorite ? '❤️' : '🤍'}
+                    {word.isFavorite ? <Heart size={20} fill="#ff4757" color="#ff4757" /> : <Heart size={20} color="rgba(255,255,255,0.4)" />}
                   </button>
                 </div>
 
@@ -382,7 +433,7 @@ const VocabularyPage: React.FC = () => {
                   <div className={styles.wordText}>
                     {word.word}
                     {word.pronunciation && (
-                      <span className={styles.pronunciation}>/{word.pronunciation}/</span>
+                      <span className={styles.pronunciation}><Volume2 size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />/{word.pronunciation}/</span>
                     )}
                   </div>
 
@@ -402,7 +453,7 @@ const VocabularyPage: React.FC = () => {
                       <h4>Examples:</h4>
                       {word.examples.map((example, index) => (
                         <div key={index} className={styles.example}>
-                          <div className={styles.english}>{example.english}</div>
+                          <div className={styles.english}>"{example.english}"</div>
                           {example.spanish && (
                             <div className={styles.spanish}>{example.spanish}</div>
                           )}
@@ -433,14 +484,14 @@ const VocabularyPage: React.FC = () => {
                     onClick={() => handleEdit(word)}
                     title="Edit word"
                   >
-                    ✏️ Edit
+                    <Edit2 size={16} /> Edit
                   </button>
                   <button
                     className={styles.deleteButton}
                     onClick={() => handleDelete(word._id)}
                     title="Delete word"
                   >
-                    🗑️ Delete
+                    <Trash2 size={16} /> Delete
                   </button>
                 </div>
               </div>
@@ -449,35 +500,41 @@ const VocabularyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Word Modal */}
-      {showAddModal && (
+      {/* Add/Edit Modal */}
+      {(showAddModal || showEditModal) && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Add New Word</h2>
+              <h2 className={styles.modalTitle}>
+                {showEditModal ? <Edit2 size={24} style={{ marginRight: '12px' }} /> : <Plus size={24} style={{ marginRight: '12px' }} />}
+                {showEditModal ? 'Edit Word' : 'Add New Word'}
+              </h2>
               <button
                 className={styles.closeButton}
                 onClick={() => {
                   setShowAddModal(false);
+                  setShowEditModal(false);
+                  setEditingWord(null);
                   resetForm();
                 }}
               >
-                ×
+                <X size={24} />
               </button>
             </div>
             <form className={styles.modalForm} onSubmit={handleSubmit}>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Word *</label>
+                  <label><Type size={14} style={{ marginRight: '6px' }} /> Word *</label>
                   <input
                     type="text"
                     value={formData.word}
                     onChange={(e) => setFormData({ ...formData, word: e.target.value })}
                     required
+                    placeholder="e.g., Serendipity"
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Pronunciation</label>
+                  <label><Volume2 size={14} style={{ marginRight: '6px' }} /> Pronunciation</label>
                   <input
                     type="text"
                     value={formData.pronunciation}
@@ -488,12 +545,13 @@ const VocabularyPage: React.FC = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label>Meanings *</label>
+                <label><AlignLeft size={14} style={{ marginRight: '6px' }} /> Meanings *</label>
                 {formData.meanings.map((meaning, index) => (
                   <div key={index} className={styles.meaningRow}>
                     <select
                       value={meaning.partOfSpeech}
                       onChange={(e) => updateMeaning(index, 'partOfSpeech', e.target.value)}
+                      style={{ width: '120px' }}
                     >
                       <option value="noun">Noun</option>
                       <option value="verb">Verb</option>
@@ -517,7 +575,7 @@ const VocabularyPage: React.FC = () => {
                         className={styles.removeButton}
                         onClick={() => removeMeaning(index)}
                       >
-                        ×
+                        <Trash size={16} />
                       </button>
                     )}
                   </div>
@@ -527,33 +585,36 @@ const VocabularyPage: React.FC = () => {
                   className={styles.addButton}
                   onClick={addMeaning}
                 >
-                  + Add Meaning
+                  <Plus size={14} style={{ marginRight: '4px' }} /> Add Meaning
                 </button>
               </div>
 
               <div className={styles.formGroup}>
-                <label>Examples</label>
+                <label><BookOpen size={14} style={{ marginRight: '6px' }} /> Examples</label>
                 {(formData.examples || []).map((example, index) => (
                   <div key={index} className={styles.exampleRow}>
-                    <input
-                      type="text"
-                      value={example.english}
-                      onChange={(e) => updateExample(index, 'english', e.target.value)}
-                      placeholder="English example"
-                    />
-                    <input
-                      type="text"
-                      value={example.spanish}
-                      onChange={(e) => updateExample(index, 'spanish', e.target.value)}
-                      placeholder="Spanish translation"
-                    />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <input
+                        type="text"
+                        value={example.english}
+                        onChange={(e) => updateExample(index, 'english', e.target.value)}
+                        placeholder="English example"
+                      />
+                      <input
+                        type="text"
+                        value={example.spanish}
+                        onChange={(e) => updateExample(index, 'spanish', e.target.value)}
+                        placeholder="Spanish translation"
+                      />
+                    </div>
                     {(formData.examples || []).length > 1 && (
                       <button
                         type="button"
                         className={styles.removeButton}
                         onClick={() => removeExample(index)}
+                        style={{ alignSelf: 'center' }}
                       >
-                        ×
+                        <Trash size={16} />
                       </button>
                     )}
                   </div>
@@ -563,13 +624,13 @@ const VocabularyPage: React.FC = () => {
                   className={styles.addButton}
                   onClick={addExample}
                 >
-                  + Add Example
+                  <Plus size={14} style={{ marginRight: '4px' }} /> Add Example
                 </button>
               </div>
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Difficulty</label>
+                  <label><Award size={14} style={{ marginRight: '6px' }} /> Difficulty</label>
                   <select
                     value={formData.difficulty}
                     onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
@@ -583,7 +644,7 @@ const VocabularyPage: React.FC = () => {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Category</label>
+                  <label><Layers size={14} style={{ marginRight: '6px' }} /> Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
@@ -618,189 +679,6 @@ const VocabularyPage: React.FC = () => {
                   className={styles.cancelButton}
                   onClick={() => {
                     setShowAddModal(false);
-                    resetForm();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitButton}>
-                  Add Word
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Word Modal */}
-      {showEditModal && editingWord && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Edit Word</h2>
-              <button
-                className={styles.closeButton}
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingWord(null);
-                  resetForm();
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <form className={styles.modalForm} onSubmit={handleSubmit}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Word *</label>
-                  <input
-                    type="text"
-                    value={formData.word}
-                    onChange={(e) => setFormData({ ...formData, word: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Pronunciation</label>
-                  <input
-                    type="text"
-                    value={formData.pronunciation}
-                    onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                    placeholder="e.g., həˈloʊ"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Meanings *</label>
-                {formData.meanings.map((meaning, index) => (
-                  <div key={index} className={styles.meaningRow}>
-                    <select
-                      value={meaning.partOfSpeech}
-                      onChange={(e) => updateMeaning(index, 'partOfSpeech', e.target.value)}
-                    >
-                      <option value="noun">Noun</option>
-                      <option value="verb">Verb</option>
-                      <option value="adjective">Adjective</option>
-                      <option value="adverb">Adverb</option>
-                      <option value="preposition">Preposition</option>
-                      <option value="conjunction">Conjunction</option>
-                      <option value="interjection">Interjection</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <input
-                      type="text"
-                      value={meaning.meaning}
-                      onChange={(e) => updateMeaning(index, 'meaning', e.target.value)}
-                      placeholder="Meaning in Spanish"
-                      required
-                    />
-                    {formData.meanings.length > 1 && (
-                      <button
-                        type="button"
-                        className={styles.removeButton}
-                        onClick={() => removeMeaning(index)}
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className={styles.addButton}
-                  onClick={addMeaning}
-                >
-                  + Add Meaning
-                </button>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Examples</label>
-                {(formData.examples || []).map((example, index) => (
-                  <div key={index} className={styles.exampleRow}>
-                    <input
-                      type="text"
-                      value={example.english}
-                      onChange={(e) => updateExample(index, 'english', e.target.value)}
-                      placeholder="English example"
-                    />
-                    <input
-                      type="text"
-                      value={example.spanish}
-                      onChange={(e) => updateExample(index, 'spanish', e.target.value)}
-                      placeholder="Spanish translation"
-                    />
-                    {(formData.examples || []).length > 1 && (
-                      <button
-                        type="button"
-                        className={styles.removeButton}
-                        onClick={() => removeExample(index)}
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className={styles.addButton}
-                  onClick={addExample}
-                >
-                  + Add Example
-                </button>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Difficulty</label>
-                  <select
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
-                  >
-                    <option value="A1">Beginner (A1)</option>
-                    <option value="A2">Elementary (A2)</option>
-                    <option value="B1">Intermediate (B1)</option>
-                    <option value="B2">Upper Intermediate (B2)</option>
-                    <option value="C1">Advanced (C1)</option>
-                    <option value="C2">Proficient (C2)</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Category</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as 'daily-life' | 'business' | 'travel' | 'food' | 'nature' | 'technology' | 'emotions' | 'sports' | 'other' })}
-                  >
-                    <option value="daily-life">Daily Life</option>
-                    <option value="business">Business</option>
-                    <option value="travel">Travel</option>
-                    <option value="food">Food</option>
-                    <option value="nature">Nature</option>
-                    <option value="technology">Technology</option>
-                    <option value="emotions">Emotions</option>
-                    <option value="sports">Sports</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.isFavorite}
-                    onChange={(e) => setFormData({ ...formData, isFavorite: e.target.checked })}
-                  />
-                  Add to favorites
-                </label>
-              </div>
-
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  className={styles.cancelButton}
-                  onClick={() => {
                     setShowEditModal(false);
                     setEditingWord(null);
                     resetForm();
@@ -809,7 +687,7 @@ const VocabularyPage: React.FC = () => {
                   Cancel
                 </button>
                 <button type="submit" className={styles.submitButton}>
-                  Update Word
+                  <Save size={18} style={{ marginRight: '8px' }} /> {showEditModal ? 'Update Word' : 'Create Word'}
                 </button>
               </div>
             </form>
@@ -817,9 +695,10 @@ const VocabularyPage: React.FC = () => {
         </div>
       )}
 
-      {/* Toast Notifications */}
+      {/* Toast Notification */}
       {toast && (
         <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.type === 'success' ? <Award size={18} /> : <X size={18} />}
           {toast.message}
         </div>
       )}

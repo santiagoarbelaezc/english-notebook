@@ -19,7 +19,7 @@ import {
   X
 } from 'lucide-react';
 import styles from './Navbar.module.css';
-import iconSmall from '../../assets/icons/husky.png';
+import iconSmall from '../../assets/icons/icon-small.png';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
