@@ -82,7 +82,7 @@
 👨‍💻 Desarrolladores
 
 ---
-Nicolas Arbelaez Contreras
+**Nicolas Arbelaez Contreras nicorep17-rgb
 ---
 
 <div align="center">
