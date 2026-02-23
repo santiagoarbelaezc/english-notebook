@@ -79,7 +79,12 @@
 
 ---
 
-👨‍💻 Desarrollador
+👨‍💻 Desarrolladores
+
+---
+Nicolas Arbelaez Contreras
+---
+
 <div align="center">
 Santiago Arbelaez Contreras
 
