@@ -81,12 +81,9 @@
 
 👨‍💻 Desarrolladores
 
----
-**Nicolas Arbelaez Contreras nicolas1017-rgb
----
-
 <div align="center">
 Santiago Arbelaez Contreras
+Nicolas Arbelaez Contreras nicolas1017-rgb student 
 
 Junior Full Stack Developer
 
