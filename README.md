@@ -83,7 +83,9 @@
 
 ---
 <p align="center">
-Nicolas Arbelaez Contreras nicolas1017-rgb student 
+Nicolas Arbelaez Contreras nicolas1017-rgb 
+
+Estudiante de la Universidad del Quindio
 </p>
   
 ---
