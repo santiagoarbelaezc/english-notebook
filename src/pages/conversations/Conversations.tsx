@@ -46,7 +46,7 @@ import type {
 } from '../../types/conversation.types';
 import { tokenService } from '../../services/token.service';
 import styles from './Conversations.module.css';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky from '../../assets/videos/video-husky4.mp4';
 
 export const Conversations: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -372,12 +372,19 @@ export const Conversations: React.FC = () => {
   return (
     <div className={styles.pageContent}>
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Conversations</h1>
           <p className={styles.subtitle}>Practice and improve your English conversation skills</p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
       </header>
 

@@ -30,7 +30,7 @@ import {
 } from '../../api';
 import type { GrammarRule, CreateGrammarRuleRequest, UpdateGrammarRuleRequest, HighlightedWord } from '../../types';
 import styles from './Grammar.module.css';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky from '../../assets/videos/video-husky10.mp4';
 
 export const Grammar: React.FC = () => {
   const [rules, setRules] = useState<GrammarRule[]>([]);
@@ -306,12 +306,19 @@ export const Grammar: React.FC = () => {
   return (
     <div className={styles.pageContent}>
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Grammar Rules</h1>
           <p className={styles.subtitle}>Master English grammar with detailed explanations and examples</p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
       </header>
 

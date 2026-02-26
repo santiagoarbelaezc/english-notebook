@@ -19,7 +19,7 @@ import {
   BookOpen,
   Info
 } from 'lucide-react';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky7 from '../../assets/videos/video-husky7.mp4';
 import styles from './IrregularVerbs.module.css';
 
 interface VerbCardProps {
@@ -188,17 +188,15 @@ export const IrregularVerbs: React.FC = () => {
     setAddingExampleToVerb(verbId);
   };
 
-  const handleSubmitAddExample = async (exampleData: { infinitive: string; pastSimple: string; pastParticiple: string }) => {
-    if (addingExampleToVerb) {
-      try {
-        await addIrregularVerbExample(addingExampleToVerb, exampleData);
-        setAddingExampleToVerb(null);
-        await loadVerbs();
-        await loadStats();
-      } catch (err: any) {
-        console.error('Error adding example:', err);
-        setError(err.message || 'Failed to add example');
-      }
+  const handleSubmitAddExample = async (verbId: string, exampleData: { infinitive: string; pastSimple: string; pastParticiple: string }) => {
+    try {
+      await addIrregularVerbExample(verbId, exampleData);
+      setAddingExampleToVerb(null);
+      await loadVerbs();
+      await loadStats();
+    } catch (err: any) {
+      console.error('Error adding example:', err);
+      setError(err.message || 'Failed to add example');
     }
   };
 
@@ -304,12 +302,19 @@ export const IrregularVerbs: React.FC = () => {
   return (
     <div className={styles.pageContent}>
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky Mascot" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Irregular Verbs</h1>
           <p className={styles.subtitle}>Master the most common irregular verbs</p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky7}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
       </header>
 

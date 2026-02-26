@@ -11,9 +11,13 @@ import {
   Award,
   TrendingUp,
   Star,
-  Edit2
+  Edit2,
+  Check,
+  X,
+  Archive
 } from 'lucide-react';
 import styles from './Profile.module.css';
+import videoHusky from '../../assets/videos/video-husky10.mp4';
 import { getMyProfile, getProfileSummary, getDetailedStats, updateProfile, uploadProfileImage } from '../../api/profiles.api';
 import { updateUserProfile } from '../../api/users.api';
 import type { Profile as ProfileData, ProfileSummary, DetailedStats } from '../../api/profiles.api';
@@ -34,6 +38,7 @@ export const Profile = () => {
     nativeLanguage: '',
     englishLevel: ''
   });
+  const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -161,16 +166,23 @@ export const Profile = () => {
   };
 
   const getLevelColor = (level?: string) => {
-    if (!level) return '#00d4ff';
+    if (!level) return 'var(--gradient-primary)';
     switch (level.toUpperCase()) {
-      case 'A1': return '#00d4ff';
-      case 'A2': return '#00d4ff';
-      case 'B1': return '#007bff';
-      case 'B2': return '#007bff';
-      case 'C1': return '#0056b3';
-      case 'C2': return '#0056b3';
-      default: return '#00d4ff';
+      case 'A1': return 'var(--gradient-primary)';
+      case 'A2': return 'var(--gradient-primary)';
+      case 'B1': return 'var(--gradient-purple)';
+      case 'B2': return 'var(--gradient-purple)';
+      case 'C1': return 'var(--gradient-rose)';
+      case 'C2': return 'var(--gradient-rose)';
+      default: return 'var(--gradient-primary)';
     }
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
   };
 
   if (loading && !profile) {
@@ -221,44 +233,93 @@ export const Profile = () => {
       {error && <div className={styles.globalError}>{error}</div>}
 
       <header className={styles.header}>
-        <div className={styles.profileAvatar}>
-          {profile.profileImage ? (
-            <img src={profile.profileImage} alt="Profile picture" className={styles.avatarImage} />
-          ) : (
-            <span className={styles.avatarPlaceholder}>
-              {profile.user?.name?.[0] || profile.user?.username?.[0]?.toUpperCase() || '?'}
-            </span>
-          )}
-          {isEditing && (
-            <label className={styles.imageUpload}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                style={{ display: 'none' }}
-              />
-              <Camera size={20} color="#fff" />
-            </label>
-          )}
-        </div>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editForm.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Your name"
-                className={styles.editInput}
-                style={{ fontSize: '1.5rem', padding: '0.5rem 1rem' }}
-              />
-            ) : (
-              profile.user?.name || profile.user?.username || 'User'
-            )}
-          </h1>
-          <p className={styles.subtitle}>{profile.user?.email}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
+            <div className={styles.profileAvatar} onClick={() => !isEditing && setShowImageModal(true)}>
+              {profile.profileImage ? (
+                <img src={profile.profileImage} alt="Profile picture" className={styles.avatarImage} />
+              ) : (
+                <span className={styles.avatarPlaceholder}>
+                  {profile.user?.name?.[0] || profile.user?.username?.[0]?.toUpperCase() || '?'}
+                </span>
+              )}
+              {isEditing && (
+                <label className={styles.imageUpload}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <Camera size={20} color="#fff" />
+                </label>
+              )}
+            </div>
+            <div>
+              <span className={styles.greetingBadge}>{getGreeting()}</span>
+              <h1 className={styles.title}>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Your name"
+                    className={styles.editInput}
+                    style={{ fontSize: '1.5rem', padding: '0.5rem 1rem' }}
+                  />
+                ) : (
+                  profile.user?.name || profile.user?.username || 'User'
+                )}
+              </h1>
+              <p className={styles.subtitle}>{profile.user?.email}</p>
+            </div>
+          </div>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
       </header>
+
+      <div className={styles.topActions}>
+        {isEditing ? (
+          <>
+            <button
+              onClick={handleSaveProfile}
+              className={styles.headerPrimaryButton}
+              disabled={loading}
+            >
+              <Check size={18} />
+              <span>{loading ? 'Saving...' : 'Save Changes'}</span>
+            </button>
+            <button
+              onClick={handleEditToggle}
+              className={styles.headerSecondaryButton}
+              disabled={loading}
+            >
+              <X size={18} />
+              <span>Cancel</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={handleEditToggle} className={styles.headerPrimaryButton}>
+              <Edit2 size={18} />
+              <span>Edit Profile</span>
+            </button>
+            <button className={styles.headerSecondaryButton}>
+              <Archive size={18} />
+              <span>Export Progress</span>
+            </button>
+          </>
+        )}
+      </div>
 
       <section className={styles.stats}>
         <div className={styles.statCard}>
@@ -273,7 +334,7 @@ export const Profile = () => {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'var(--gradient-warning)' }}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-gold)' }}>
             <TrendingUp size={24} />
           </div>
           <div className={styles.statContent}>
@@ -282,7 +343,7 @@ export const Profile = () => {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'var(--gradient-accent)' }}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-emerald)' }}>
             <Star size={24} />
           </div>
           <div className={styles.statContent}>
@@ -389,6 +450,12 @@ export const Profile = () => {
               Vocabulary
             </span>
             <p className={styles.detailValue}>{stats.overview?.totalVocabulary || 0} Words Learned</p>
+            <div className={styles.progressBarContainer}>
+              <div
+                className={styles.progressBar}
+                style={{ width: `${Math.min((stats.overview?.totalVocabulary || 0) / 10, 100)}%`, background: 'var(--gradient-primary)' }}
+              />
+            </div>
           </div>
           <div className={styles.detailCard}>
             <span className={styles.detailLabel}>
@@ -396,6 +463,12 @@ export const Profile = () => {
               Grammar
             </span>
             <p className={styles.detailValue}>{stats.overview?.totalGrammarRules || 0} Rules Mastered</p>
+            <div className={styles.progressBarContainer}>
+              <div
+                className={styles.progressBar}
+                style={{ width: `${Math.min((stats.overview?.totalGrammarRules || 0) / 5, 100)}%`, background: 'var(--gradient-purple)' }}
+              />
+            </div>
           </div>
           <div className={styles.detailCard}>
             <span className={styles.detailLabel}>
@@ -403,6 +476,12 @@ export const Profile = () => {
               Conversations
             </span>
             <p className={styles.detailValue}>{stats.overview?.totalConversations || 0} Completed</p>
+            <div className={styles.progressBarContainer}>
+              <div
+                className={styles.progressBar}
+                style={{ width: `${Math.min((stats.overview?.totalConversations || 0) / 2, 100)}%`, background: 'var(--gradient-rose)' }}
+              />
+            </div>
           </div>
           <div className={styles.detailCard}>
             <span className={styles.detailLabel}>
@@ -410,39 +489,33 @@ export const Profile = () => {
               Music
             </span>
             <p className={styles.detailValue}>{stats.overview?.totalSongs || 0} Songs Listened</p>
+            <div className={styles.progressBarContainer}>
+              <div
+                className={styles.progressBar}
+                style={{ width: `${Math.min((stats.overview?.totalSongs || 0) * 10, 100)}%`, background: 'var(--gradient-emerald)' }}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      <div className={styles.actions}>
-        {isEditing ? (
-          <>
-            <button
-              onClick={handleSaveProfile}
-              className={styles.primaryButton}
-              disabled={loading}
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
+      {/* Bottom actions removed and moved to header */}
+
+      {showImageModal && profile.profileImage && (
+        <div className={styles.imageModalOverlay} onClick={() => setShowImageModal(false)}>
+          <div className={styles.largeImageContainer}>
+            <button className={styles.closeModal} onClick={() => setShowImageModal(false)}>
+              <X size={24} />
             </button>
-            <button
-              onClick={handleEditToggle}
-              className={styles.secondaryButton}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <button onClick={handleEditToggle} className={styles.primaryButton}>
-              Edit Profile
-            </button>
-            <button className={styles.secondaryButton}>
-              Export Progress
-            </button>
-          </>
-        )}
-      </div>
+            <img
+              src={profile.profileImage}
+              alt="Profile zoomed"
+              className={styles.largeImage}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

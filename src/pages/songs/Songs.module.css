@@ -61,30 +61,35 @@
   display: flex;
   align-items: center;
   gap: 2rem;
-  margin-bottom: 3rem;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.4);
+  margin-bottom: 2.5rem;
+  padding: 1.5rem 3rem;
+  background: #000000;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  animation: slideInDown 0.6s var(--transition-smooth);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  justify-content: space-between;
+  animation: slideInDown 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  z-index: 10;
 }
 
 .huskyContainer {
-  width: 140px;
-  height: 140px;
+  width: 320px;
+  height: 320px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: scaleIn 0.7s ease-out;
+  overflow: hidden;
+  border-radius: 12px;
 }
 
-.huskyImg {
+.huskyVideo {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
+  object-fit: cover;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
 }
 
 .headerContent {
@@ -597,29 +602,30 @@
 }
 
 .modalContent {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  width: 100%;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  width: 95%;
   max-width: 1400px;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  animation: fadeInUp 0.4s ease-out;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
+  animation: modalSlideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2000;
 }
 
-@keyframes fadeInUp {
+@keyframes modalSlideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -627,11 +633,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  flex-shrink: 0;
+  padding: 2.5rem 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
 }
 
 .modalTitle {
@@ -1062,6 +1066,591 @@
 }
 
 /* ==========================================================================
+   APP CONTAINER - DUAL PANE LAYOUT
+   ========================================================================== */
+
+.appContainer {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 2rem;
+  height: 900px;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1200px) {
+  .appContainer {
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .appContainer {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* ==========================================================================
+   PLAYLIST COLUMN (LEFT)
+   ========================================================================== */
+
+.playlistColumn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.playlistHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
+}
+
+.playlistTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.playlistCount {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+.playlistScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.playlistScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.playlistScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.playlistList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.playlistItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.playlistItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(4px);
+}
+
+.activeItem {
+  background: rgba(102, 126, 234, 0.15) !important;
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.itemImage {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.itemImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemIcon {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.itemInfo {
+  flex: 1;
+  overflow: hidden;
+}
+
+.itemTitle {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemArtist {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.1rem;
+}
+
+.itemActions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.playlistItem:hover .itemActions,
+.activeItem .itemActions {
+  opacity: 1;
+}
+
+.tinyFavorite {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.tinyFavorite:hover {
+  color: #ff6384;
+  transform: scale(1.2);
+}
+
+.tinyFavorite.favorited {
+  color: #ff6384;
+}
+
+/* ==========================================================================
+   DETAIL COLUMN (RIGHT)
+   ========================================================================== */
+
+.detailColumn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  overflow-y: auto;
+  backdrop-filter: blur(20px);
+  position: relative;
+}
+
+.detailColumn::-webkit-scrollbar {
+  width: 6px;
+}
+
+.detailColumn::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+}
+
+.activeSongView {
+  padding: 2.5rem;
+}
+
+.activeSongHeader {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.activeSongCover {
+  width: 220px;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.activeSongCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activeSongIcon {
+  font-size: 5rem;
+  opacity: 0.2;
+}
+
+.activeSongMeta {
+  flex: 1;
+}
+
+.activeSongBadge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #764ba2;
+  margin-bottom: 0.5rem;
+}
+
+.activeSongTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 0%, #a8edea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.activeSongArtist {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0.5rem 0 1.5rem 0;
+  font-weight: 500;
+}
+
+.activeSongTags {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.topicTag {
+  padding: 0.5rem 1.25rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.activeFavoriteBadge {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 99, 132, 0.15);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 99, 132, 0.3);
+}
+
+.activeSongActions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.linkButtons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.youtubeLinkSmall,
+.spotifyLinkSmall {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.youtubeLinkSmall {
+  background: #ff0000;
+  color: white;
+}
+
+.spotifyLinkSmall {
+  background: #1db954;
+  color: white;
+}
+
+.youtubeLinkSmall:hover,
+.spotifyLinkSmall:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.editPill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editPill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   CONTENT SECTIONS
+   ========================================================================== */
+
+.activeSongContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.contentSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionHeaderLine {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.translationToggle {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.translationToggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+.singlePaneLyrics {
+  max-width: 800px;
+}
+
+.dualPaneLyrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.paneBox {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.paneLabel {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.lyricsBody,
+.translationBody {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.translationBody {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   VOCABULARY & PHRASES GRID
+   ========================================================================== */
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1000px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gridSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.vocabCards,
+.phraseCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.vocabCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.vocabCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-3px);
+}
+
+.vocabWord {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.vocabWord strong {
+  color: #a8edea;
+  font-size: 1.1rem;
+}
+
+.vocabLine {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.vocabMeaning {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+}
+
+.phraseCard {
+  background: rgba(118, 75, 162, 0.05);
+  border: 1px solid rgba(118, 75, 162, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.phraseCard:hover {
+  background: rgba(118, 75, 162, 0.1);
+  border-color: rgba(118, 75, 162, 0.3);
+  transform: translateY(-3px);
+}
+
+.phraseText {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+
+.phraseMeaning {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.phraseNote {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.notesBox {
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 4px solid var(--gradient-primary);
+  padding: 1.5rem 2rem;
+  border-radius: 0 16px 16px 0;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+
+.noSongSelected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 4rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.noSongIcon {
+  font-size: 6rem;
+  margin-bottom: 2rem;
+  opacity: 0.2;
+}
+
+.noSongSelected h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.noSongSelected p {
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
    SONG VIEW MODAL STYLES
    ========================================================================== */
 
@@ -1120,12 +1709,13 @@
 }
 
 .songViewContent {
-  padding: 2.5rem;
-  max-height: calc(90vh - 120px);
+  padding: 3rem;
+  max-height: calc(92vh - 200px);
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
   position: relative;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
 .songViewContent::after {
@@ -1184,35 +1774,66 @@
 }
 
 .sectionTitle {
-  color: var(--text-primary);
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-family: var(--font-primary);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.sectionTitle svg {
+  color: #00d4ff;
 }
 
 .urlButtons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
+  margin-top: 0.5rem;
 }
 
-.urlButton {
-  display: inline-flex;
+.youtubeLink {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid rgba(78, 205, 196, 0.3);
-  color: #4ecdc4;
+  gap: 0.75rem;
+  padding: 0.8rem 1.8rem;
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: #ffffff;
   text-decoration: none;
-  border-radius: 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+}
+
+.youtubeLink:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+}
+
+.spotifyLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.8rem;
+  background: linear-gradient(135deg, #1db954 0%, #179c46 100%);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 5px 15px rgba(29, 185, 84, 0.2);
+}
+
+.spotifyLink:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(29, 185, 84, 0.4);
 }
 
 .dualViewContainer {
@@ -1282,58 +1903,77 @@
 .vocabularyList,
 .phrasesList {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .vocabularyItem,
 .phraseItem {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 1rem;
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.vocabularyItem:hover,
+.phraseItem:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .vocabularyWord {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .vocabularyWord strong {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: #00d4ff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
 }
 
 .lineNumber {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.8rem;
-  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .vocabularyMeaning {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .phraseText strong {
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-style: italic;
+  color: #00d4ff;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  display: block;
+  margin-bottom: 0.75rem;
 }
 
 .phraseMeaning {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  color: #ffffff;
+  font-size: 1rem;
   margin: 0.5rem 0;
+  font-weight: 600;
 }
 
 .phraseExplanation {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-style: italic;
   padding-left: 1rem;
-  border-left: 2px solid rgba(78, 205, 196, 0.3);
+  border-left: 2px solid #00d4ff;
+  margin-top: 1rem;
 }

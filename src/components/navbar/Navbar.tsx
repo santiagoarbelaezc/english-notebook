@@ -18,7 +18,7 @@ import {
   X
 } from 'lucide-react';
 import styles from './Navbar.module.css';
-import logoSmall from '../../assets/icons/logo-small.png';
+import logoNavbar from '../../assets/icons/logo-navbar.jpg';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
@@ -145,11 +145,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Desktop Header */}
         <div className={`${styles.desktopHeader} ${isScrolled ? styles.scrolled : ''}`}>
           <div className={styles.logo}>
-            <img src={logoSmall} alt="English Notebook" className={styles.logoImg} />
-            <div className={styles.logoTextContainer}>
-              <span className={styles.logoText}>English</span>
-              <span className={styles.logoSubText}>Notebook</span>
-            </div>
+            <img src={logoNavbar} alt="English Notebook" className={styles.logoImg} />
           </div>
         </div>
 
@@ -196,11 +192,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
       {/* Mobile Top Bar */}
       <header className={styles.mobileHeader}>
         <div className={styles.mobileLogo}>
-          <img src={logoSmall} alt="English Notebook" className={styles.mobileLogoImg} />
-          <div className={styles.mobileLogoTextContainer}>
-            <span className={styles.mobileLogoText}>English</span>
-            <span className={styles.mobileLogoSubText}>Notebook</span>
-          </div>
+          <img src={logoNavbar} alt="English Notebook" className={styles.mobileLogoImg} />
         </div>
         <button
           className={`${styles.hamburger} ${isMenuOpen ? styles.active : ''}`}
@@ -224,11 +216,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Mobile Menu Header */}
         <div className={styles.mobileMenuHeader}>
           <div className={styles.mobileMenuLogo}>
-            <img src={logoSmall} alt="English Notebook" className={styles.mobileMenuLogoImg} />
-            <div className={styles.mobileMenuLogoTextContainer}>
-              <span className={styles.mobileMenuLogoText}>English</span>
-              <span className={styles.mobileMenuLogoSubText}>Notebook</span>
-            </div>
+            <img src={logoNavbar} alt="English Notebook" className={styles.mobileMenuLogoImg} />
           </div>
           <button
             className={styles.closeBtn}

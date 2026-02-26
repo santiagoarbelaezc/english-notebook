@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import YouTube from 'react-youtube';
 import styles from './Songs.module.css';
 import { getAllSongs, toggleSongFavorite, getSongStats, createSong, updateSong, uploadCoverImage } from '../../api';
 import type { CreateSongRequest } from '../../types';
 import {
   Music,
   Heart,
-  Plus
+  Plus,
+  SquarePlay,
+  Languages,
+  BookMarked,
+  Info,
+  Youtube
 } from 'lucide-react';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky11 from '../../assets/videos/video-husky11.mp4';
 
-// Function to extract YouTube video ID from URL
-const getYouTubeVideoId = (url: string): string | null => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-};
 
 interface Song {
   _id: string;
@@ -50,11 +48,11 @@ const Songs: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalSongs: 0, favoriteSongs: 0 });
 
-  // Modal states
+  // Modal and View states
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [showTranslation, setShowTranslation] = useState(false);
   const [editing, setEditing] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -80,6 +78,10 @@ const Songs: React.FC = () => {
         const response = await getAllSongs();
         setSongs(response.songs);
         setFilteredSongs(response.songs);
+        // Automatically select the first song if none is selected
+        if (response.songs.length > 0 && !selectedSong) {
+          setSelectedSong(response.songs[0]);
+        }
       } catch (error) {
         console.error('Error fetching songs:', error);
       } finally {
@@ -136,7 +138,9 @@ const Songs: React.FC = () => {
 
   const handleSongClick = (song: Song) => {
     setSelectedSong(song);
-    setShowViewModal(true);
+    setShowTranslation(false);
+    // Scroll detail to top if needed
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEditSong = (song: Song) => {
@@ -355,12 +359,19 @@ const Songs: React.FC = () => {
   return (
     <div className={styles.pageContent}>
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Songs & Lyrics</h1>
           <p className={styles.subtitle}>Improve your English listening skills with curated songs for different levels</p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky11}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
         <button
           className={styles.addButton}
@@ -416,246 +427,182 @@ const Songs: React.FC = () => {
         </div>
       </div>
 
-      {filteredSongs.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No songs found matching your criteria.</p>
-        </div>
-      ) : (
-        <div className={styles.songsGrid}>
-          {filteredSongs.map(song => (
-            <div key={song._id} className={styles.songCard} onClick={() => handleSongClick(song)}>
-              <div className={styles.songImage}>
-                {song.coverImage ? (
-                  <img src={song.coverImage} alt={song.title} className={styles.coverImage} />
-                ) : (
-                  <span className={styles.songIcon}>🎵</span>
-                )}
+      <div className={styles.appContainer}>
+        {/* Left Column: Playlist */}
+        <div className={styles.playlistColumn}>
+          <div className={styles.playlistHeader}>
+            <h2 className={styles.playlistTitle}>Your Library</h2>
+            <div className={styles.playlistCount}>{filteredSongs.length} items</div>
+          </div>
+
+          <div className={styles.playlistScroll}>
+            {filteredSongs.length === 0 ? (
+              <div className={styles.emptyPlaylist}>
+                <p>No songs found.</p>
               </div>
-              <div className={styles.songContent}>
-                <h3 className={styles.songTitle}>{song.title}</h3>
-                <p className={styles.songArtist}>{song.artist}</p>
-                <div className={styles.songMeta}>
-                  <span className={`${styles.topic} ${getTopicColor(song.topic)}`}>
-                    {song.topic}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.songActions} onClick={(e) => e.stopPropagation()}>
-                <button
-                  className={`${styles.favoriteAction}`}
-                  onClick={() => toggleFavorite(song._id)}
-                >
-                  <Heart size={18} fill={song.isFavorite ? 'currentColor' : 'none'} />
-                </button>
-                <div className={styles.mainActions}>
-                  <button
-                    className={styles.actionBtn}
-                    onClick={() => song.youtubeUrl && window.open(song.youtubeUrl, '_blank')}
+            ) : (
+              <div className={styles.playlistList}>
+                {filteredSongs.map(song => (
+                  <div
+                    key={song._id}
+                    className={`${styles.playlistItem} ${selectedSong?._id === song._id ? styles.activeItem : ''}`}
+                    onClick={() => handleSongClick(song)}
                   >
-                    Escuchar
-                  </button>
-                  <button
-                    className={styles.actionBtn}
-                    onClick={() => handleEditSong(song)}
-                  >
-                    Editar
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Song View Modal */}
-      {showViewModal && selectedSong && (
-        <div className={styles.modalOverlay} onClick={() => setShowViewModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div className={styles.songHeader}>
-                <div className={styles.songCover}>
-                  {selectedSong.coverImage ? (
-                    <img src={selectedSong.coverImage} alt={selectedSong.title} className={styles.modalCoverImage} />
-                  ) : (
-                    <div className={styles.modalSongIcon}>🎵</div>
-                  )}
-                </div>
-                <div className={styles.songInfo}>
-                  <h2 className={styles.modalTitle}>{selectedSong.title}</h2>
-                  <p className={styles.modalArtist}>{selectedSong.artist}</p>
-                  <div className={styles.songMeta}>
-                    <span className={`${styles.topic} ${getTopicColor(selectedSong.topic)}`}>
-                      {selectedSong.topic}
-                    </span>
-                    {selectedSong.isFavorite && <span className={styles.favoriteBadge}>❤️ Favorite</span>}
-                  </div>
-                </div>
-              </div>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowViewModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className={styles.songViewContent}>
-              {/* URLs Section */}
-              {(selectedSong.youtubeUrl || selectedSong.spotifyUrl) && (
-                <div className={styles.section}>
-                  <h3 className={styles.sectionTitle}>Listen On</h3>
-                  <div className={styles.urlButtons}>
-                    {selectedSong.youtubeUrl && (
-                      <a
-                        href={selectedSong.youtubeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.urlButton}
+                    <div className={styles.itemImage}>
+                      {song.coverImage ? (
+                        <img src={song.coverImage} alt={song.title} />
+                      ) : (
+                        <div className={styles.itemIcon}>🎵</div>
+                      )}
+                    </div>
+                    <div className={styles.itemInfo}>
+                      <div className={styles.itemTitle}>{song.title}</div>
+                      <div className={styles.itemArtist}>{song.artist}</div>
+                    </div>
+                    <div className={styles.itemActions}>
+                      <button
+                        className={`${styles.tinyFavorite} ${song.isFavorite ? styles.favorited : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(song._id);
+                        }}
                       >
-                        <span>▶️</span> YouTube
-                      </a>
-                    )}
-                    {selectedSong.spotifyUrl && (
-                      <a
-                        href={selectedSong.spotifyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.urlButton}
-                      >
-                        <span>🎵</span> Spotify
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className={styles.songViewLayout}>
-                {/* YouTube Player Section */}
-                {selectedSong.youtubeUrl && (
-                  <div className={styles.playerSection}>
-                    <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Play Song</h3>
-                      <div className={styles.youtubePlayer}>
-                        <YouTube
-                          videoId={getYouTubeVideoId(selectedSong.youtubeUrl) || ''}
-                          opts={{
-                            height: '250',
-                            width: '100%',
-                            playerVars: {
-                              autoplay: 0,
-                              controls: 1,
-                              modestbranding: 1,
-                            },
-                          }}
-                        />
-                      </div>
+                        <Heart size={14} fill={song.isFavorite ? 'currentColor' : 'none'} />
+                      </button>
                     </div>
                   </div>
-                )}
-
-                {/* Lyrics and Other Sections */}
-                <div className={styles.lyricsSection}>
-                  {/* Lyrics & Translation side-by-side if available */}
-                  <div className={selectedSong.translation ? styles.dualViewContainer : styles.singleViewContainer}>
-                    <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Letra (Lyrics)</h3>
-                      <div className={styles.lyricsContainer}>
-                        <pre className={styles.lyrics}>{selectedSong.lyrics}</pre>
-                      </div>
-                    </div>
-
-                    {selectedSong.translation && (
-                      <div className={styles.section}>
-                        <h3 className={styles.sectionTitle}>Traducción (Translation)</h3>
-                        <div className={styles.translationContainer}>
-                          <pre className={styles.translation}>{selectedSong.translation}</pre>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Notes Section */}
-                  {selectedSong.notes && (
-                    <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Notas</h3>
-                      <div className={styles.notesContainer}>
-                        <p className={styles.notes}>{selectedSong.notes}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Annotated Vocabulary Section */}
-                  {selectedSong.annotatedVocabulary && selectedSong.annotatedVocabulary.length > 0 && (
-                    <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Vocabulario Clave</h3>
-                      <div className={styles.vocabularyList}>
-                        {selectedSong.annotatedVocabulary.map((vocab, index) => (
-                          <div key={index} className={styles.vocabularyItem}>
-                            <div className={styles.vocabularyWord}>
-                              <strong>{vocab.word}</strong>
-                              {vocab.line && <span className={styles.lineNumber}>(Línea {vocab.line})</span>}
-                            </div>
-                            <div className={styles.vocabularyMeaning}>{vocab.meaning}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Key Phrases Section */}
-                  {selectedSong.keyPhrases && selectedSong.keyPhrases.length > 0 && (
-                    <div className={styles.section}>
-                      <h3 className={styles.sectionTitle}>Frases Importantes</h3>
-                      <div className={styles.phrasesList}>
-                        {selectedSong.keyPhrases.map((phrase, index) => (
-                          <div key={index} className={styles.phraseItem}>
-                            <div className={styles.phraseText}>
-                              <strong>"{phrase.phrase}"</strong>
-                            </div>
-                            <div className={styles.phraseMeaning}>{phrase.meaning}</div>
-                            {phrase.explanation && (
-                              <div className={styles.phraseExplanation}>{phrase.explanation}</div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                ))}
               </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={`${styles.songAction} ${styles.favorite}`}
-                onClick={() => {
-                  toggleFavorite(selectedSong._id);
-                  setSelectedSong(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null);
-                }}
-              >
-                <span>{selectedSong.isFavorite ? '❤️' : '🤍'}</span>
-                <span>{selectedSong.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>
-              </button>
-              <button
-                className={`${styles.songAction} ${styles.edit}`}
-                onClick={() => {
-                  setShowViewModal(false);
-                  handleEditSong(selectedSong);
-                }}
-              >
-                <span>✏️</span>
-                <span>Edit Song</span>
-              </button>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setShowViewModal(false)}
-              >
-                Close
-              </button>
-            </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Right Column: Active Song Details */}
+        <div className={styles.detailColumn}>
+          {selectedSong ? (
+            <div className={styles.activeSongView}>
+              <div className={styles.activeSongHeader}>
+                <div className={styles.activeSongCover}>
+                  {selectedSong.coverImage ? (
+                    <img src={selectedSong.coverImage} alt={selectedSong.title} />
+                  ) : (
+                    <div className={styles.activeSongIcon}>🎵</div>
+                  )}
+                </div>
+                <div className={styles.activeSongMeta}>
+                  <div className={styles.activeSongBadge}>ACTIVE SONG</div>
+                  <h2 className={styles.activeSongTitle}>{selectedSong.title}</h2>
+                  <p className={styles.activeSongArtist}>{selectedSong.artist}</p>
+                  <div className={styles.activeSongTags}>
+                    <span className={`${styles.topicTag} ${getTopicColor(selectedSong.topic)}`}>
+                      {selectedSong.topic}
+                    </span>
+                    {selectedSong.isFavorite && <span className={styles.activeFavoriteBadge}>❤️ Favorite</span>}
+                  </div>
+                  <div className={styles.activeSongActions}>
+                    <div className={styles.linkButtons}>
+                      {selectedSong.youtubeUrl && (
+                        <a href={selectedSong.youtubeUrl} target="_blank" rel="noopener noreferrer" className={styles.youtubeLinkSmall}>
+                          <Youtube size={16} /> YouTube
+                        </a>
+                      )}
+                      {selectedSong.spotifyUrl && (
+                        <a href={selectedSong.spotifyUrl} target="_blank" rel="noopener noreferrer" className={styles.spotifyLinkSmall}>
+                          <Music size={16} /> Spotify
+                        </a>
+                      )}
+                    </div>
+                    <button className={styles.editPill} onClick={() => handleEditSong(selectedSong)}>
+                      Editar Detalles
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.activeSongContent}>
+                {/* Lyrics Section */}
+                <div className={styles.contentSection}>
+                  <div className={styles.sectionHeaderLine}>
+                    <h3 className={styles.sectionTitle}><Languages size={18} /> Letras y Traducción</h3>
+                    {selectedSong.translation && (
+                      <button
+                        className={styles.translationToggle}
+                        onClick={() => setShowTranslation(!showTranslation)}
+                      >
+                        {showTranslation ? 'Ocultar Traducción' : 'Mostrar Traducción'}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className={selectedSong.translation && showTranslation ? styles.dualPaneLyrics : styles.singlePaneLyrics}>
+                    <div className={styles.paneBox}>
+                      <div className={styles.paneLabel}>ORIGINAL</div>
+                      <pre className={styles.lyricsBody}>{selectedSong.lyrics}</pre>
+                    </div>
+                    {selectedSong.translation && showTranslation && (
+                      <div className={styles.paneBox}>
+                        <div className={styles.paneLabel}>TRADUCCIÓN</div>
+                        <pre className={styles.translationBody}>{selectedSong.translation}</pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Vocabulary & Phrases Grid */}
+                <div className={styles.contentGrid}>
+                  {selectedSong.annotatedVocabulary && selectedSong.annotatedVocabulary.length > 0 && (
+                    <div className={styles.gridSection}>
+                      <h3 className={styles.sectionTitle}><BookMarked size={18} /> Vocabulario Clave</h3>
+                      <div className={styles.vocabCards}>
+                        {selectedSong.annotatedVocabulary.map((vocab, index) => (
+                          <div key={index} className={styles.vocabCard}>
+                            <div className={styles.vocabWord}>
+                              <strong>{vocab.word}</strong>
+                              {vocab.line && <span className={styles.vocabLine}>L{vocab.line}</span>}
+                            </div>
+                            <div className={styles.vocabMeaning}>{vocab.meaning}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedSong.keyPhrases && selectedSong.keyPhrases.length > 0 && (
+                    <div className={styles.gridSection}>
+                      <h3 className={styles.sectionTitle}><SquarePlay size={18} /> Frases Importantes</h3>
+                      <div className={styles.phraseCards}>
+                        {selectedSong.keyPhrases.map((phrase, index) => (
+                          <div key={index} className={styles.phraseCard}>
+                            <div className={styles.phraseText}>"{phrase.phrase}"</div>
+                            <div className={styles.phraseMeaning}>{phrase.meaning}</div>
+                            {phrase.explanation && <div className={styles.phraseNote}>{phrase.explanation}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Notes if any */}
+                {selectedSong.notes && (
+                  <div className={styles.contentSection}>
+                    <h3 className={styles.sectionTitle}><Info size={18} /> Notas Adicionales</h3>
+                    <div className={styles.notesBox}>
+                      <p>{selectedSong.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className={styles.noSongSelected}>
+              <div className={styles.noSongIcon}>🎵</div>
+              <h3>Selecciona una canción</h3>
+              <p>Elige una canción de tu biblioteca para ver su contenido</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Edit Song Modal */}
       {showEditModal && selectedSong && (

@@ -17,7 +17,7 @@ import {
   Trash
 } from 'lucide-react';
 import styles from './Vocabulary.module.css';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky from '../../assets/videos/video-husky6.mp4';
 import {
   getAllVocabulary,
   createVocabularyWord,
@@ -282,14 +282,21 @@ const VocabularyPage: React.FC = () => {
     <div className={styles.pageContent}>
       <div className={styles.mainContent}>
         <div className={styles.header}>
-          <div className={styles.huskyContainer}>
-            <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-          </div>
           <div className={styles.headerContent}>
             <h1 className={styles.title}>Vocabulary</h1>
             <p className={styles.subtitle}>
               Build your English vocabulary with detailed word definitions and translations
             </p>
+          </div>
+          <div className={styles.huskyContainer}>
+            <video
+              src={videoHusky}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={styles.huskyVideo}
+            />
           </div>
         </div>
 

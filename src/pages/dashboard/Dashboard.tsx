@@ -1,23 +1,18 @@
 import { useState, useEffect } from 'react';
 import {
-  LayoutDashboard,
   BookOpen,
   Trophy,
-  Zap,
   Files,
   CheckCircle,
   MessageCircle,
   Music,
   Calendar,
-  ChevronRight,
   Star,
   Target,
   Film,
   FileText,
   Book,
   Flame,
-  CheckSquare,
-  Activity,
   Award
 } from 'lucide-react';
 
@@ -28,7 +23,8 @@ import Grammar from '../grammar';
 import Conversations from '../conversations';
 import { getRandomPhrase } from '../../api/dailyPhrases.api';
 import type { DailyPhrase } from '../../types';
-import huskyIcon from '../../assets/icons/husky.png';
+import { useAuth } from '../../contexts/AuthContext';
+import huskyVideo from '../../assets/videos/video-husky2.mp4';
 
 export const Dashboard = () => {
   // @ts-ignore
@@ -101,190 +97,206 @@ const DashboardFlipCard = ({ frontContent, backContent, className = '' }: Dashbo
 };
 
 /* Main Dashboard Section */
-const MainDashboardSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <div className={styles.huskyContainer}>
-        <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
+const MainDashboardSection = () => {
+  const { user } = useAuth();
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>Welcome Back, {(user?.name || user?.username || 'Learner').split(' ')[0]}!</h1>
+          <p className={styles.subtitle}>Continue learning English in a fun and effective way</p>
+          <p className={styles.description}>
+            English Notebook is your premium personalized space for mastering English.
+            Track your progress, learn new vocabulary through interactive flashcards,
+            practice grammar, and immerse yourself in real conversations, movies, and songs.
+          </p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={huskyVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
+        </div>
       </div>
-      <div className={styles.headerContent}>
-        <h1 className={styles.title}>Welcome Back!</h1>
-        <p className={styles.subtitle}>Continue learning English in a fun and effective way</p>
+
+      <div className={styles.statsGrid}>
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}><BookOpen size={28} /></div>
+              <div className={styles.statContent}>
+                <h3 className={styles.statLabel}>Words Learned</h3>
+                <p className={styles.statValue}>245</p>
+              </div>
+            </div>
+          }
+          backContent={
+            <div>
+              <h3>Weekly Progress</h3>
+              <span className={styles.highlight}>+12</span>
+              <p>new words this week</p>
+            </div>
+          }
+        />
+
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}><Files size={28} /></div>
+              <div className={styles.statContent}>
+                <h3 className={styles.statLabel}>Flashcards</h3>
+                <p className={styles.statValue}>89</p>
+              </div>
+            </div>
+          }
+          backContent={
+            <div>
+              <h3>Mastery Level</h3>
+              <span className={styles.highlight}>85%</span>
+              <p>of cards mastered</p>
+            </div>
+          }
+        />
+
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}><Trophy size={28} /></div>
+              <div className={styles.statContent}>
+                <h3 className={styles.statLabel}>Achievements</h3>
+                <p className={styles.statValue}>12</p>
+              </div>
+            </div>
+          }
+          backContent={
+            <div>
+              <h3>Next Goal</h3>
+              <p>Reach 10 day streak</p>
+              <span className={styles.highlight}>2/10</span>
+            </div>
+          }
+        />
+
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}><Flame size={28} /></div>
+              <div className={styles.statContent}>
+                <h3 className={styles.statLabel}>Current Streak</h3>
+                <p className={styles.statValue}>7 days</p>
+              </div>
+            </div>
+          }
+          backContent={
+            <div>
+              <h3>Best Streak</h3>
+              <span className={styles.highlight}>15 days</span>
+              <p>Keep it up!</p>
+            </div>
+          }
+        />
       </div>
-    </div>
 
-    <div className={styles.statsGrid}>
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}><BookOpen size={28} /></div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Words Learned</h3>
-              <p className={styles.statValue}>245</p>
-            </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Weekly Progress</h3>
-            <span className={styles.highlight}>+12</span>
-            <p>new words this week</p>
-          </div>
-        }
-      />
-
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}><Files size={28} /></div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Flashcards</h3>
-              <p className={styles.statValue}>89</p>
-            </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Mastery Level</h3>
-            <span className={styles.highlight}>85%</span>
-            <p>of cards mastered</p>
-          </div>
-        }
-      />
-
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}><Trophy size={28} /></div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Achievements</h3>
-              <p className={styles.statValue}>12</p>
-            </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Next Goal</h3>
-            <p>Reach 10 day streak</p>
-            <span className={styles.highlight}>2/10</span>
-          </div>
-        }
-      />
-
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}><Flame size={28} /></div>
-            <div className={styles.statContent}>
-              <h3 className={styles.statLabel}>Current Streak</h3>
-              <p className={styles.statValue}>7 days</p>
-            </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Best Streak</h3>
-            <span className={styles.highlight}>15 days</span>
-            <p>Keep it up!</p>
-          </div>
-        }
-      />
-    </div>
-
-    <div className={styles.contentGrid}>
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Recent Activity</h2>
-              <span className={styles.badge}>Today</span>
-            </div>
-            <div className={styles.activityList}>
-              <div className={styles.activityItem}>
-                <span className={styles.activityIcon}><CheckCircle size={20} color="#43e97b" /></span>
-                <div className={styles.activityContent}>
-                  <p className={styles.activityTitle}>Completed 10 vocabulary flashcards</p>
-                  <p className={styles.activityTime}>2 hours ago</p>
-                </div>
+      <div className={styles.contentGrid}>
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Recent Activity</h2>
+                <span className={styles.badge}>Today</span>
               </div>
-              <div className={styles.activityItem}>
-                <span className={styles.activityIcon}><MessageCircle size={20} color="#667eea" /></span>
-                <div className={styles.activityContent}>
-                  <p className={styles.activityTitle}>Practiced a conversation</p>
-                  <p className={styles.activityTime}>5 hours ago</p>
+              <div className={styles.activityList}>
+                <div className={styles.activityItem}>
+                  <span className={styles.activityIcon}><CheckCircle size={20} color="#43e97b" /></span>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityTitle}>Completed 10 vocabulary flashcards</p>
+                    <p className={styles.activityTime}>2 hours ago</p>
+                  </div>
                 </div>
-              </div>
-              <div className={styles.activityItem}>
-                <span className={styles.activityIcon}><Music size={20} color="#f093fb" /></span>
-                <div className={styles.activityContent}>
-                  <p className={styles.activityTitle}>Listened to an English song</p>
-                  <p className={styles.activityTime}>8 hours ago</p>
+                <div className={styles.activityItem}>
+                  <span className={styles.activityIcon}><MessageCircle size={20} color="#667eea" /></span>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityTitle}>Practiced a conversation</p>
+                    <p className={styles.activityTime}>5 hours ago</p>
+                  </div>
+                </div>
+                <div className={styles.activityItem}>
+                  <span className={styles.activityIcon}><Music size={20} color="#f093fb" /></span>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityTitle}>Listened to an English song</p>
+                    <p className={styles.activityTime}>8 hours ago</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Activity History</h3>
-            <div className={styles.activityList}>
-              <div className={styles.activityItem}>
-                <span className={styles.activityIcon}><Calendar size={20} /></span>
-                <div className={styles.activityContent}>
-                  <p className={styles.activityTitle}>View full history</p>
-                  <p className={styles.activityTime}>Check your past progress</p>
+          }
+          backContent={
+            <div>
+              <h3>Activity History</h3>
+              <div className={styles.activityList}>
+                <div className={styles.activityItem}>
+                  <span className={styles.activityIcon}><Calendar size={20} /></span>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityTitle}>View full history</p>
+                    <p className={styles.activityTime}>Check your past progress</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
 
-      <DashboardFlipCard
-        frontContent={
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Daily Commitment</h2>
-              <span className={styles.badge}>3/5</span>
+        <DashboardFlipCard
+          frontContent={
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Daily Commitment</h2>
+                <span className={styles.badge}>3/5</span>
+              </div>
+              <div className={styles.commitmentList}>
+                <div className={styles.commitmentItem}>
+                  <input type="checkbox" defaultChecked className={styles.checkbox} />
+                  <span>Learn 10 new words</span>
+                </div>
+                <div className={styles.commitmentItem}>
+                  <input type="checkbox" defaultChecked className={styles.checkbox} />
+                  <span>Practice grammar</span>
+                </div>
+                <div className={styles.commitmentItem}>
+                  <input type="checkbox" className={styles.checkbox} />
+                  <span>Listen to a conversation</span>
+                </div>
+                <div className={styles.commitmentItem}>
+                  <input type="checkbox" className={styles.checkbox} />
+                  <span>Watch a movie</span>
+                </div>
+                <div className={styles.commitmentItem}>
+                  <input type="checkbox" className={styles.checkbox} />
+                  <span>Write a text</span>
+                </div>
+              </div>
             </div>
-            <div className={styles.commitmentList}>
-              <div className={styles.commitmentItem}>
-                <input type="checkbox" defaultChecked className={styles.checkbox} />
-                <span>Learn 10 new words</span>
-              </div>
-              <div className={styles.commitmentItem}>
-                <input type="checkbox" defaultChecked className={styles.checkbox} />
-                <span>Practice grammar</span>
-              </div>
-              <div className={styles.commitmentItem}>
-                <input type="checkbox" className={styles.checkbox} />
-                <span>Listen to a conversation</span>
-              </div>
-              <div className={styles.commitmentItem}>
-                <input type="checkbox" className={styles.checkbox} />
-                <span>Watch a movie</span>
-              </div>
-              <div className={styles.commitmentItem}>
-                <input type="checkbox" className={styles.checkbox} />
-                <span>Write a text</span>
+          }
+          backContent={
+            <div>
+              <h3>Weekly Completion</h3>
+              <span className={styles.highlight}>82%</span>
+              <p>completion rate this week</p>
+              <div style={{ marginTop: '1rem', width: '100%', background: 'rgba(255,255,255,0.2)', height: '6px', borderRadius: '3px' }}>
+                <div style={{ width: '82%', background: '#43e97b', height: '100%', borderRadius: '3px' }}></div>
               </div>
             </div>
-          </div>
-        }
-        backContent={
-          <div>
-            <h3>Weekly Completion</h3>
-            <span className={styles.highlight}>82%</span>
-            <p>completion rate this week</p>
-            <div style={{ marginTop: '1rem', width: '100%', background: 'rgba(255,255,255,0.2)', height: '6px', borderRadius: '3px' }}>
-              <div style={{ width: '82%', background: '#43e97b', height: '100%', borderRadius: '3px' }}></div>
-            </div>
-          </div>
-        }
-      />
-    </div>
-  </section>
-);
+          }
+        />
+      </div>
+    </section>
+  );
+};
 
 /* Flashcards Section */
 const FlashcardsSection = () => (

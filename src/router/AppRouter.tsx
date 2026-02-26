@@ -1,3 +1,4 @@
+import { lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
@@ -11,22 +12,22 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 
-// Main Pages
-import Dashboard from '../pages/dashboard/Dashboard';
-import { DailyPhrases } from '../pages/daily';
-import IrregularVerbs from '../pages/irregular-verbs';
-import Conversations from '../pages/conversations';
-import Profile from '../pages/profile';
+// Main Pages (Lazy Loaded)
+const Dashboard = lazy(() => import('../pages/dashboard/Dashboard'));
+const DailyPhrases = lazy(() => import('../pages/daily').then(m => ({ default: m.DailyPhrases })));
+const IrregularVerbs = lazy(() => import('../pages/irregular-verbs'));
+const Conversations = lazy(() => import('../pages/conversations'));
+const Profile = lazy(() => import('../pages/profile'));
 
-// New Page Components
-import Flashcards from '../pages/flashcards/Flashcards';
-import VocabularyPage from '../pages/vocabulary/Vocabulary';
-import Movies from '../pages/movies/Movies';
-import Songs from '../pages/songs/Songs';
-import Texts from '../pages/texts/Texts';
-import Achievements from '../pages/achievements/Achievements';
-import DailyCommitments from '../pages/daily-commitments/DailyCommitments';
-import Grammar from '../pages/grammar/Grammar';
+// New Page Components (Lazy Loaded)
+const Flashcards = lazy(() => import('../pages/flashcards/Flashcards'));
+const VocabularyPage = lazy(() => import('../pages/vocabulary/Vocabulary'));
+const Movies = lazy(() => import('../pages/movies/Movies'));
+const Songs = lazy(() => import('../pages/songs/Songs'));
+const Texts = lazy(() => import('../pages/texts/Texts'));
+const Achievements = lazy(() => import('../pages/achievements/Achievements'));
+const DailyCommitments = lazy(() => import('../pages/daily-commitments/DailyCommitments'));
+const Grammar = lazy(() => import('../pages/grammar/Grammar'));
 
 const AppRouter = () => {
   return (

@@ -11,7 +11,7 @@ import {
   Award,
   PlayCircle
 } from 'lucide-react';
-import huskyIcon from '../../assets/icons/husky.png';
+import videoHusky13 from '../../assets/videos/video-husky13.mp4';
 import styles from './Movies.module.css';
 
 export const Movies: React.FC = () => {
@@ -46,12 +46,19 @@ export const Movies: React.FC = () => {
   return (
     <div className={styles.pageContent}>
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Movies & TV</h1>
           <p className={styles.subtitle}>Improve your English by watching your favorite movies and shows</p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            src={videoHusky13}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.huskyVideo}
+          />
         </div>
       </header>
 
