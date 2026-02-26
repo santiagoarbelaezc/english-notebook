@@ -20,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import videoHusky7 from '../../assets/videos/video-husky7.mp4';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import styles from './IrregularVerbs.module.css';
 
 interface VerbCardProps {
@@ -296,11 +297,11 @@ export const IrregularVerbs: React.FC = () => {
   };
 
   if (loading && verbs.length === 0) {
-    return <div className={styles.loading}>Loading irregular verbs...</div>;
+    return <LoadingOverlay message="Loading irregular verbs..." />;
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Irregular Verbs</h1>

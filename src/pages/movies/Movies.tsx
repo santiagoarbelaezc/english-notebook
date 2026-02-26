@@ -44,7 +44,7 @@ export const Movies: React.FC = () => {
   ];
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Movies & TV</h1>

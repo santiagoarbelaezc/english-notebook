@@ -62,7 +62,7 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       {renderContent()}
     </div>
   );
@@ -101,7 +101,7 @@ const MainDashboardSection = () => {
   const { user } = useAuth();
 
   return (
-    <section className={styles.section}>
+    <section className={`${styles.section} page-entrance`}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Welcome Back, {(user?.name || user?.username || 'Learner').split(' ')[0]}!</h1>
@@ -377,7 +377,7 @@ const DailyPhrasesSection = () => {
 
 /* Daily Commitments Section */
 const DailyCommitmentsSection = () => (
-  <section className={styles.section}>
+  <section className={`${styles.section} page-entrance`}>
     <div className={styles.header}>
       <h1 className={styles.title}><Target size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Daily Commitments</h1>
       <p className={styles.subtitle}>Maintain your learning streak</p>

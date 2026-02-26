@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Search,
-  Filter,
   Layers,
   Activity,
   Plus,
@@ -17,8 +16,7 @@ import {
   Check,
   Save,
   AlertCircle,
-  List,
-  ArrowRight
+  List
 } from 'lucide-react';
 import {
   getAllGrammarRules,
@@ -29,6 +27,7 @@ import {
   getGrammarStats
 } from '../../api';
 import type { GrammarRule, CreateGrammarRuleRequest, UpdateGrammarRuleRequest, HighlightedWord } from '../../types';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import styles from './Grammar.module.css';
 import videoHusky from '../../assets/videos/video-husky10.mp4';
 
@@ -294,17 +293,11 @@ export const Grammar: React.FC = () => {
   };
 
   if (loading && rules.length === 0) {
-    return (
-      <div className={styles.pageContent}>
-        <div className={styles.loading}>
-          <Activity className={styles.spinning} /> Loading grammar rules...
-        </div>
-      </div>
-    );
+    return <LoadingOverlay message="Loading grammar basics..." />;
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Grammar Rules</h1>
@@ -676,7 +669,7 @@ const GrammarRuleFormModal: React.FC<GrammarRuleFormModalProps> = ({
 
   const [newHighlightedWord, setNewHighlightedWord] = useState('');
   const [newVocabulary, setNewVocabulary] = useState('');
-  const [newTag, setNewTag] = useState('');
+
 
   useEffect(() => {
     if (rule) {
@@ -753,16 +746,6 @@ const GrammarRuleFormModal: React.FC<GrammarRuleFormModalProps> = ({
         relatedVocabulary: [...prev.relatedVocabulary, newVocabulary.trim()]
       }));
       setNewVocabulary('');
-    }
-  };
-
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag('');
     }
   };
 

@@ -12,6 +12,7 @@ import {
   Info,
   Youtube
 } from 'lucide-react';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import videoHusky11 from '../../assets/videos/video-husky11.mp4';
 
 
@@ -349,15 +350,11 @@ const Songs: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className={styles.pageContent}>
-        <div className={styles.loading}>Loading songs...</div>
-      </div>
-    );
+    return <LoadingOverlay message="Loading songs..." />;
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Songs & Lyrics</h1>

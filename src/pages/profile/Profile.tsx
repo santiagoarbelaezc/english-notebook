@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import styles from './Profile.module.css';
 import videoHusky from '../../assets/videos/video-husky10.mp4';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { getMyProfile, getProfileSummary, getDetailedStats, updateProfile, uploadProfileImage } from '../../api/profiles.api';
 import { updateUserProfile } from '../../api/users.api';
 import type { Profile as ProfileData, ProfileSummary, DetailedStats } from '../../api/profiles.api';
@@ -186,21 +187,12 @@ export const Profile = () => {
   };
 
   if (loading && !profile) {
-    return (
-      <div className={styles.pageContent}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingCard}>
-            <div className={styles.spinner}></div>
-            <p>Loading profile...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay message="Loading your profile..." />;
   }
 
   if (error && !profile) {
     return (
-      <div className={styles.pageContent}>
+      <div className={`${styles.pageContent} page-entrance`}>
         <div className={styles.errorContainer}>
           <div className={styles.errorCard}>
             <p>{error}</p>
@@ -215,7 +207,7 @@ export const Profile = () => {
 
   if (!profile || !summary || !stats) {
     return (
-      <div className={styles.pageContent}>
+      <div className={`${styles.pageContent} page-entrance`}>
         <div className={styles.errorContainer}>
           <div className={styles.errorCard}>
             <p>No profile data could be loaded</p>
@@ -229,7 +221,7 @@ export const Profile = () => {
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       {error && <div className={styles.globalError}>{error}</div>}
 
       <header className={styles.header}>

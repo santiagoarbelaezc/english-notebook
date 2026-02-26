@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/auth/Login';
 ;
 import { Dashboard } from './pages/dashboard';
+import { LoadingOverlay } from './components/common/LoadingOverlay';
 import './App.css';
 
 
@@ -12,18 +13,7 @@ const ProtectedDashboard = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%)',
-        color: '#fff'
-      }}>
-        <p>Cargando...</p>
-      </div>
-    );
+    return <LoadingOverlay message="Autenticando..." />;
   }
 
   if (!user) {
@@ -43,7 +33,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-          
+
           <Route path="/dashboard" element={<ProtectedDashboard />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>

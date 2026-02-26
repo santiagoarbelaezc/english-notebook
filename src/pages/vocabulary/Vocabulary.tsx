@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import styles from './Vocabulary.module.css';
 import videoHusky from '../../assets/videos/video-husky6.mp4';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import {
   getAllVocabulary,
   createVocabularyWord,
@@ -271,15 +272,11 @@ const VocabularyPage: React.FC = () => {
   };
 
   if (loading && !showAddModal && !showEditModal) {
-    return (
-      <div className={styles.pageContent}>
-        <div className={styles.loading}>Loading vocabulary...</div>
-      </div>
-    );
+    return <LoadingOverlay message="Exploring your vocabulary..." />;
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
       <div className={styles.mainContent}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
