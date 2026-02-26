@@ -218,210 +218,230 @@ export const Profile = () => {
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.profileContainer}>
-        <div className={styles.formHeader}>
-          <h2 className={styles.formTitle}>My Profile</h2>
-          <p className={styles.formSubtitle}>Manage your personal information and review your progress</p>
+      {error && <div className={styles.globalError}>{error}</div>}
+
+      <header className={styles.header}>
+        <div className={styles.profileAvatar}>
+          {profile.profileImage ? (
+            <img src={profile.profileImage} alt="Profile picture" className={styles.avatarImage} />
+          ) : (
+            <span className={styles.avatarPlaceholder}>
+              {profile.user?.name?.[0] || profile.user?.username?.[0]?.toUpperCase() || '?'}
+            </span>
+          )}
+          {isEditing && (
+            <label className={styles.imageUpload}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+              />
+              <Camera size={20} color="#fff" />
+            </label>
+          )}
         </div>
-
-        {error && <div className={styles.globalError}>{error}</div>}
-
-        <div className={styles.profileCard}>
-          <div className={styles.profileHeader}>
-            <div className={styles.profileAvatar}>
-              {profile.profileImage ? (
-                <img src={profile.profileImage} alt="Profile picture" className={styles.avatarImage} />
-              ) : (
-                <span className={styles.avatarPlaceholder}>
-                  {profile.user?.name?.[0] || profile.user?.username?.[0]?.toUpperCase() || '?'}
-                </span>
-              )}
-              {isEditing && (
-                <label className={styles.imageUpload}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    style={{ display: 'none' }}
-                  />
-                  <Camera size={20} color="#fff" />
-                </label>
-              )}
-            </div>
-            <div className={styles.profileInfo}>
-              {isEditing ? (
-                <div className={styles.editForm}>
-                  <div className={styles.inputGroup}>
-                    <User size={18} className={styles.inputIcon} />
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Your name"
-                      className={styles.editInput}
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <Edit2 size={18} className={styles.inputIcon} />
-                    <input
-                      type="text"
-                      value={editForm.bio}
-                      onChange={(e) => handleInputChange('bio', e.target.value)}
-                      placeholder="Biography"
-                      className={styles.editInput}
-                    />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <Award size={18} className={styles.inputIcon} />
-                    <select
-                      value={editForm.englishLevel}
-                      onChange={(e) => handleInputChange('englishLevel', e.target.value)}
-                      className={styles.editSelect}
-                    >
-                      <option value="">Select your level</option>
-                      <option value="A1">A1 - Beginner</option>
-                      <option value="A2">A2 - Elementary</option>
-                      <option value="B1">B1 - Intermediate</option>
-                      <option value="B2">B2 - Upper Intermediate</option>
-                      <option value="C1">C1 - Advanced</option>
-                      <option value="C2">C2 - Mastery</option>
-                    </select>
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <Globe size={18} className={styles.inputIcon} />
-                    <input
-                      type="text"
-                      value={editForm.nativeLanguage}
-                      onChange={(e) => handleInputChange('nativeLanguage', e.target.value)}
-                      placeholder="Native language"
-                      className={styles.editInput}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <h2 className={styles.profileName}>
-                    {profile.user?.name || profile.user?.username || 'User'}
-                  </h2>
-                  <div className={styles.profileDetailRow}>
-                    <Mail size={16} className={styles.detailIcon} />
-                    <p className={styles.profileEmail}>{profile.user?.email}</p>
-                  </div>
-                  {profile.bio && <p className={styles.profileBio}>{profile.bio}</p>}
-                  {profile.nativeLanguage && (
-                    <div className={styles.profileLanguage}>
-                      <Globe size={16} className={styles.detailIcon} />
-                      <span>Native Language: {profile.nativeLanguage}</span>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.profileStats}>
-            <div className={styles.profileStatItem}>
-              <span className={styles.statLabel}>Current Level</span>
-              <span
-                className={styles.statValue}
-                style={{ color: getLevelColor(isEditing ? editForm.englishLevel : summary.user.englishLevel) }}
-              >
-                {isEditing ? editForm.englishLevel || 'Not defined' : summary.user.englishLevel || 'Not defined'}
-              </span>
-            </div>
-            <div className={styles.profileStatItem}>
-              <span className={styles.statLabel}>Current Streak</span>
-              <div className={styles.statValueRow}>
-                <TrendingUp size={24} color="#00d4ff" />
-                <span className={styles.statValue}>{stats.overview?.streakDays || 0} days</span>
-              </div>
-            </div>
-            <div className={styles.profileStatItem}>
-              <span className={styles.statLabel}>Total Points</span>
-              <div className={styles.statValueRow}>
-                <Star size={24} color="#ffd700" />
-                <span className={styles.statValue}>
-                  {(stats.overview?.totalVocabulary || 0) +
-                    (stats.overview?.totalGrammarRules || 0) +
-                    (stats.overview?.totalConversations || 0) +
-                    (stats.overview?.totalSongs || 0)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.detailedStats}>
-            <h3 className={styles.statsTitle}>Detailed Statistics</h3>
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrapper}>
-                  <BookOpen size={28} className={styles.statIcon} />
-                </div>
-                <div className={styles.statInfo}>
-                  <span className={styles.statNumber}>{stats.overview?.totalVocabulary || 0}</span>
-                  <span className={styles.statDesc}>Words Learned</span>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrapper}>
-                  <PenTool size={28} className={styles.statIcon} />
-                </div>
-                <div className={styles.statInfo}>
-                  <span className={styles.statNumber}>{stats.overview?.totalGrammarRules || 0}</span>
-                  <span className={styles.statDesc}>Grammar Rules</span>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrapper}>
-                  <MessageSquare size={28} className={styles.statIcon} />
-                </div>
-                <div className={styles.statInfo}>
-                  <span className={styles.statNumber}>{stats.overview?.totalConversations || 0}</span>
-                  <span className={styles.statDesc}>Conversations</span>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrapper}>
-                  <Music size={28} className={styles.statIcon} />
-                </div>
-                <div className={styles.statInfo}>
-                  <span className={styles.statNumber}>{stats.overview?.totalSongs || 0}</span>
-                  <span className={styles.statDesc}>Songs Listened</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.actions}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.title}>
             {isEditing ? (
-              <>
-                <button
-                  onClick={handleSaveProfile}
-                  className={styles.primaryButton}
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={handleEditToggle}
-                  className={styles.secondaryButton}
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              </>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Your name"
+                className={styles.editInput}
+                style={{ fontSize: '1.5rem', padding: '0.5rem 1rem' }}
+              />
             ) : (
-              <>
-                <button onClick={handleEditToggle} className={styles.primaryButton}>
-                  Edit Profile
-                </button>
-                <button className={styles.secondaryButton}>
-                  View Full Progress
-                </button>
-              </>
+              profile.user?.name || profile.user?.username || 'User'
             )}
+          </h1>
+          <p className={styles.subtitle}>{profile.user?.email}</p>
+        </div>
+      </header>
+
+      <section className={styles.stats}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: getLevelColor(isEditing ? editForm.englishLevel : summary.user.englishLevel) }}>
+            <Award size={24} />
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statNumber}>
+              {isEditing ? editForm.englishLevel || 'N/A' : summary.user.englishLevel || 'N/A'}
+            </span>
+            <span className={styles.statLabel}>English Level</span>
           </div>
         </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-warning)' }}>
+            <TrendingUp size={24} />
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statNumber}>{stats.overview?.streakDays || 0}</span>
+            <span className={styles.statLabel}>Day Streak</span>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'var(--gradient-accent)' }}>
+            <Star size={24} />
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statNumber}>
+              {(stats.overview?.totalVocabulary || 0) +
+                (stats.overview?.totalGrammarRules || 0) +
+                (stats.overview?.totalConversations || 0) +
+                (stats.overview?.totalSongs || 0)}
+            </span>
+            <span className={styles.statLabel}>Total Points</span>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.profileDetailsSection}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>
+            <User size={28} color="#00d4ff" />
+            Personal Details
+          </h2>
+        </div>
+
+        <div className={styles.detailsGrid}>
+          {isEditing ? (
+            <div className={styles.editContainer}>
+              <div className={styles.inputGroup}>
+                <Edit2 size={18} className={styles.inputIcon} />
+                <textarea
+                  value={editForm.bio}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  placeholder="Tell us about yourself..."
+                  className={styles.editInput}
+                  style={{ minHeight: '100px', resize: 'vertical' }}
+                />
+              </div>
+              <div className={styles.inputGroup}>
+                <Award size={18} className={styles.inputIcon} />
+                <select
+                  value={editForm.englishLevel}
+                  onChange={(e) => handleInputChange('englishLevel', e.target.value)}
+                  className={styles.editSelect}
+                >
+                  <option value="">Select your level</option>
+                  <option value="A1">A1 - Beginner</option>
+                  <option value="A2">A2 - Elementary</option>
+                  <option value="B1">B1 - Intermediate</option>
+                  <option value="B2">B2 - Upper Intermediate</option>
+                  <option value="C1">C1 - Advanced</option>
+                  <option value="C2">C2 - Mastery</option>
+                </select>
+              </div>
+              <div className={styles.inputGroup}>
+                <Globe size={18} className={styles.inputIcon} />
+                <input
+                  type="text"
+                  value={editForm.nativeLanguage}
+                  onChange={(e) => handleInputChange('nativeLanguage', e.target.value)}
+                  placeholder="Native language"
+                  className={styles.editInput}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className={`${styles.detailCard} ${styles.bioCard}`}>
+                <span className={styles.detailLabel}>
+                  <Edit2 size={16} />
+                  Biography
+                </span>
+                <p className={`${styles.detailValue} ${styles.bioValue}`}>
+                  {profile.bio || "No biography provided yet. Tell the world about your learning journey!"}
+                </p>
+              </div>
+              <div className={styles.detailCard}>
+                <span className={styles.detailLabel}>
+                  <Globe size={16} />
+                  Native Language
+                </span>
+                <p className={styles.detailValue}>{profile.nativeLanguage || 'Not specified'}</p>
+              </div>
+              <div className={styles.detailCard}>
+                <span className={styles.detailLabel}>
+                  <Mail size={16} />
+                  Email Address
+                </span>
+                <p className={styles.detailValue}>{profile.user?.email}</p>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className={styles.profileDetailsSection}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>
+            <TrendingUp size={28} color="#43e97b" />
+            Learning Progress
+          </h2>
+        </div>
+        <div className={styles.detailsGrid}>
+          <div className={styles.detailCard}>
+            <span className={styles.detailLabel}>
+              <BookOpen size={16} />
+              Vocabulary
+            </span>
+            <p className={styles.detailValue}>{stats.overview?.totalVocabulary || 0} Words Learned</p>
+          </div>
+          <div className={styles.detailCard}>
+            <span className={styles.detailLabel}>
+              <PenTool size={16} />
+              Grammar
+            </span>
+            <p className={styles.detailValue}>{stats.overview?.totalGrammarRules || 0} Rules Mastered</p>
+          </div>
+          <div className={styles.detailCard}>
+            <span className={styles.detailLabel}>
+              <MessageSquare size={16} />
+              Conversations
+            </span>
+            <p className={styles.detailValue}>{stats.overview?.totalConversations || 0} Completed</p>
+          </div>
+          <div className={styles.detailCard}>
+            <span className={styles.detailLabel}>
+              <Music size={16} />
+              Music
+            </span>
+            <p className={styles.detailValue}>{stats.overview?.totalSongs || 0} Songs Listened</p>
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.actions}>
+        {isEditing ? (
+          <>
+            <button
+              onClick={handleSaveProfile}
+              className={styles.primaryButton}
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button
+              onClick={handleEditToggle}
+              className={styles.secondaryButton}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={handleEditToggle} className={styles.primaryButton}>
+              Edit Profile
+            </button>
+            <button className={styles.secondaryButton}>
+              Export Progress
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -28,7 +28,7 @@
   width: 200%;
   height: 200%;
   background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 70% 20%, rgba(244, 143, 177, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
   animation: gradientRotate 20s ease-in-out infinite;
@@ -141,7 +141,8 @@
   animation: scaleIn 0.7s ease-out;
 }
 
-.logo {
+.logo,
+.logoVideo {
   width: 350px;
   height: 350px;
   object-fit: cover;
@@ -149,9 +150,11 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   transition: var(--transition-smooth);
   position: relative;
+  border-radius: 24px;
 }
 
-.logo:hover {
+.logo:hover,
+.logoVideo:hover {
   transform: scale(1.03);
 }
 
@@ -242,12 +245,29 @@
   animation-fill-mode: both;
 }
 
-.formGroup:nth-child(1) { animation-delay: 0.2s; }
-.formGroup:nth-child(2) { animation-delay: 0.25s; }
-.formGroup:nth-child(3) { animation-delay: 0.3s; }
-.formGroup:nth-child(4) { animation-delay: 0.35s; }
-.formGroup:nth-child(5) { animation-delay: 0.4s; }
-.formGroup:nth-child(6) { animation-delay: 0.45s; }
+.formGroup:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.formGroup:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.formGroup:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.formGroup:nth-child(4) {
+  animation-delay: 0.35s;
+}
+
+.formGroup:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.formGroup:nth-child(6) {
+  animation-delay: 0.45s;
+}
 
 .label {
   font-family: 'Poppins', sans-serif;
@@ -286,7 +306,7 @@
   outline: none;
   border-color: rgba(102, 126, 234, 0.8);
   background: rgba(0, 0, 0, 0.6);
-  box-shadow: 
+  box-shadow:
     0 0 0 4px rgba(102, 126, 234, 0.15),
     inset 0 2px 10px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
@@ -330,7 +350,7 @@
   outline: none;
   border-color: rgba(102, 126, 234, 0.8);
   background: rgba(0, 0, 0, 0.6);
-  box-shadow: 
+  box-shadow:
     0 0 0 4px rgba(102, 126, 234, 0.15),
     inset 0 2px 10px rgba(0, 0, 0, 0.3);
 }
@@ -398,7 +418,7 @@
   margin-top: 0.5rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(67, 233, 123, 0.3),
     0 4px 10px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 0.6s ease-out;
@@ -421,7 +441,7 @@
 .button:hover {
   background: var(--gradient-secondary);
   transform: translateY(-3px);
-  box-shadow: 
+  box-shadow:
     0 12px 30px rgba(244, 143, 177, 0.4),
     0 6px 15px rgba(0, 0, 0, 0.3);
 }
@@ -606,6 +626,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -617,6 +638,7 @@
     opacity: 0;
     transform: translateY(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -628,6 +650,7 @@
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -639,6 +662,7 @@
     opacity: 0;
     transform: translateY(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -650,6 +674,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -660,16 +685,20 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.1;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 0.08;
@@ -680,9 +709,11 @@
   0% {
     transform: rotate(0deg);
   }
+
   50% {
     transform: rotate(180deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -700,55 +731,55 @@
     max-width: 500px;
     margin: 0 auto;
   }
-  
+
   .rightSection,
   .leftSection {
     min-height: auto;
   }
-  
+
   .rightSection {
     min-height: 200px;
   }
-  
+
   .rightSection::before {
     width: 200px;
     height: 200px;
     top: -100px;
     right: -100px;
   }
-  
+
   .rightSection::after {
     width: 150px;
     height: 150px;
     bottom: -75px;
     left: -75px;
   }
-  
+
   .logo {
     width: 280px;
     height: 280px;
   }
-  
+
   .mainTitle {
     font-size: 1.8rem;
   }
-  
+
   .formTitle {
     font-size: 1.85rem;
   }
-  
+
   .subtitle {
     font-size: 0.8rem;
   }
-  
+
   .header {
     padding: 1.5rem;
   }
-  
+
   .form {
     padding: 1.5rem;
   }
-  
+
   .leftSection {
     padding: 1.25rem;
   }
@@ -759,40 +790,40 @@
     padding: 1.5rem;
     border-radius: 20px;
   }
-  
+
   .rightSection {
     min-height: 150px;
   }
-  
+
   .logo {
     width: 224px;
     height: 224px;
   }
-  
+
   .mainTitle {
     font-size: 1.5rem;
   }
-  
+
   .formTitle {
     font-size: 1.6rem;
   }
-  
+
   .formSubtitle {
     font-size: 1rem;
   }
-  
+
   .subtitle {
     font-size: 0.7rem;
   }
-  
+
   .header {
     padding: 1rem;
   }
-  
+
   .form {
     padding: 1rem;
   }
-  
+
   .leftSection {
     padding: 0.75rem;
   }
@@ -803,60 +834,60 @@
     padding: 1rem;
     border-radius: 16px;
   }
-  
+
   .rightSection {
     min-height: 120px;
   }
-  
+
   .logo {
     width: 182px;
     height: 182px;
   }
-  
+
   .mainTitle {
     font-size: 1.3rem;
   }
-  
+
   .formTitle {
     font-size: 1.5rem;
   }
-  
+
   .formSubtitle {
     font-size: 0.95rem;
   }
-  
+
   .subtitle {
     font-size: 0.6rem;
   }
-  
+
   .form {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .button {
     padding: 0.875rem 1.5rem;
     font-size: 0.95rem;
   }
-  
+
   .footer {
     font-size: 0.85rem;
     padding: 1rem;
   }
-  
+
   .bottomNote {
     font-size: 0.8rem;
     padding: 0.75rem;
   }
-  
+
   .header {
     padding: 0.75rem;
   }
-  
+
   .leftSection {
     padding: 0.5rem;
   }
-  
+
   .select {
     padding: 0.875rem 1.25rem;
     background-position: right 1rem center;

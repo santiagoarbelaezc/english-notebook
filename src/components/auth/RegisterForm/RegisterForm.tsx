@@ -4,7 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useForm } from '../../../hooks/useForm';
 import type { ChangeEvent, FormEvent } from 'react';
 import styles from './RegisterForm.module.css';
-import huskyIcon from '../../../assets/icons/husky.png';
+import huskyVideo from '../../../assets/videos/video-husky.mp4';
 
 interface RegisterFormData {
   name: string;
@@ -97,10 +97,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
       <div className={styles.rightSection}>
         <div className={styles.header}>
           <div className={styles.logoWrapper}>
-            <img
-              src={huskyIcon}
-              alt="English Notebook Logo"
-              className={styles.logo}
+            <video
+              src={huskyVideo}
+              className={styles.logoVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
             />
           </div>
           <h1 className={styles.mainTitle}>English Notebook</h1>
