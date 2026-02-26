@@ -1,4 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Trophy,
+  Target,
+  Flame,
+  BookOpen,
+  Mic2,
+  PenTool,
+  Star,
+  Lock,
+  CheckCircle2,
+  Calendar,
+  Award
+} from 'lucide-react';
 import styles from './Achievements.module.css';
 
 interface Achievement {
@@ -154,8 +167,6 @@ const Achievements: React.FC = () => {
     }, 1000);
   }, []);
 
-  // Filter achievements based on filters
-  // Filter achievements based on selected filters
   const filteredAchievements = React.useMemo(() => {
     let filtered = achievements;
 
@@ -174,31 +185,18 @@ const Achievements: React.FC = () => {
     return filtered;
   }, [achievements, selectedCategory, selectedDifficulty, showOnlyUnlocked]);
 
-  // @ts-ignore
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'learning': return '🎓';
-      case 'streak': return '🔥';
-      case 'vocabulary': return '📝';
-      case 'grammar': return '📏';
-      case 'listening': return '🎧';
-      case 'reading': return '📖';
-      default: return '🏆';
+      case 'learning': return <BookOpen className={styles.categoryIcon} size={24} />;
+      case 'streak': return <Flame className={styles.categoryIcon} size={24} />;
+      case 'vocabulary': return <Target className={styles.categoryIcon} size={24} />;
+      case 'grammar': return <PenTool className={styles.categoryIcon} size={24} />;
+      case 'listening': return <Mic2 className={styles.categoryIcon} size={24} />;
+      case 'reading': return <BookOpen className={styles.categoryIcon} size={24} />;
+      default: return <Trophy className={styles.categoryIcon} size={24} />;
     }
   };
 
-  // @ts-ignore
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return styles['difficulty.easy'];
-      case 'medium': return styles['difficulty.medium'];
-      case 'hard': return styles['difficulty.hard'];
-      case 'legendary': return styles['difficulty.legendary'];
-      default: return styles['difficulty.easy'];
-    }
-  };
-
-  // @ts-ignore
   const getProgressPercentage = (progress: number, maxProgress: number) => {
     return Math.min((progress / maxProgress) * 100, 100);
   };
@@ -216,21 +214,24 @@ const Achievements: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.pageContent}>
-        <div className={styles.loading}>Loading achievements...</div>
+        <div className={styles.loading}>
+          <Trophy size={48} className={styles.loadingIcon} />
+          <p>Analyzing your achievements...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.pageContent}>
-      <div className={styles.header}>
+      <header className={styles.header}>
         <h1 className={styles.title}>🏆 Achievements</h1>
         <p className={styles.subtitle}>
-          Track your progress and unlock rewards as you learn English
+          Track your progress and unlock rewards as you master English
         </p>
-      </div>
+      </header>
 
-      <div className={styles.stats}>
+      <section className={styles.stats}>
         <div className={styles.statCard}>
           <span className={styles.statNumber}>{getUnlockedCount()}</span>
           <span className={styles.statLabel}>Unlocked</span>
@@ -243,7 +244,7 @@ const Achievements: React.FC = () => {
           <span className={styles.statNumber}>{getTotalPoints()}</span>
           <span className={styles.statLabel}>Total Points</span>
         </div>
-      </div>
+      </section>
 
       <div className={styles.controls}>
         <div className={styles.filters}>
@@ -278,18 +279,74 @@ const Achievements: React.FC = () => {
               onChange={(e) => setShowOnlyUnlocked(e.target.checked)}
               className={styles.checkbox}
             />
-            Show only unlocked
+            <span>Show only unlocked</span>
           </label>
         </div>
       </div>
 
       <div className={styles.achievementsGrid}>
-        {filteredAchievements.map((achievement) => (
-          <div key={achievement.id} className={styles.achievementCard}>
-            <h3>{achievement.title}</h3>
-            <p>{achievement.description}</p>
+        {filteredAchievements.length > 0 ? (
+          filteredAchievements.map((achievement) => (
+            <div
+              key={achievement.id}
+              className={`${styles.achievementCard} ${achievement.isUnlocked ? styles.unlocked : styles.locked}`}
+            >
+              <div className={styles.achievementHeader}>
+                <div className={styles.achievementIcon}>{achievement.icon}</div>
+                <div className={styles.achievementMeta}>
+                  <span className={`${styles.difficulty} ${styles[achievement.difficulty]}`}>
+                    {achievement.difficulty}
+                  </span>
+                  {getCategoryIcon(achievement.category)}
+                </div>
+              </div>
+
+              <div className={styles.achievementContent}>
+                <h3 className={styles.achievementTitle}>{achievement.title}</h3>
+                <p className={styles.achievementDescription}>{achievement.description}</p>
+
+                {achievement.isUnlocked && achievement.unlockedDate && (
+                  <div className={styles.unlockedDate}>
+                    <Calendar size={14} />
+                    Unlocked on {new Date(achievement.unlockedDate).toLocaleDateString()}
+                  </div>
+                )}
+
+                <div className={styles.progressSection}>
+                  <div className={styles.progressBar}>
+                    <div
+                      className={styles.progressFill}
+                      style={{ width: `${getProgressPercentage(achievement.progress, achievement.maxProgress)}%` }}
+                    />
+                  </div>
+                  <div className={styles.progressText}>
+                    {achievement.progress} / {achievement.maxProgress} ({Math.round(getProgressPercentage(achievement.progress, achievement.maxProgress))}%)
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.achievementFooter}>
+                <div className={styles.points}>
+                  <Award size={18} />
+                  {achievement.points} pts
+                </div>
+                {achievement.isUnlocked ? (
+                  <span className={styles.unlockedBadge}>
+                    <CheckCircle2 size={14} /> Unlocked
+                  </span>
+                ) : (
+                  <span className={styles.lockedBadge}>
+                    <Lock size={14} /> Locked
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className={styles.emptyState}>
+            <p>No achievements found matching your filters.</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

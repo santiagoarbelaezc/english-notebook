@@ -604,8 +604,8 @@
 @media (max-width: 1024px) {
   .mainContent {
     padding: 2rem 3rem;
-    margin-left: 240px;
-    max-width: calc(100% - 240px);
+    margin-left: 280px;
+    max-width: calc(100% - 280px);
   }
 
   .title {
@@ -634,8 +634,8 @@
 @media (max-width: 768px) {
   .mainContent {
     padding: 1.5rem 2rem;
-    margin-left: 220px;
-    max-width: calc(100% - 220px);
+    margin-left: 0;
+    max-width: 100%;
     min-height: auto;
   }
 

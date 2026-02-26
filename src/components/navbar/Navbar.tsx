@@ -15,11 +15,10 @@ import {
   Trophy,
   User,
   LogOut,
-  Menu,
   X
 } from 'lucide-react';
 import styles from './Navbar.module.css';
-import iconSmall from '../../assets/icons/icon-small.png';
+import logoSmall from '../../assets/icons/logo-small.png';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
@@ -29,9 +28,22 @@ interface NavbarProps {
 
 export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const { logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return;
+
+    const handleScroll = () => {
+      setIsScrolled(sidebar.scrollTop > 20);
+    };
+
+    sidebar.addEventListener('scroll', handleScroll);
+    return () => sidebar.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const sections = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
@@ -131,9 +143,9 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         aria-label="Main navigation"
       >
         {/* Desktop Header */}
-        <div className={styles.desktopHeader}>
+        <div className={`${styles.desktopHeader} ${isScrolled ? styles.scrolled : ''}`}>
           <div className={styles.logo}>
-            <img src={iconSmall} alt="English Notebook" className={styles.logoImg} />
+            <img src={logoSmall} alt="English Notebook" className={styles.logoImg} />
             <div className={styles.logoTextContainer}>
               <span className={styles.logoText}>English</span>
               <span className={styles.logoSubText}>Notebook</span>
@@ -147,28 +159,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Desktop Navigation Menu */}
         <nav className={styles.nav}>
           <ul className={styles.menu} role="menubar">
-            {sections.slice(0, 4).map((section) => (
-              <li key={section.id} role="none">
-                <button
-                  className={`${styles.navLink} ${activeSection === section.id ? styles.active : ''}`}
-                  onClick={() => handleSectionClick(section.id)}
-                  onKeyDown={(e) => handleKeyDown(e, section.id)}
-                  aria-label={section.label}
-                  role="menuitem"
-                  aria-current={activeSection === section.id ? 'page' : undefined}
-                >
-                  <span className={styles.icon} aria-hidden="true">{section.icon}</span>
-                  <span className={styles.label}>{section.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          {/* Subtle Divider */}
-          <div className={styles.subtleDivider}></div>
-
-          <ul className={styles.menu} role="menubar">
-            {sections.slice(4).map((section) => (
+            {sections.map((section) => (
               <li key={section.id} role="none">
                 <button
                   className={`${styles.navLink} ${activeSection === section.id ? styles.active : ''}`}
@@ -205,7 +196,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
       {/* Mobile Top Bar */}
       <header className={styles.mobileHeader}>
         <div className={styles.mobileLogo}>
-          <img src={iconSmall} alt="English Notebook" className={styles.mobileLogoImg} />
+          <img src={logoSmall} alt="English Notebook" className={styles.mobileLogoImg} />
           <div className={styles.mobileLogoTextContainer}>
             <span className={styles.mobileLogoText}>English</span>
             <span className={styles.mobileLogoSubText}>Notebook</span>
@@ -233,7 +224,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Mobile Menu Header */}
         <div className={styles.mobileMenuHeader}>
           <div className={styles.mobileMenuLogo}>
-            <img src={iconSmall} alt="English Notebook" className={styles.mobileMenuLogoImg} />
+            <img src={logoSmall} alt="English Notebook" className={styles.mobileMenuLogoImg} />
             <div className={styles.mobileMenuLogoTextContainer}>
               <span className={styles.mobileMenuLogoText}>English</span>
               <span className={styles.mobileMenuLogoSubText}>Notebook</span>
