@@ -18,7 +18,7 @@ import {
   X
 } from 'lucide-react';
 import styles from './Navbar.module.css';
-import logoNavbar from '../../assets/icons/logo-navbar.jpg';
+import logoApp from '../../assets/icons/logo-app.png';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
@@ -145,7 +145,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Desktop Header */}
         <div className={`${styles.desktopHeader} ${isScrolled ? styles.scrolled : ''}`}>
           <div className={styles.logo}>
-            <img src={logoNavbar} alt="English Notebook" className={styles.logoImg} />
+            <img src={logoApp} alt="English Notebook" className={styles.logoImg} />
           </div>
         </div>
 
@@ -192,7 +192,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
       {/* Mobile Top Bar */}
       <header className={styles.mobileHeader}>
         <div className={styles.mobileLogo}>
-          <img src={logoNavbar} alt="English Notebook" className={styles.mobileLogoImg} />
+          <img src={logoApp} alt="English Notebook" className={styles.mobileLogoImg} />
         </div>
         <button
           className={`${styles.hamburger} ${isMenuOpen ? styles.active : ''}`}
@@ -216,7 +216,7 @@ export const Navbar = ({ activeSection = '', onSectionChange }: NavbarProps) => 
         {/* Mobile Menu Header */}
         <div className={styles.mobileMenuHeader}>
           <div className={styles.mobileMenuLogo}>
-            <img src={logoNavbar} alt="English Notebook" className={styles.mobileMenuLogoImg} />
+            <img src={logoApp} alt="English Notebook" className={styles.mobileMenuLogoImg} />
           </div>
           <button
             className={styles.closeBtn}

@@ -8,3 +8,7 @@ export * from './vocabulary.types';
 export * from './irregularVerbs.types';
 export * from './dailyPhrases.types';
 export * from './song.types';
+export * from './text.types';
+export * from './achievement.types';
+export * from './dailyCommitment.types';
+export * from './movies.types';

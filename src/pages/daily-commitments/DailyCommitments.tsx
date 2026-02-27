@@ -1,426 +1,638 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Target, CheckCircle2, Clock, BookOpen, Headphones,
+  MessageCircle, Plus, X, Edit2, Trash2, Search,
+  Check, AlertCircle, Save, Flame, TrendingUp,
+  Calendar, Minus, Music, PenTool, Zap,
+} from 'lucide-react';
+import huskyVideo from '../../assets/videos/video-husky5.mp4';
 import styles from './DailyCommitments.module.css';
 import {
-  Calendar,
-  Target,
-  CheckCircle2,
-  Clock,
-  BookOpen,
-  Headphones,
-  Layout,
-  MessageCircle,
-  RefreshCw,
-  Plus,
-  Minus,
-  Flame,
-  TrendingUp,
-} from 'lucide-react';
-import huskyIcon from '../../assets/icons/husky.png';
+  getAllCommitments,
+  createCommitment,
+  updateCommitment,
+  deleteCommitment,
+  updateCommitmentProgress,
+  updateCommitmentStatus,
+  getCommitmentStats,
+} from '../../api/dailyCommitments.api';
+import type {
+  DailyCommitment,
+  CommitmentType,
+  CommitmentUnit,
+  CommitmentFrequency,
+  CommitmentStatus,
+  CreateCommitmentRequest,
+  UpdateCommitmentRequest,
+} from '../../types';
 
-interface DailyGoal {
-  id: string;
-  title: string;
-  description: string;
-  category: 'vocabulary' | 'grammar' | 'listening' | 'reading' | 'practice' | 'review';
-  target: number;
-  current: number;
-  unit: string;
-  isCompleted: boolean;
-  streak: number;
-}
+// ── Constants ────────────────────────────────────────────────────────────────
 
-interface Commitment {
-  id: string;
-  date: string;
-  goals: DailyGoal[];
-  overallProgress: number;
-  isCompleted: boolean;
-}
+const TYPE_LABELS: Record<CommitmentType, string> = {
+  'learn-words': 'Learn Words',
+  'study-grammar': 'Study Grammar',
+  'practice-conversation': 'Conversation',
+  'read-text': 'Read Text',
+  'listen-song': 'Listen Song',
+  'custom': 'Custom',
+};
+
+const TYPE_ICONS: Record<CommitmentType, React.ReactNode> = {
+  'learn-words': <BookOpen size={16} />,
+  'study-grammar': <PenTool size={16} />,
+  'practice-conversation': <MessageCircle size={16} />,
+  'read-text': <BookOpen size={16} />,
+  'listen-song': <Music size={16} />,
+  'custom': <Zap size={16} />,
+};
+
+const UNIT_LABELS: Record<CommitmentUnit, string> = {
+  'palabras': 'Words',
+  'minutos': 'Minutes',
+  'reglas': 'Rules',
+  'oraciones': 'Sentences',
+  'líneas': 'Lines',
+  'custom': 'Custom',
+};
+
+const FREQUENCY_LABELS: Record<CommitmentFrequency, string> = {
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+};
+
+const STATUS_LABELS: Record<CommitmentStatus, string> = {
+  pending: 'Pending',
+  'in-progress': 'In Progress',
+  completed: 'Completed',
+};
+
+// ── Main Component ───────────────────────────────────────────────────────────
 
 const DailyCommitments: React.FC = () => {
-  const [currentCommitment, setCurrentCommitment] = useState<Commitment | null>(null);
-  const [commitmentHistory, setCommitmentHistory] = useState<Commitment[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [commitments, setCommitments] = useState<DailyCommitment[]>([]);
+  const [filteredCommitments, setFilteredCommitments] = useState<DailyCommitment[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - replace with API call
-  useEffect(() => {
-    const mockGoals: DailyGoal[] = [
-      {
-        id: '1',
-        title: 'Learn New Words',
-        description: 'Add 5 new words to your vocabulary',
-        category: 'vocabulary',
-        target: 5,
-        current: 3,
-        unit: 'words',
-        isCompleted: false,
-        streak: 7,
-      },
-      {
-        id: '2',
-        title: 'Grammar Practice',
-        description: 'Complete grammar exercises',
-        category: 'grammar',
-        target: 15,
-        current: 15,
-        unit: 'exercises',
-        isCompleted: true,
-        streak: 12,
-      },
-      {
-        id: '3',
-        title: 'Listen to English',
-        description: 'Listen to English content for 30 minutes',
-        category: 'listening',
-        target: 30,
-        current: 25,
-        unit: 'minutes',
-        isCompleted: false,
-        streak: 5,
-      },
-      {
-        id: '4',
-        title: 'Reading Time',
-        description: 'Read English text for 20 minutes',
-        category: 'reading',
-        target: 20,
-        current: 20,
-        unit: 'minutes',
-        isCompleted: true,
-        streak: 8,
-      },
-      {
-        id: '5',
-        title: 'Practice Speaking',
-        description: 'Practice speaking for 10 minutes',
-        category: 'practice',
-        target: 10,
-        current: 8,
-        unit: 'minutes',
-        isCompleted: false,
-        streak: 3,
-      },
-      {
-        id: '6',
-        title: 'Review Flashcards',
-        description: 'Review your flashcard deck',
-        category: 'review',
-        target: 20,
-        current: 18,
-        unit: 'cards',
-        isCompleted: false,
-        streak: 15,
-      },
-    ];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
 
-    const mockCommitment: Commitment = {
-      id: 'today',
-      date: new Date().toISOString().split('T')[0],
-      goals: mockGoals,
-      overallProgress: Math.round((mockGoals.filter(g => g.isCompleted).length / mockGoals.length) * 100),
-      isCompleted: mockGoals.every(g => g.isCompleted),
-    };
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCommitment, setEditingCommitment] = useState<DailyCommitment | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const mockHistory: Commitment[] = [
-      {
-        id: 'yesterday',
-        date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-        goals: mockGoals.map(g => ({ ...g, current: g.target, isCompleted: true })),
-        overallProgress: 100,
-        isCompleted: true,
-      },
-      {
-        id: '2daysago',
-        date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-        goals: mockGoals.map(g => ({ ...g, current: Math.floor(g.target * 0.8), isCompleted: false })),
-        overallProgress: 67,
-        isCompleted: false,
-      },
-    ];
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-    setTimeout(() => {
-      setCurrentCommitment(mockCommitment);
-      setCommitmentHistory(mockHistory);
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // ── Data Loading ─────────────────────────────────────────────────────────
+
+  const loadCommitments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [res, statsRes] = await Promise.all([
+        getAllCommitments(),
+        getCommitmentStats(),
+      ]);
+      setCommitments(res.commitments);
+      setStats(statsRes.stats);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load commitments');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   }, []);
 
-  const updateGoalProgress = (goalId: string, newCurrent: number) => {
-    if (!currentCommitment) return;
+  useEffect(() => { loadCommitments(); }, [loadCommitments]);
 
-    const updatedGoals = currentCommitment.goals.map(goal =>
-      goal.id === goalId
-        ? {
-          ...goal,
-          current: Math.min(newCurrent, goal.target),
-          isCompleted: newCurrent >= goal.target,
-        }
-        : goal
-    );
+  // ── Filtering ─────────────────────────────────────────────────────────────
 
-    const completedGoals = updatedGoals.filter(g => g.isCompleted).length;
-    const overallProgress = Math.round((completedGoals / updatedGoals.length) * 100);
-    const isCompleted = updatedGoals.every(g => g.isCompleted);
+  useEffect(() => {
+    let filtered = [...commitments];
+    const q = searchTerm.toLowerCase();
 
-    setCurrentCommitment({
-      ...currentCommitment,
-      goals: updatedGoals,
-      overallProgress,
-      isCompleted,
-    });
-  };
+    if (q) {
+      filtered = filtered.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q)
+      );
+    }
+    if (selectedType !== 'all') filtered = filtered.filter(c => c.type === selectedType);
+    if (selectedStatus !== 'all') filtered = filtered.filter(c => c.status === selectedStatus);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'vocabulary': return <BookOpen size={24} />;
-      case 'grammar': return <Layout size={24} />;
-      case 'listening': return <Headphones size={24} />;
-      case 'reading': return <BookOpen size={24} />;
-      case 'practice': return <MessageCircle size={24} />;
-      case 'review': return <RefreshCw size={24} />;
-      default: return <Target size={24} />;
+    setFilteredCommitments(filtered);
+  }, [commitments, searchTerm, selectedType, selectedStatus]);
+
+  // ── CRUD ──────────────────────────────────────────────────────────────────
+
+  const handleCreate = async (data: CreateCommitmentRequest) => {
+    try {
+      setIsSubmitting(true);
+      await createCommitment(data);
+      showToast('Commitment created! 🎯');
+      setShowCreateForm(false);
+      await loadCommitments();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to create commitment', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'vocabulary': return styles['category.vocabulary'];
-      case 'grammar': return styles['category.grammar'];
-      case 'listening': return styles['category.listening'];
-      case 'reading': return styles['category.reading'];
-      case 'practice': return styles['category.practice'];
-      case 'review': return styles['category.review'];
-      default: return styles['category.default'];
+  const handleUpdate = async (id: string, data: UpdateCommitmentRequest) => {
+    try {
+      setIsSubmitting(true);
+      await updateCommitment(id, data);
+      showToast('Commitment updated!');
+      setEditingCommitment(null);
+      await loadCommitments();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getProgressPercentage = (current: number, target: number) => {
-    return Math.min((current / target) * 100, 100);
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this commitment?')) return;
+    try {
+      await deleteCommitment(id);
+      showToast('Commitment deleted');
+      await loadCommitments();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete', 'error');
+    }
   };
 
-  const getCurrentStreak = () => {
-    if (!currentCommitment) return 0;
-    return Math.min(...currentCommitment.goals.map(g => g.streak));
+  const handleProgressUpdate = async (id: string, current: number, goalValue: number) => {
+    const clamped = Math.min(Math.max(current, 0), goalValue);
+    try {
+      await updateCommitmentProgress(id, { current: clamped });
+      setCommitments(prev =>
+        prev.map(c => c._id === id
+          ? { ...c, progress: { current: clamped, percentage: Math.round((clamped / goalValue) * 100) } }
+          : c
+        )
+      );
+      if (clamped >= goalValue) showToast('Commitment completed! 🎉');
+    } catch (err: any) {
+      showToast('Failed to update progress', 'error');
+    }
   };
 
-  const getCompletedGoals = () => {
-    if (!currentCommitment) return 0;
-    return currentCommitment.goals.filter(g => g.isCompleted).length;
+  const handleStatusChange = async (id: string, status: CommitmentStatus) => {
+    try {
+      await updateCommitmentStatus(id, { status });
+      setCommitments(prev => prev.map(c => c._id === id ? { ...c, status } : c));
+      showToast(`Status → ${STATUS_LABELS[status]}`);
+    } catch (err: any) {
+      showToast('Failed to update status', 'error');
+    }
   };
 
-  if (loading) {
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  const getStatusStyle = (status: CommitmentStatus) => {
+    switch (status) {
+      case 'completed': return styles.statusCompleted;
+      case 'in-progress': return styles.statusInProgress;
+      default: return styles.statusPending;
+    }
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  if (loading && commitments.length === 0) {
     return (
       <div className={styles.pageContent}>
-        <div className={styles.loading}>Loading daily commitments...</div>
+        <div className={styles.loading}>
+          <Target size={40} className={styles.loadingIcon} />
+          <p>Loading commitments...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.pageContent}>
+
+      {/* ── HEADER ── */}
       <header className={styles.header}>
-        <div className={styles.huskyContainer}>
-          <img src={huskyIcon} alt="Husky" className={styles.huskyImg} />
-        </div>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Daily Commitments</h1>
           <p className={styles.subtitle}>Track and achieve your daily English learning goals</p>
+          <p className={styles.description}>
+            Set personal goals, track your progress daily, and build consistency
+            in your English learning journey. Every commitment counts.
+          </p>
+        </div>
+        <div className={styles.huskyContainer}>
+          <video
+            className={styles.huskyVideo}
+            src={huskyVideo}
+            autoPlay loop muted playsInline
+          />
         </div>
       </header>
 
-      <section className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
-            <CheckCircle2 size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <span className={styles.statNumber}>{getCompletedGoals()}</span>
-            <span className={styles.statLabel}>Completed Today</span>
-          </div>
-        </div>
+      {/* ── STATS ── */}
+      <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-            <TrendingUp size={24} />
+            <Target size={26} />
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statNumber}>{currentCommitment?.overallProgress || 0}%</span>
-            <span className={styles.statLabel}>Overall Progress</span>
+            <p className={styles.statLabel}>Total</p>
+            <span className={styles.statValue}>{stats?.totalCommitments ?? commitments.length}</span>
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)' }}>
-            <Flame size={24} />
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+            <CheckCircle2 size={26} />
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statNumber}>{getCurrentStreak()}</span>
-            <span className={styles.statLabel}>Day Streak</span>
+            <p className={styles.statLabel}>Completed</p>
+            <span className={styles.statValue}>{stats?.completed ?? commitments.filter(c => c.status === 'completed').length}</span>
           </div>
         </div>
-      </section>
-
-      <div className={styles.dateSelector}>
-        <label htmlFor="date-select" className={styles.dateLabel}>
-          <Calendar size={18} style={{ marginRight: '8px' }} />
-          Select Date:
-        </label>
-        <input
-          id="date-select"
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className={styles.dateInput}
-          max={new Date().toISOString().split('T')[0]}
-        />
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+            <Flame size={26} />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>In Progress</p>
+            <span className={styles.statValue}>{stats?.inProgress ?? commitments.filter(c => c.status === 'in-progress').length}</span>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)' }}>
+            <TrendingUp size={26} />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Completion Rate</p>
+            <span className={styles.statValue}>{stats?.completionRate ?? '—'}</span>
+          </div>
+        </div>
       </div>
 
-      {currentCommitment && (
-        <div className={styles.commitmentSection}>
-          <div className={styles.commitmentHeader}>
-            <h2 className={styles.commitmentTitle}>
-              <h2 className={styles.commitmentTitle}>
-                {selectedDate === new Date().toISOString().split('T')[0] ? "Today's Goals" : `Goals for ${new Date(selectedDate).toLocaleDateString()}`}
-              </h2>              </h2>
-            <div className={styles.progressOverview}>
-              <div className={styles.progressCircle}>
-                <svg width="80" height="80">
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="35"
-                    stroke="rgba(127, 179, 213, 0.2)"
-                    strokeWidth="6"
-                    fill="none"
-                  />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="35"
-                    stroke="#7fb3d5"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 35}`}
-                    strokeDashoffset={`${2 * Math.PI * 35 * (1 - currentCommitment.overallProgress / 100)}`}
-                    transform="rotate(-90 40 40)"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className={styles.progressText}>
-                  {currentCommitment.overallProgress}%
-                </span>
-              </div>
-              {currentCommitment.isCompleted && (
-                <div className={styles.completedBadge}>
-                  🎉 All Done!
+      {/* ── CONTROLS ── */}
+      <div className={styles.controls}>
+        <div className={styles.searchBar}>
+          <Search size={18} className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search commitments..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        <div className={styles.filters}>
+          <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className={styles.filterSelect}>
+            <option value="all">All Types</option>
+            {(Object.keys(TYPE_LABELS) as CommitmentType[]).map(k => (
+              <option key={k} value={k}>{TYPE_LABELS[k]}</option>
+            ))}
+          </select>
+          <select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} className={styles.filterSelect}>
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <button className={styles.createButton} onClick={() => setShowCreateForm(true)}>
+          <Plus size={20} /> Add Commitment
+        </button>
+      </div>
+
+      {/* ── ERROR ── */}
+      {error && (
+        <div className={styles.errorBanner}>
+          <AlertCircle size={18} /> {error}
+        </div>
+      )}
+
+      {/* ── RESULTS INFO ── */}
+      {commitments.length > 0 && (
+        <div className={styles.resultsInfo}>
+          <span className={styles.resultsCount}>
+            Showing {filteredCommitments.length} of {commitments.length} commitments
+          </span>
+        </div>
+      )}
+
+      {/* ── GRID ── */}
+      {filteredCommitments.length === 0 && !loading ? (
+        <div className={styles.emptyState}>
+          <Target size={48} style={{ opacity: 0.25, marginBottom: '1rem' }} />
+          <p>{commitments.length === 0 ? 'No commitments yet. Create your first one!' : 'No commitments match your filters.'}</p>
+          {commitments.length > 0 && (
+            <button className={styles.clearFiltersBtn} onClick={() => { setSearchTerm(''); setSelectedType('all'); setSelectedStatus('all'); }}>
+              Clear filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className={styles.commitmentsGrid}>
+          {filteredCommitments.map(commitment => {
+            const pct = commitment.progress.percentage;
+            const isDone = commitment.status === 'completed' || pct === 100;
+            return (
+              <div key={commitment._id} className={`${styles.commitmentCard} ${isDone ? styles.cardComplete : ''}`}>
+
+                {/* Card Top */}
+                <div className={styles.cardTop}>
+                  <div className={styles.cardTopLeft}>
+                    <span className={styles.typeBadge}>
+                      {TYPE_ICONS[commitment.type]} {TYPE_LABELS[commitment.type]}
+                    </span>
+                    <span className={styles.freqBadge}>
+                      <Calendar size={12} /> {FREQUENCY_LABELS[commitment.frequency]}
+                    </span>
+                  </div>
+                  <div className={styles.cardActions}>
+                    <button className={`${styles.iconBtn} ${styles.iconBtnEdit}`} onClick={() => setEditingCommitment(commitment)} title="Edit">
+                      <Edit2 size={14} />
+                    </button>
+                    <button className={`${styles.iconBtn} ${styles.iconBtnDelete}`} onClick={() => handleDelete(commitment._id)} title="Delete">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-              )}
+
+                {/* Card Body */}
+                <div className={styles.cardBody}>
+                  <h3 className={styles.commitmentTitle}>{commitment.title}</h3>
+                  {commitment.description && (
+                    <p className={styles.commitmentDesc}>{commitment.description}</p>
+                  )}
+                </div>
+
+                {/* Progress */}
+                <div className={styles.progressSection}>
+                  <div className={styles.progressHeader}>
+                    <span className={styles.progressLabel}>
+                      {commitment.progress.current} / {commitment.goal.value} {UNIT_LABELS[commitment.goal.unit]}
+                    </span>
+                    <span className={`${styles.progressPct} ${isDone ? styles.progressPctDone : ''}`}>
+                      {pct}%
+                    </span>
+                  </div>
+                  <div className={styles.progressTrack}>
+                    <div
+                      className={`${styles.progressFill} ${isDone ? styles.progressFillDone : ''}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  {/* +/- buttons */}
+                  {!isDone && (
+                    <div className={styles.progressControls}>
+                      <button
+                        className={styles.adjustBtn}
+                        onClick={() => handleProgressUpdate(commitment._id, commitment.progress.current - 1, commitment.goal.value)}
+                        disabled={commitment.progress.current <= 0}
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className={styles.currentVal}>{commitment.progress.current}</span>
+                      <button
+                        className={styles.adjustBtn}
+                        onClick={() => handleProgressUpdate(commitment._id, commitment.progress.current + 1, commitment.goal.value)}
+                        disabled={commitment.progress.current >= commitment.goal.value}
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status selector */}
+                <div className={styles.cardFooter}>
+                  <div className={styles.statusSelector}>
+                    {(['pending', 'in-progress', 'completed'] as CommitmentStatus[]).map(s => (
+                      <button
+                        key={s}
+                        className={`${styles.statusBtn} ${commitment.status === s ? getStatusStyle(s) : ''}`}
+                        onClick={() => handleStatusChange(commitment._id, s)}
+                      >
+                        {s === 'completed' && <CheckCircle2 size={12} />}
+                        {s === 'in-progress' && <Clock size={12} />}
+                        {s === 'pending' && <Target size={12} />}
+                        {STATUS_LABELS[s]}
+                      </button>
+                    ))}
+                  </div>
+                  {commitment.notes && (
+                    <p className={styles.cardNotes}>📝 {commitment.notes}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── CREATE MODAL ── */}
+      {showCreateForm && (
+        <CommitmentFormModal
+          onClose={() => setShowCreateForm(false)}
+          onSubmit={handleCreate}
+          title="Add Commitment"
+          isLoading={isSubmitting}
+        />
+      )}
+
+      {/* ── EDIT MODAL ── */}
+      {editingCommitment && (
+        <CommitmentFormModal
+          commitment={editingCommitment}
+          onClose={() => setEditingCommitment(null)}
+          onSubmit={(data) => handleUpdate(editingCommitment._id, data)}
+          title="Edit Commitment"
+          isLoading={isSubmitting}
+        />
+      )}
+
+      {/* ── TOAST ── */}
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+          {toast.message}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Commitment Form Modal ────────────────────────────────────────────────────
+
+interface CommitmentFormModalProps {
+  commitment?: DailyCommitment;
+  onClose: () => void;
+  onSubmit: (data: CreateCommitmentRequest) => Promise<void>;
+  title: string;
+  isLoading?: boolean;
+}
+
+const EMPTY_FORM: CreateCommitmentRequest = {
+  title: '',
+  description: '',
+  type: 'custom',
+  goal: { value: 10, unit: 'minutos' },
+  reminder: { enabled: true, time: '08:00' },
+  frequency: 'daily',
+  notes: '',
+};
+
+const CommitmentFormModal: React.FC<CommitmentFormModalProps> = ({
+  commitment, onClose, onSubmit, title, isLoading = false
+}) => {
+  const [formData, setFormData] = useState<CreateCommitmentRequest>(EMPTY_FORM);
+
+  useEffect(() => {
+    if (commitment) {
+      setFormData({
+        title: commitment.title,
+        description: commitment.description || '',
+        type: commitment.type,
+        goal: { value: commitment.goal.value, unit: commitment.goal.unit },
+        reminder: commitment.reminder || { enabled: true },
+        frequency: commitment.frequency,
+        notes: commitment.notes || '',
+      });
+    } else {
+      setFormData(EMPTY_FORM);
+    }
+  }, [commitment]);
+
+  const set = (field: keyof CreateCommitmentRequest, value: any) =>
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit(formData);
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className={styles.modal}>
+        <header className={styles.modalHeader}>
+          <h2>
+            {commitment ? <Edit2 size={22} /> : <Plus size={22} />}
+            {title}
+          </h2>
+          <button className={styles.closeButton} onClick={onClose}><X size={22} /></button>
+        </header>
+
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+
+          {/* Title + Type */}
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={e => set('title', e.target.value)}
+                required
+                placeholder="e.g., Learn 10 new words"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Type *</label>
+              <select value={formData.type} onChange={e => set('type', e.target.value as CommitmentType)}>
+                {(Object.entries(TYPE_LABELS) as [CommitmentType, string][]).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className={styles.goalsGrid}>
-            {currentCommitment.goals.map(goal => (
-              <div
-                key={goal.id}
-                className={`${styles.goalCard} ${goal.isCompleted ? styles.completed : ''}`}
+          {/* Description */}
+          <div className={styles.formGroup}>
+            <label>Description <span className={styles.optional}>(optional)</span></label>
+            <textarea
+              value={formData.description}
+              onChange={e => set('description', e.target.value)}
+              rows={2}
+              placeholder="What does this commitment involve?"
+            />
+          </div>
+
+          {/* Goal: value + unit */}
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Goal Value *</label>
+              <input
+                type="number"
+                min={1}
+                value={formData.goal.value}
+                onChange={e => set('goal', { ...formData.goal, value: Number(e.target.value) })}
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Goal Unit *</label>
+              <select
+                value={formData.goal.unit}
+                onChange={e => set('goal', { ...formData.goal, unit: e.target.value as CommitmentUnit })}
               >
-                <div className={styles.goalHeader}>
-                  <div className={styles.goalIcon}>
-                    {getCategoryIcon(goal.category)}
-                  </div>
-                  <span className={`${styles.categoryBadge} ${getCategoryColor(goal.category)}`}>
-                    {goal.category}
-                  </span>
-                </div>
-
-                <div className={styles.goalContent}>
-                  <h3 className={styles.goalTitle}>{goal.title}</h3>
-                  <p className={styles.goalDescription}>{goal.description}</p>
-
-                  <div className={styles.goalProgress}>
-                    <div className={styles.progressBar}>
-                      <div
-                        className={styles.progressFill}
-                        style={{
-                          width: `${getProgressPercentage(goal.current, goal.target)}%`
-                        }}
-                      />
-                    </div>
-                    <span className={styles.progressNumbers}>
-                      {goal.current} / {goal.target} {goal.unit}
-                    </span>
-                  </div>
-
-                  <div className={styles.goalControls}>
-                    <button
-                      className={styles.adjustButton}
-                      onClick={() => updateGoalProgress(goal.id, goal.current - 1)}
-                      disabled={goal.current <= 0}
-                    >
-                      <Minus size={18} />
-                    </button>
-                    <input
-                      type="number"
-                      value={goal.current}
-                      onChange={(e) => updateGoalProgress(goal.id, parseInt(e.target.value) || 0)}
-                      className={styles.progressInput}
-                      min="0"
-                      max={goal.target}
-                    />
-                    <button
-                      className={styles.adjustButton}
-                      onClick={() => updateGoalProgress(goal.id, goal.current + 1)}
-                      disabled={goal.current >= goal.target}
-                    >
-                      <Plus size={18} />
-                    </button>
-                  </div>
-
-                  <div className={styles.goalFooter}>
-                    <span className={styles.streak}>
-                      <Flame size={16} style={{ marginRight: '4px' }} />
-                      {goal.streak} day streak
-                    </span>
-                    {goal.isCompleted && (
-                      <span className={styles.completedIcon}>
-                        <CheckCircle2 size={24} />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                {(Object.entries(UNIT_LABELS) as [CommitmentUnit, string][]).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-      )}
 
-      {commitmentHistory.length > 0 && (
-        <div className={styles.historySection}>
-          <h2 className={styles.historyTitle}>Recent History</h2>
-          <div className={styles.historyList}>
-            {commitmentHistory.map(commitment => (
-              <div key={commitment.id} className={styles.historyItem}>
-                <div className={styles.historyDate}>
-                  {new Date(commitment.date).toLocaleDateString()}
-                </div>
-                <div className={styles.historyProgress}>
-                  <div className={styles.historyBar}>
-                    <div
-                      className={styles.historyFill}
-                      style={{ width: `${commitment.overallProgress}%` }}
-                    />
-                  </div>
-                  <span className={styles.historyPercent}>
-                    {commitment.overallProgress}%
-                  </span>
-                </div>
-                <div className={styles.historyStatus}>
-                  {commitment.isCompleted ? <CheckCircle2 size={20} color="#4caf50" /> : <Clock size={20} color="#7fb3d5" />}
-                </div>
-              </div>
-            ))}
+          {/* Frequency + Reminder */}
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Frequency</label>
+              <select value={formData.frequency} onChange={e => set('frequency', e.target.value as CommitmentFrequency)}>
+                {(Object.entries(FREQUENCY_LABELS) as [CommitmentFrequency, string][]).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Reminder Time <span className={styles.optional}>(optional)</span></label>
+              <input
+                type="time"
+                value={formData.reminder?.time || '08:00'}
+                onChange={e => set('reminder', { enabled: true, time: e.target.value })}
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Notes */}
+          <div className={styles.formGroup}>
+            <label>Notes <span className={styles.optional}>(optional)</span></label>
+            <textarea
+              value={formData.notes}
+              onChange={e => set('notes', e.target.value)}
+              rows={2}
+              placeholder="Personal notes..."
+            />
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button type="button" className={styles.cancelButton} onClick={onClose} disabled={isLoading}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.submitButton} disabled={isLoading}>
+              {isLoading ? 'Saving...' : <><Save size={16} /> {commitment ? 'Update' : 'Create'}</>}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

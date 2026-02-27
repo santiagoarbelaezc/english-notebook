@@ -1,478 +1,380 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  BookOpen,
-  Trophy,
-  Files,
-  CheckCircle,
-  MessageCircle,
-  Music,
-  Calendar,
-  Star,
-  Target,
-  Film,
-  FileText,
-  Book,
-  Flame,
-  Award
+  BookOpen, Trophy, Files, MessageCircle, Music,
+  Star, Target, Film, FileText, Flame, Award,
+  Layers, PenTool, TrendingUp, Zap, RefreshCw,
+  AlertCircle, Check,
 } from 'lucide-react';
 
 import styles from './Dashboard.module.css';
-import Profile from '../profile';
-import IrregularVerbs from '../irregular-verbs';
-import Grammar from '../grammar';
-import Conversations from '../conversations';
-import { getRandomPhrase } from '../../api/dailyPhrases.api';
-import type { DailyPhrase } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import huskyVideo from '../../assets/videos/video-husky2.mp4';
+import { getRandomPhrase } from '../../api/dailyPhrases.api';
+import type { DailyPhrase } from '../../types';
+
+// ── Stats API imports ────────────────────────────────────────────────────────
+import { getProfileSummary, getLearningProgress, recalculateStats } from '../../api/profiles.api';
+import { getVocabularyStats } from '../../api/vocabulary.api';
+import { getGrammarStats } from '../../api/grammar.api';
+import { getConversationStats } from '../../api/conversations.api';
+import { getSongStats } from '../../api/songs.api';
+import { getTextStats } from '../../api/texts.api';
+import { getFlashcardStats } from '../../api/flashcards.api';
+import { getCommitmentStats } from '../../api/dailyCommitments.api';
+import { getAchievementStats } from '../../api/achievements.api';
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface StatBlock {
+  label: string;
+  value: number | string;
+  icon: React.ReactNode;
+  gradient: string;
+  extra?: string;
+}
+
+interface ProgressBar {
+  label: string;
+  icon: React.ReactNode;
+  current: number;
+  max: number;
+  color: string;
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 export const Dashboard = () => {
-  // @ts-ignore
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const { user } = useAuth();
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'flashcards':
-        return <FlashcardsSection />;
-      case 'vocabulary':
-        return <VocabularySection />;
-      case 'grammar':
-        return <Grammar />;
-      case 'conversations':
-        return <Conversations />;
-      case 'daily-phrases':
-        return <DailyPhrasesSection />;
-      case 'daily-commitments':
-        return <DailyCommitmentsSection />;
-      case 'irregular-verbs':
-        return <IrregularVerbs />;
-      case 'movies':
-        return <MoviesSection />;
-      case 'songs':
-        return <SongsSection />;
-      case 'texts':
-        return <TextsSection />;
-      case 'achievements':
-        return <AchievementsSection />;
-      case 'profile':
-        return <Profile />;
-      default:
-        return <MainDashboardSection />;
+  // Data
+  const [profileSummary, setProfileSummary] = useState<any>(null);
+  const [dailyPhrase, setDailyPhrase] = useState<DailyPhrase | null>(null);
+  const [stats, setStats] = useState<StatBlock[]>([]);
+  const [progress, setProgress] = useState<ProgressBar[]>([]);
+  const [barChart, setBarChart] = useState<{ label: string; value: number; color: string }[]>([]);
+
+  // State
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (m: string, t: 'success' | 'error' = 'success') => {
+    setToast({ message: m, type: t });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // ── Helper to safely call an API ───────────────────────────────────────
+
+  const safe = async <T,>(fn: () => Promise<T>): Promise<T | null> => {
+    try { return await fn(); } catch { return null; }
+  };
+
+  // ── Load All Data ──────────────────────────────────────────────────────
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+
+    const [
+      profileRes,
+      phraseRes,
+      vocabRes,
+      gramRes,
+      convRes,
+      songRes,
+      textRes,
+      flashRes,
+      commitRes,
+      achieveRes,
+      progressRes,
+    ] = await Promise.all([
+      safe(getProfileSummary),
+      safe(getRandomPhrase),
+      safe(getVocabularyStats),
+      safe(getGrammarStats),
+      safe(getConversationStats),
+      safe(getSongStats),
+      safe(getTextStats),
+      safe(getFlashcardStats),
+      safe(getCommitmentStats),
+      safe(getAchievementStats),
+      safe(getLearningProgress),
+    ]);
+
+    if (profileRes) setProfileSummary(profileRes);
+    if (phraseRes) setDailyPhrase((phraseRes as any).phrase || phraseRes);
+
+    // ── Build stat blocks ───────────────────────────────────────────────
+    const blocks: StatBlock[] = [];
+    const bars: ProgressBar[] = [];
+    const chart: { label: string; value: number; color: string }[] = [];
+
+    // Vocabulary
+    const vStats = (vocabRes as any)?.stats || vocabRes;
+    const vocabTotal = vStats?.totalWords ?? vStats?.total ?? 0;
+    if (vStats) {
+      blocks.push({ label: 'Vocabulary', value: vocabTotal, icon: <BookOpen size={26} />, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', extra: `${vStats.masteredWords ?? 0} mastered` });
+      bars.push({ label: 'Vocabulary', icon: <BookOpen size={16} />, current: vocabTotal, max: 500, color: '#667eea' });
+      chart.push({ label: 'Vocab', value: vocabTotal, color: '#667eea' });
+    }
+
+    // Grammar
+    const gStats = (gramRes as any)?.stats || gramRes;
+    const gramTotal = gStats?.totalRules ?? gStats?.total ?? 0;
+    if (gStats) {
+      blocks.push({ label: 'Grammar Rules', value: gramTotal, icon: <PenTool size={26} />, gradient: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)' });
+      bars.push({ label: 'Grammar', icon: <PenTool size={16} />, current: gramTotal, max: 100, color: '#764ba2' });
+      chart.push({ label: 'Grammar', value: gramTotal, color: '#764ba2' });
+    }
+
+    // Flashcards
+    const fStats = (flashRes as any)?.stats || flashRes;
+    const flashTotal = fStats?.totalCards ?? fStats?.total ?? 0;
+    if (fStats) {
+      blocks.push({ label: 'Flashcards', value: flashTotal, icon: <Layers size={26} />, gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', extra: fStats.accuracyRate ? `${fStats.accuracyRate} accuracy` : undefined });
+      bars.push({ label: 'Flashcards', icon: <Layers size={16} />, current: flashTotal, max: 200, color: '#fcb69f' });
+      chart.push({ label: 'Flash', value: flashTotal, color: '#fcb69f' });
+    }
+
+    // Conversations
+    const cStats = (convRes as any)?.stats || convRes;
+    const convTotal = cStats?.totalConversations ?? cStats?.total ?? 0;
+    if (cStats) {
+      blocks.push({ label: 'Conversations', value: convTotal, icon: <MessageCircle size={26} />, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' });
+      bars.push({ label: 'Conversations', icon: <MessageCircle size={16} />, current: convTotal, max: 50, color: '#f5576c' });
+      chart.push({ label: 'Conv', value: convTotal, color: '#f5576c' });
+    }
+
+    // Songs
+    const sStats = (songRes as any)?.stats || songRes;
+    const songTotal = sStats?.totalSongs ?? sStats?.total ?? 0;
+    if (sStats) {
+      blocks.push({ label: 'Songs', value: songTotal, icon: <Music size={26} />, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' });
+      chart.push({ label: 'Songs', value: songTotal, color: '#43e97b' });
+    }
+
+    // Texts
+    const tStats = (textRes as any)?.stats || textRes;
+    const textTotal = tStats?.totalTexts ?? tStats?.total ?? 0;
+    if (tStats) {
+      blocks.push({ label: 'Texts', value: textTotal, icon: <FileText size={26} />, gradient: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)' });
+      chart.push({ label: 'Texts', value: textTotal, color: '#00d4ff' });
+    }
+
+    // Commitments
+    const cmStats = (commitRes as any)?.stats || commitRes;
+    const commitTotal = cmStats?.totalCommitments ?? cmStats?.total ?? 0;
+    if (cmStats) {
+      blocks.push({ label: 'Commitments', value: commitTotal, icon: <Target size={26} />, gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)', extra: cmStats.completedCommitments ? `${cmStats.completedCommitments} done` : undefined });
+    }
+
+    // Achievements
+    const aStats = (achieveRes as any)?.stats || achieveRes;
+    const achieveTotal = aStats?.totalAchievements ?? aStats?.total ?? 0;
+    if (aStats) {
+      blocks.push({ label: 'Achievements', value: achieveTotal, icon: <Award size={26} />, gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' });
+    }
+
+    setStats(blocks);
+    setProgress(bars);
+    setBarChart(chart);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  // ── Recalculate ────────────────────────────────────────────────────────
+
+  const handleRecalculate = async () => {
+    setRefreshing(true);
+    try {
+      await safe(recalculateStats);
+      await loadData();
+      showToast('Stats refreshed!');
+    } catch {
+      showToast('Failed to refresh', 'error');
+    } finally {
+      setRefreshing(false);
     }
   };
 
+  // ── Helpers ────────────────────────────────────────────────────────────
+
+  const streakDays = profileSummary?.statistics?.streakDays ?? 0;
+  const totalActivities = stats.reduce((sum, s) => sum + (typeof s.value === 'number' ? s.value : 0), 0);
+  const maxBarValue = Math.max(...barChart.map(b => b.value), 1);
+
+  // ── Render ─────────────────────────────────────────────────────────────
+
   return (
     <div className={`${styles.pageContent} page-entrance`}>
-      {renderContent()}
-    </div>
-  );
-};
 
-interface DashboardFlipCardProps {
-  frontContent: React.ReactNode;
-  backContent: React.ReactNode;
-  className?: string;
-}
-
-const DashboardFlipCard = ({ frontContent, backContent, className = '' }: DashboardFlipCardProps) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  return (
-    <div
-      className={`${styles.flipCardContainer} ${isFlipped ? styles.flipped : ''} ${className}`}
-      onClick={() => setIsFlipped(!isFlipped)}
-    >
-      <div className={styles.flipCardInner}>
-        <div className={styles.flipCardFront}>
-          {frontContent}
-          <div className={styles.flipHint}>Click to flip ↻</div>
-        </div>
-        <div className={styles.flipCardBack}>
-          {backContent}
-          <div className={styles.flipHint}>Click to flip ↻</div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* Main Dashboard Section */
-const MainDashboardSection = () => {
-  const { user } = useAuth();
-
-  return (
-    <section className={`${styles.section} page-entrance`}>
-      <div className={styles.header}>
+      {/* ── HEADER ── */}
+      <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Welcome Back, {(user?.name || user?.username || 'Learner').split(' ')[0]}!</h1>
+          <h1 className={styles.title}>
+            Welcome Back, {(user?.name || user?.username || 'Learner').split(' ')[0]}!
+          </h1>
           <p className={styles.subtitle}>Continue learning English in a fun and effective way</p>
           <p className={styles.description}>
-            English Notebook is your premium personalized space for mastering English.
-            Track your progress, learn new vocabulary through interactive flashcards,
-            practice grammar, and immerse yourself in real conversations, movies, and songs.
+            Track your progress across every component — vocabulary, flashcards, grammar,
+            conversations, songs, texts, and more. All in one place.
           </p>
         </div>
         <div className={styles.huskyContainer}>
-          <video
-            src={huskyVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={styles.huskyVideo}
-          />
+          <video src={huskyVideo} autoPlay loop muted playsInline className={styles.huskyVideo} />
         </div>
+      </header>
+
+      {/* ── TOP ROW: Streak + Total + Refresh ── */}
+      <div className={styles.topRow}>
+        <div className={styles.highlightCard}>
+          <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #f5af19 0%, #f12711 100%)' }}>
+            <Flame size={30} />
+          </div>
+          <div>
+            <p className={styles.highlightLabel}>Day Streak</p>
+            <span className={styles.highlightValue}>{streakDays}</span>
+          </div>
+        </div>
+        <div className={styles.highlightCard}>
+          <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+            <TrendingUp size={30} />
+          </div>
+          <div>
+            <p className={styles.highlightLabel}>Total Items</p>
+            <span className={styles.highlightValue}>{totalActivities}</span>
+          </div>
+        </div>
+        <div className={styles.highlightCard}>
+          <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+            <Zap size={30} />
+          </div>
+          <div>
+            <p className={styles.highlightLabel}>Components Active</p>
+            <span className={styles.highlightValue}>{stats.filter(s => Number(s.value) > 0).length}</span>
+          </div>
+        </div>
+        <button
+          className={styles.refreshBtn}
+          onClick={handleRecalculate}
+          disabled={refreshing}
+          title="Refresh stats"
+        >
+          <RefreshCw size={20} className={refreshing ? styles.spinning : ''} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
-      <div className={styles.statsGrid}>
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><BookOpen size={28} /></div>
-              <div className={styles.statContent}>
-                <h3 className={styles.statLabel}>Words Learned</h3>
-                <p className={styles.statValue}>245</p>
-              </div>
-            </div>
-          }
-          backContent={
-            <div>
-              <h3>Weekly Progress</h3>
-              <span className={styles.highlight}>+12</span>
-              <p>new words this week</p>
-            </div>
-          }
-        />
-
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><Files size={28} /></div>
-              <div className={styles.statContent}>
-                <h3 className={styles.statLabel}>Flashcards</h3>
-                <p className={styles.statValue}>89</p>
-              </div>
-            </div>
-          }
-          backContent={
-            <div>
-              <h3>Mastery Level</h3>
-              <span className={styles.highlight}>85%</span>
-              <p>of cards mastered</p>
-            </div>
-          }
-        />
-
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><Trophy size={28} /></div>
-              <div className={styles.statContent}>
-                <h3 className={styles.statLabel}>Achievements</h3>
-                <p className={styles.statValue}>12</p>
-              </div>
-            </div>
-          }
-          backContent={
-            <div>
-              <h3>Next Goal</h3>
-              <p>Reach 10 day streak</p>
-              <span className={styles.highlight}>2/10</span>
-            </div>
-          }
-        />
-
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><Flame size={28} /></div>
-              <div className={styles.statContent}>
-                <h3 className={styles.statLabel}>Current Streak</h3>
-                <p className={styles.statValue}>7 days</p>
-              </div>
-            </div>
-          }
-          backContent={
-            <div>
-              <h3>Best Streak</h3>
-              <span className={styles.highlight}>15 days</span>
-              <p>Keep it up!</p>
-            </div>
-          }
-        />
-      </div>
-
-      <div className={styles.contentGrid}>
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Recent Activity</h2>
-                <span className={styles.badge}>Today</span>
-              </div>
-              <div className={styles.activityList}>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}><CheckCircle size={20} color="#43e97b" /></span>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityTitle}>Completed 10 vocabulary flashcards</p>
-                    <p className={styles.activityTime}>2 hours ago</p>
+      {/* ── STATS GRID ── */}
+      {loading ? (
+        <div className={styles.loadingState}>
+          <RefreshCw size={36} className={styles.spinning} />
+          <p>Loading your stats...</p>
+        </div>
+      ) : (
+        <>
+          <section className={styles.sectionBlock}>
+            <h2 className={styles.sectionTitle}>
+              <Star size={22} color="#a8edea" /> Component Overview
+            </h2>
+            <div className={styles.statsGrid}>
+              {stats.map((s, i) => (
+                <div key={i} className={styles.statCard}>
+                  <div className={styles.statIcon} style={{ background: s.gradient }}>
+                    {s.icon}
+                  </div>
+                  <div className={styles.statContent}>
+                    <p className={styles.statLabel}>{s.label}</p>
+                    <span className={styles.statValue}>{s.value}</span>
+                    {s.extra && <span className={styles.statExtra}>{s.extra}</span>}
                   </div>
                 </div>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}><MessageCircle size={20} color="#667eea" /></span>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityTitle}>Practiced a conversation</p>
-                    <p className={styles.activityTime}>5 hours ago</p>
-                  </div>
-                </div>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}><Music size={20} color="#f093fb" /></span>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityTitle}>Listened to an English song</p>
-                    <p className={styles.activityTime}>8 hours ago</p>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
-          }
-          backContent={
-            <div>
-              <h3>Activity History</h3>
-              <div className={styles.activityList}>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}><Calendar size={20} /></span>
-                  <div className={styles.activityContent}>
-                    <p className={styles.activityTitle}>View full history</p>
-                    <p className={styles.activityTime}>Check your past progress</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        />
+          </section>
 
-        <DashboardFlipCard
-          frontContent={
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Daily Commitment</h2>
-                <span className={styles.badge}>3/5</span>
+          {/* ── BAR CHART ── */}
+          {barChart.length > 0 && (
+            <section className={styles.sectionBlock}>
+              <h2 className={styles.sectionTitle}>
+                <Trophy size={22} color="#f093fb" /> Activity Distribution
+              </h2>
+              <div className={styles.barChart}>
+                {barChart.map((bar, i) => {
+                  const pct = Math.round((bar.value / maxBarValue) * 100);
+                  return (
+                    <div key={i} className={styles.barCol}>
+                      <span className={styles.barValue}>{bar.value}</span>
+                      <div className={styles.barTrack}>
+                        <div
+                          className={styles.barFill}
+                          style={{ height: `${Math.max(pct, 4)}%`, background: bar.color }}
+                        />
+                      </div>
+                      <span className={styles.barLabel}>{bar.label}</span>
+                    </div>
+                  );
+                })}
               </div>
-              <div className={styles.commitmentList}>
-                <div className={styles.commitmentItem}>
-                  <input type="checkbox" defaultChecked className={styles.checkbox} />
-                  <span>Learn 10 new words</span>
-                </div>
-                <div className={styles.commitmentItem}>
-                  <input type="checkbox" defaultChecked className={styles.checkbox} />
-                  <span>Practice grammar</span>
-                </div>
-                <div className={styles.commitmentItem}>
-                  <input type="checkbox" className={styles.checkbox} />
-                  <span>Listen to a conversation</span>
-                </div>
-                <div className={styles.commitmentItem}>
-                  <input type="checkbox" className={styles.checkbox} />
-                  <span>Watch a movie</span>
-                </div>
-                <div className={styles.commitmentItem}>
-                  <input type="checkbox" className={styles.checkbox} />
-                  <span>Write a text</span>
-                </div>
+            </section>
+          )}
+
+          {/* ── PROGRESS BARS ── */}
+          {progress.length > 0 && (
+            <section className={styles.sectionBlock}>
+              <h2 className={styles.sectionTitle}>
+                <Target size={22} color="#667eea" /> Goal Progress
+              </h2>
+              <div className={styles.progressList}>
+                {progress.map((p, i) => {
+                  const pct = Math.min(Math.round((p.current / p.max) * 100), 100);
+                  return (
+                    <div key={i} className={styles.progressRow}>
+                      <div className={styles.progressRowLabel}>
+                        {p.icon}
+                        <span>{p.label}</span>
+                      </div>
+                      <div className={styles.progressRowBar}>
+                        <div className={styles.progressTrack}>
+                          <div className={styles.progressFill} style={{ width: `${pct}%`, background: p.color }} />
+                        </div>
+                      </div>
+                      <span className={styles.progressPct}>{pct}%</span>
+                      <span className={styles.progressCount}>{p.current}/{p.max}</span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          }
-          backContent={
-            <div>
-              <h3>Weekly Completion</h3>
-              <span className={styles.highlight}>82%</span>
-              <p>completion rate this week</p>
-              <div style={{ marginTop: '1rem', width: '100%', background: 'rgba(255,255,255,0.2)', height: '6px', borderRadius: '3px' }}>
-                <div style={{ width: '82%', background: '#43e97b', height: '100%', borderRadius: '3px' }}></div>
+            </section>
+          )}
+
+          {/* ── DAILY PHRASE ── */}
+          {dailyPhrase && (
+            <section className={styles.sectionBlock}>
+              <h2 className={styles.sectionTitle}>
+                <Star size={22} color="#fbbf24" /> Daily Phrase
+              </h2>
+              <div className={styles.phraseCard}>
+                <p className={styles.phraseText}>"{dailyPhrase.phrase}"</p>
+                <p className={styles.phraseTranslation}>{dailyPhrase.translation}</p>
+                {dailyPhrase.type && (
+                  <span className={styles.phraseBadge}>{dailyPhrase.type}</span>
+                )}
               </div>
-            </div>
-          }
-        />
-      </div>
-    </section>
+            </section>
+          )}
+        </>
+      )}
+
+      {/* ── TOAST ── */}
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+          {toast.message}
+        </div>
+      )}
+    </div>
   );
 };
-
-/* Flashcards Section */
-const FlashcardsSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><Files size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Flashcards</h1>
-      <p className={styles.subtitle}>Study and practice with interactive flashcards</p>
-    </div>
-    <div className={styles.emptyState}>
-      <p>Create your first flashcards to start studying</p>
-      <button className={styles.primaryButton}>+ Create Flashcard</button>
-    </div>
-  </section>
-);
-
-/* Vocabulary Section */
-const VocabularySection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><BookOpen size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Vocabulary</h1>
-      <p className={styles.subtitle}>Expand your English vocabulary</p>
-    </div>
-    <div className={styles.emptyState}>
-      <p>No words registered yet</p>
-      <button className={styles.primaryButton}>+ Add Word</button>
-    </div>
-  </section>
-);
-
-/* Grammar Section */
-/* Conversations Section */
-
-/* Daily Phrases Section */
-const DailyPhrasesSection = () => {
-  const [dailyPhrase, setDailyPhrase] = useState<DailyPhrase | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadDailyPhrase = async () => {
-      try {
-        const response = await getRandomPhrase();
-        setDailyPhrase(response.phrase);
-      } catch (error) {
-        // No phrases available, keep default
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadDailyPhrase();
-  }, []);
-
-  return (
-    <section className={styles.section}>
-      <div className={styles.header}>
-        <h1 className={styles.title}><Star size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Daily Phrases</h1>
-        <p className={styles.subtitle}>Learn a new phrase every day</p>
-      </div>
-      <div className={styles.card}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : dailyPhrase ? (
-          <div className={styles.phraseCard}>
-            <p className={styles.phraseText}>"{dailyPhrase.phrase}"</p>
-            <p className={styles.phraseTranslation}>{dailyPhrase.translation}</p>
-            <p className={styles.phraseExample}>Type: {dailyPhrase.type}</p>
-          </div>
-        ) : (
-          <div className={styles.phraseCard}>
-            <p className={styles.phraseText}>"The early bird catches the worm"</p>
-            <p className={styles.phraseTranslation}>The early bird gets the worm</p>
-            <p className={styles.phraseExample}>Example: If you want to get a good job, you have to be an early bird.</p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-};
-
-/* Daily Commitments Section */
-const DailyCommitmentsSection = () => (
-  <section className={`${styles.section} page-entrance`}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><Target size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Daily Commitments</h1>
-      <p className={styles.subtitle}>Maintain your learning streak</p>
-    </div>
-    <div className={styles.card}>
-      <div className={styles.commitmentList}>
-        <div className={styles.commitmentItem}>
-          <input type="checkbox" defaultChecked className={styles.checkbox} />
-          <span>Learn 10 new words</span>
-        </div>
-        <div className={styles.commitmentItem}>
-          <input type="checkbox" className={styles.checkbox} />
-          <span>Practice pronunciation (5 min)</span>
-        </div>
-        <div className={styles.commitmentItem}>
-          <input type="checkbox" className={styles.checkbox} />
-          <span>Complete grammar exercises</span>
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
-/* Movies Section */
-const MoviesSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><Film size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Movies</h1>
-      <p className={styles.subtitle}>Improve your English by watching movies</p>
-    </div>
-    <div className={styles.emptyState}>
-      <p>Explore recommended movies</p>
-      <button className={styles.primaryButton}>+ Watch Movies</button>
-    </div>
-  </section>
-);
-
-/* Songs Section */
-const SongsSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><Music size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Songs</h1>
-      <p className={styles.subtitle}>Learn English through music</p>
-    </div>
-    <div className={styles.emptyState}>
-      <p>Discover songs for learning</p>
-      <button className={styles.primaryButton}>+ Explore Songs</button>
-    </div>
-  </section>
-);
-
-/* Texts Section */
-const TextsSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><FileText size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Texts</h1>
-      <p className={styles.subtitle}>Read interesting texts in English</p>
-    </div>
-    <div className={styles.emptyState}>
-      <p>Read texts to improve your comprehension</p>
-      <button className={styles.primaryButton}>+ Read Text</button>
-    </div>
-  </section>
-);
-
-/* Achievements Section */
-const AchievementsSection = () => (
-  <section className={styles.section}>
-    <div className={styles.header}>
-      <h1 className={styles.title}><Trophy size={32} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Achievements</h1>
-      <p className={styles.subtitle}>Unlock achievements as you learn</p>
-    </div>
-    <div className={styles.achievementsGrid}>
-      <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}><Star size={40} color="#f093fb" /></div>
-        <h3 className={styles.achievementTitle}>First Step</h3>
-        <p className={styles.achievementDesc}>Complete your first lesson</p>
-      </div>
-      <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}><Flame size={40} color="#f5576c" /></div>
-        <h3 className={styles.achievementTitle}>On a Streak</h3>
-        <p className={styles.achievementDesc}>Maintain a 7-day streak</p>
-      </div>
-      <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}><Book size={40} color="#667eea" /></div>
-        <h3 className={styles.achievementTitle}>Avid Reader</h3>
-        <p className={styles.achievementDesc}>Read 10 complete texts</p>
-      </div>
-      <div className={styles.achievementCard}>
-        <div className={styles.achievementIcon}><Award size={40} color="#43e97b" /></div>
-        <h3 className={styles.achievementTitle}>Fluent Speaker</h3>
-        <p className={styles.achievementDesc}>Complete 50 conversations</p>
-      </div>
-    </div>
-  </section>
-);
 
 export default Dashboard;
