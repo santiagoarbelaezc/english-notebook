@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen, PenTool, MessageSquare, Music,
   Camera, User, Mail, Globe, Award, TrendingUp,
-  Star, Edit2, Check, X, Archive, Layers,
-  Target, Flame, Clock, CheckCircle2, AlertCircle,
-  FileText, Zap, Heart, Save,
+  Star, Edit2, Check, X, Layers,
+  Flame, Clock, CheckCircle2, AlertCircle,
+  FileText, Zap, Save, Film, Sparkles, Trophy,
 } from 'lucide-react';
 import styles from './Profile.module.css';
 import videoHusky from '../../assets/videos/video-husky10.mp4';
@@ -15,41 +15,12 @@ import {
   getDetailedStats,
   updateProfile,
   uploadProfileImage,
-  getLearningProgress,
   recalculateStats,
 } from '../../api/profiles.api';
 import { updateUserProfile } from '../../api/users.api';
 import type { Profile as ProfileData, ProfileSummary, DetailedStats } from '../../api/profiles.api';
 import type { UpdateUserData } from '../../types/user.types';
 import { useAuth } from '../../contexts/AuthContext';
-
-// Try importing individual stats APIs — they may fail if not yet registered in backend
-import { getVocabularyStats } from '../../api/vocabulary.api';
-import { getGrammarStats } from '../../api/grammar.api';
-import { getConversationStats } from '../../api/conversations.api';
-import { getSongStats } from '../../api/songs.api';
-import { getTextStats } from '../../api/texts.api';
-import { getFlashcardStats } from '../../api/flashcards.api';
-import { getCommitmentStats } from '../../api/dailyCommitments.api';
-import { getAchievementStats } from '../../api/achievements.api';
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface ComponentStat {
-  label: string;
-  value: number | string;
-  icon: React.ReactNode;
-  gradient: string;
-  extra?: string;
-}
-
-interface ProgressItem {
-  label: string;
-  icon: React.ReactNode;
-  current: number;
-  max: number;
-  color: string;
-}
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -58,17 +29,13 @@ export const Profile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [stats, setStats] = useState<DetailedStats | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Edit state
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', bio: '', nativeLanguage: '', englishLevel: '' });
-  const [showImageModal, setShowImageModal] = useState(false);
-
-  // All-component stats
-  const [componentStats, setComponentStats] = useState<ComponentStat[]>([]);
-  const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -77,7 +44,7 @@ export const Profile = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ── Load Profile ─────────────────────────────────────────────────────────
+  // ── Load Data ─────────────────────────────────────────────────────────
 
   const loadProfileData = useCallback(async () => {
     try {
@@ -108,75 +75,9 @@ export const Profile = () => {
     }
   }, []);
 
-  // ── Load All Component Stats ─────────────────────────────────────────────
-
-  const loadAllComponentStats = useCallback(async () => {
-    setLoadingStats(true);
-    const results: ComponentStat[] = [];
-    const progress: ProgressItem[] = [];
-
-    // Helper: try each API and push result, ignore failures
-    const tryApi = async <T,>(
-      fn: () => Promise<T>,
-      onSuccess: (data: T) => void
-    ) => {
-      try {
-        const res = await fn();
-        onSuccess(res);
-      } catch {
-        // silently skip — component not registered in backend
-      }
-    };
-
-    await Promise.allSettled([
-      tryApi(getVocabularyStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Vocabulary', value: s.totalWords ?? s.total ?? 0, icon: <BookOpen size={24} />, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', extra: `${s.masteredWords ?? 0} mastered` });
-        progress.push({ label: 'Vocabulary', icon: <BookOpen size={16} />, current: s.totalWords ?? s.total ?? 0, max: 500, color: '#667eea' });
-      }),
-      tryApi(getGrammarStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Grammar', value: s.totalRules ?? s.total ?? 0, icon: <PenTool size={24} />, gradient: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)' });
-        progress.push({ label: 'Grammar', icon: <PenTool size={16} />, current: s.totalRules ?? s.total ?? 0, max: 100, color: '#764ba2' });
-      }),
-      tryApi(getConversationStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Conversations', value: s.totalConversations ?? s.total ?? 0, icon: <MessageSquare size={24} />, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' });
-        progress.push({ label: 'Conversations', icon: <MessageSquare size={16} />, current: s.totalConversations ?? s.total ?? 0, max: 50, color: '#f5576c' });
-      }),
-      tryApi(getSongStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Songs', value: s.totalSongs ?? s.total ?? 0, icon: <Music size={24} />, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' });
-      }),
-      tryApi(getTextStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Texts', value: s.totalTexts ?? s.total ?? 0, icon: <FileText size={24} />, gradient: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)' });
-      }),
-      tryApi(getFlashcardStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Flashcards', value: s.totalCards ?? s.total ?? 0, icon: <Layers size={24} />, gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', extra: s.accuracyRate ? `${s.accuracyRate} accuracy` : undefined });
-      }),
-      tryApi(getCommitmentStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Commitments', value: s.totalCommitments ?? s.total ?? 0, icon: <Target size={24} />, gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)', extra: s.completedCommitments ? `${s.completedCommitments} done` : undefined });
-      }),
-      tryApi(getAchievementStats, (res: any) => {
-        const s = res.stats || res;
-        results.push({ label: 'Achievements', value: s.totalAchievements ?? s.total ?? 0, icon: <Award size={24} />, gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' });
-      }),
-    ]);
-
-    setComponentStats(results);
-    setProgressItems(progress);
-    setLoadingStats(false);
-  }, []);
-
   useEffect(() => {
-    if (user) {
-      loadProfileData();
-      loadAllComponentStats();
-    }
-  }, [user, loadProfileData, loadAllComponentStats]);
+    if (user) loadProfileData();
+  }, [user, loadProfileData]);
 
   // ── Edit Handlers ─────────────────────────────────────────────────────────
 
@@ -194,7 +95,6 @@ export const Profile = () => {
 
       await Promise.all([updateUserProfile(userData), updateProfile(profileData)]);
 
-      // Optimistic update
       if (profile) {
         setProfile({
           ...profile,
@@ -211,7 +111,7 @@ export const Profile = () => {
       }
       setIsEditing(false);
       showToast('Profile updated successfully!');
-    } catch (err: any) {
+    } catch {
       showToast('Failed to update profile', 'error');
     } finally {
       setLoading(false);
@@ -224,7 +124,8 @@ export const Profile = () => {
     try {
       setLoading(true);
       const result = await uploadProfileImage(file);
-      setProfile(prev => prev ? { ...prev, profileImage: result.profileImage } : null);
+      const imageUrl = result.profileImage?.url || (result as any).profileImage;
+      setProfile(prev => prev ? { ...prev, profileImage: imageUrl } : null);
       showToast('Profile image updated!');
     } catch {
       showToast('Failed to upload image', 'error');
@@ -236,10 +137,13 @@ export const Profile = () => {
   const handleRecalculate = async () => {
     try {
       setLoadingStats(true);
-      await recalculateStats();
+      const result = await recalculateStats();
       await loadProfileData();
-      await loadAllComponentStats();
-      showToast('Stats recalculated!');
+      if (result.newAchievements?.length > 0) {
+        showToast(`Stats recalculated! ${result.newAchievements.length} new achievement(s) unlocked! 🏆`);
+      } else {
+        showToast('Stats recalculated!');
+      }
     } catch {
       showToast('Failed to recalculate', 'error');
     } finally {
@@ -265,20 +169,47 @@ export const Profile = () => {
     }
   };
 
+  const xpForLevel = (lvl: number) => lvl * 100;
+  const currentXp = profile?.experience || 0;
+  const currentLevel = profile?.level || 1;
+  const xpIntoLevel = currentXp - Array.from({ length: currentLevel - 1 }, (_, i) => xpForLevel(i + 1)).reduce((a, b) => a + b, 0);
+  const xpNeeded = xpForLevel(currentLevel);
+  const levelPct = Math.min((xpIntoLevel / xpNeeded) * 100, 100);
+
   const memberSince = profile?.createdAt
     ? new Date(profile.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
     : '—';
+
+  const totalActivities = profile ? (
+    profile.statistics.totalVocabulary + profile.statistics.totalGrammarRules +
+    profile.statistics.totalConversations + profile.statistics.totalSongs +
+    (profile.statistics.totalTexts || 0) + (profile.statistics.totalMovies || 0) +
+    (profile.statistics.totalFlashcards || 0) + (profile.statistics.totalIrregularVerbs || 0)
+  ) : 0;
+
+  // ── Component Stats ────────────────────────────────────────────────────
+
+  const componentStats = profile ? [
+    { label: 'Vocabulary', value: profile.statistics.totalVocabulary, icon: <BookOpen size={22} />, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#667eea' },
+    { label: 'Grammar', value: profile.statistics.totalGrammarRules, icon: <PenTool size={22} />, gradient: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)', color: '#764ba2' },
+    { label: 'Conversations', value: profile.statistics.totalConversations, icon: <MessageSquare size={22} />, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: '#f5576c' },
+    { label: 'Songs', value: profile.statistics.totalSongs, icon: <Music size={22} />, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: '#43e97b' },
+    { label: 'Texts', value: profile.statistics.totalTexts || 0, icon: <FileText size={22} />, gradient: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)', color: '#00d4ff' },
+    { label: 'Movies', value: profile.statistics.totalMovies || 0, icon: <Film size={22} />, gradient: 'linear-gradient(135deg, #fda085 0%, #f6d365 100%)', color: '#fda085' },
+    { label: 'Flashcards', value: profile.statistics.totalFlashcards || 0, icon: <Layers size={22} />, gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', color: '#fcb69f' },
+    { label: 'Irregular Verbs', value: profile.statistics.totalIrregularVerbs || 0, icon: <Zap size={22} />, gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', color: '#fbbf24' },
+  ] : [];
 
   // ── Loading / Error States ────────────────────────────────────────────────
 
   if (loading && !profile) return <LoadingOverlay message="Loading your profile..." />;
 
-  if (error && !profile) {
+  if ((error || !profile || !summary) && !loading) {
     return (
       <div className={`${styles.pageContent} page-entrance`}>
         <div className={styles.errorContainer}>
           <div className={styles.errorCard}>
-            <p>{error}</p>
+            <p>{error || 'Could not load profile data'}</p>
             <button onClick={() => window.location.reload()} className={styles.retryButton}>Retry</button>
           </div>
         </div>
@@ -286,18 +217,7 @@ export const Profile = () => {
     );
   }
 
-  if (!profile || !summary) {
-    return (
-      <div className={`${styles.pageContent} page-entrance`}>
-        <div className={styles.errorContainer}>
-          <div className={styles.errorCard}>
-            <p>Could not load profile data</p>
-            <button onClick={() => window.location.reload()} className={styles.retryButton}>Retry</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!profile || !summary) return null;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -310,7 +230,7 @@ export const Profile = () => {
         <div className={styles.headerContent}>
           <div className={styles.headerTop}>
             {/* Avatar */}
-            <div className={styles.profileAvatar} onClick={() => !isEditing && setShowImageModal(true)}>
+            <div className={styles.profileAvatar}>
               {profile.profileImage ? (
                 <img src={profile.profileImage} alt="Profile" className={styles.avatarImage} />
               ) : (
@@ -379,6 +299,23 @@ export const Profile = () => {
         )}
       </div>
 
+      {/* ── LEVEL & XP BAR ── */}
+      <div className={styles.levelSection}>
+        <div className={styles.levelHeader}>
+          <div className={styles.levelBadge}>
+            <Sparkles size={20} />
+            <span>Level {currentLevel}</span>
+          </div>
+          <span className={styles.xpText}>{currentXp} XP Total</span>
+        </div>
+        <div className={styles.xpBar}>
+          <div className={styles.xpFill} style={{ width: `${levelPct}%` }} />
+        </div>
+        <div className={styles.xpSubtext}>
+          {xpIntoLevel} / {xpNeeded} XP to Level {currentLevel + 1}
+        </div>
+      </div>
+
       {/* ── QUICK STATS ROW ── */}
       <div className={styles.quickStats}>
         <div className={styles.quickStatCard}>
@@ -407,7 +344,12 @@ export const Profile = () => {
           </div>
           <div className={styles.quickStatContent}>
             <p className={styles.quickStatLabel}>Day Streak</p>
-            <span className={styles.quickStatValue}>{stats?.streak?.current ?? profile.statistics?.streakDays ?? 0}</span>
+            <span className={styles.quickStatValue}>
+              {stats?.streak?.current ?? profile.statistics?.streakDays ?? 0}
+            </span>
+            {(stats?.streak?.longest || profile.statistics?.longestStreak) ? (
+              <span className={styles.quickStatExtra}>Best: {stats?.streak?.longest ?? profile.statistics?.longestStreak ?? 0}</span>
+            ) : null}
           </div>
         </div>
         <div className={styles.quickStatCard}>
@@ -416,19 +358,18 @@ export const Profile = () => {
           </div>
           <div className={styles.quickStatContent}>
             <p className={styles.quickStatLabel}>Total Activities</p>
-            <span className={styles.quickStatValue}>
-              {(profile.statistics?.totalVocabulary || 0) + (profile.statistics?.totalGrammarRules || 0)
-                + (profile.statistics?.totalConversations || 0) + (profile.statistics?.totalSongs || 0)}
-            </span>
+            <span className={styles.quickStatValue}>{totalActivities}</span>
           </div>
         </div>
         <div className={styles.quickStatCard}>
-          <div className={styles.quickStatIcon} style={{ background: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)' }}>
-            <TrendingUp size={26} />
+          <div className={styles.quickStatIcon} style={{ background: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' }}>
+            <Trophy size={26} />
           </div>
           <div className={styles.quickStatContent}>
-            <p className={styles.quickStatLabel}>Components Used</p>
-            <span className={styles.quickStatValue}>{componentStats.filter(s => Number(s.value) > 0).length}</span>
+            <p className={styles.quickStatLabel}>Achievements</p>
+            <span className={styles.quickStatValue}>
+              {summary.achievements?.unlocked ?? 0}/{summary.achievements?.total ?? 0}
+            </span>
           </div>
         </div>
       </div>
@@ -499,7 +440,6 @@ export const Profile = () => {
                 <div className={styles.componentStatContent}>
                   <p className={styles.componentStatLabel}>{stat.label}</p>
                   <span className={styles.componentStatValue}>{stat.value}</span>
-                  {stat.extra && <span className={styles.componentStatExtra}>{stat.extra}</span>}
                 </div>
               </div>
             ))}
@@ -508,7 +448,7 @@ export const Profile = () => {
       )}
 
       {/* ── PROGRESS BARS ── */}
-      {progressItems.length > 0 && (
+      {componentStats.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
@@ -516,8 +456,9 @@ export const Profile = () => {
             </h2>
           </div>
           <div className={styles.progressList}>
-            {progressItems.map((item, i) => {
-              const pct = Math.min(Math.round((item.current / item.max) * 100), 100);
+            {componentStats.filter(s => s.value > 0).map((item, i) => {
+              const maxVal = Math.max(item.value, 50);
+              const pct = Math.min(Math.round((item.value / maxVal) * 100), 100);
               return (
                 <div key={i} className={styles.progressRow}>
                   <div className={styles.progressRowLabel}>
@@ -532,8 +473,7 @@ export const Profile = () => {
                       />
                     </div>
                   </div>
-                  <span className={styles.progressRowPct}>{pct}%</span>
-                  <span className={styles.progressRowCount}>{item.current}/{item.max}</span>
+                  <span className={styles.progressRowCount}>{item.value}</span>
                 </div>
               );
             })}
@@ -541,21 +481,7 @@ export const Profile = () => {
         </section>
       )}
 
-      {/* ── IMAGE MODAL ── */}
-      {showImageModal && profile.profileImage && (
-        <div className={styles.imageModalOverlay} onClick={() => setShowImageModal(false)}>
-          <div className={styles.largeImageContainer}>
-            <button className={styles.closeModal} onClick={() => setShowImageModal(false)}>
-              <X size={24} />
-            </button>
-            <img
-              src={profile.profileImage} alt="Profile zoomed"
-              className={styles.largeImage}
-              onClick={e => e.stopPropagation()}
-            />
-          </div>
-        </div>
-      )}
+
 
       {/* ── TOAST ── */}
       {toast && (

@@ -1,76 +1,72 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Trophy, Target, Flame, BookOpen, Mic2, PenTool,
-  Star, CheckCircle2, Calendar, Award, Plus, X, Edit2,
-  Trash2, Search, Check, AlertCircle, Save, Zap, TrendingUp,
+  Trophy, Flame, BookOpen, MessageCircle, Library,
+  Star, CheckCircle2, Check, AlertCircle,
+  Zap, Film, Music, FileText, Files,
+  Lock, Unlock, Sparkles, Target, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import huskyVideo from '../../assets/videos/video-husky14.mp4';
 import styles from './Achievements.module.css';
 import {
   getAllAchievements,
-  createAchievement,
-  updateAchievement,
-  deleteAchievement,
-  updateAchievementProgress,
   getAchievementStats,
 } from '../../api/achievements.api';
 import type {
   Achievement,
-  AchievementType,
-  CreateAchievementRequest,
-  UpdateAchievementRequest,
+  AchievementCategory,
 } from '../../types';
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// ── Category Config ──────────────────────────────────────────────────────────
 
-const TYPE_LABELS: Record<AchievementType, string> = {
+const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   vocabulary: 'Vocabulary',
   grammar: 'Grammar',
-  conversation: 'Conversation',
-  reading: 'Reading',
-  milestone: 'Milestone',
+  conversation: 'Conversations',
+  text: 'Texts',
+  song: 'Songs',
+  movie: 'Movies',
+  flashcard: 'Flashcards',
+  irregularVerb: 'Irregular Verbs',
   streak: 'Streak',
-  custom: 'Custom',
 };
 
-const TYPE_ICONS: Record<AchievementType, React.ReactNode> = {
-  vocabulary: <Target size={16} />,
-  grammar: <PenTool size={16} />,
-  conversation: <Mic2 size={16} />,
-  reading: <BookOpen size={16} />,
-  milestone: <Zap size={16} />,
+const CATEGORY_ICONS: Record<AchievementCategory, React.ReactNode> = {
+  vocabulary: <BookOpen size={16} />,
+  grammar: <Library size={16} />,
+  conversation: <MessageCircle size={16} />,
+  text: <FileText size={16} />,
+  song: <Music size={16} />,
+  movie: <Film size={16} />,
+  flashcard: <Files size={16} />,
+  irregularVerb: <Zap size={16} />,
   streak: <Flame size={16} />,
-  custom: <Star size={16} />,
 };
 
-const TYPE_COLORS: Record<AchievementType, string> = {
-  vocabulary: styles.typeVocabulary,
-  grammar: styles.typeGrammar,
-  conversation: styles.typeConversation,
-  reading: styles.typeReading,
-  milestone: styles.typeMilestone,
-  streak: styles.typeStreak,
-  custom: styles.typeCustom,
+const CATEGORY_COLORS: Record<AchievementCategory, string> = {
+  vocabulary: '#667eea',
+  grammar: '#f093fb',
+  conversation: '#43e97b',
+  text: '#00d4ff',
+  song: '#fda085',
+  movie: '#a8edea',
+  flashcard: '#f5576c',
+  irregularVerb: '#fbbf24',
+  streak: '#ff6b6b',
 };
 
-const POPULAR_ICONS = ['🏆', '⭐', '🎯', '🔥', '📚', '💬', '🎖️', '👑', '💡', '🚀', '🌟', '✨', '📖', '🃏', '🧠'];
+const ITEMS_PER_PAGE = 6;
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
 const Achievements: React.FC = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [filteredAchievements, setFilteredAchievements] = useState<Achievement[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [showCompleted, setShowCompleted] = useState<'all' | 'done' | 'pending'>('all');
-
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showStatus, setShowStatus] = useState<'all' | 'unlocked' | 'locked'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -81,96 +77,60 @@ const Achievements: React.FC = () => {
 
   // ── Data Loading ─────────────────────────────────────────────────────────
 
-  const loadAchievements = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
-      const [res, statsRes] = await Promise.all([
+      const [achRes, statsRes] = await Promise.all([
         getAllAchievements(),
         getAchievementStats(),
       ]);
-      setAchievements(res.achievements);
+      setAchievements(achRes.achievements);
       setStats(statsRes.stats);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load achievements');
+    } catch {
+      showToast('Failed to load achievements', 'error');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { loadAchievements(); }, [loadAchievements]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   // ── Filtering ─────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    let filtered = [...achievements];
+  const filteredAchievements = achievements.filter(a => {
     const q = searchTerm.toLowerCase();
+    if (q && !a.title.toLowerCase().includes(q) && !a.description.toLowerCase().includes(q)) return false;
+    if (selectedCategory !== 'all' && a.category !== selectedCategory) return false;
+    if (showStatus === 'unlocked' && !a.unlocked) return false;
+    if (showStatus === 'locked' && a.unlocked) return false;
+    return true;
+  }).sort((a, b) => {
+    // Primary sort: Milestone
+    if (a.milestone !== b.milestone) return a.milestone - b.milestone;
 
-    if (q) {
-      filtered = filtered.filter(a =>
-        a.title.toLowerCase().includes(q) ||
-        a.description.toLowerCase().includes(q)
-      );
-    }
-    if (selectedType !== 'all') filtered = filtered.filter(a => a.type === selectedType);
-    if (showCompleted === 'done') filtered = filtered.filter(a => a.progress === 100);
-    if (showCompleted === 'pending') filtered = filtered.filter(a => a.progress < 100);
+    // Secondary sort: Category
+    if (a.category !== b.category) return a.category.localeCompare(b.category);
 
-    setFilteredAchievements(filtered);
-  }, [achievements, searchTerm, selectedType, showCompleted]);
+    // Tertiary sort: Unlocked status (unlocked first)
+    if (a.unlocked !== b.unlocked) return a.unlocked ? -1 : 1;
 
-  // ── CRUD ──────────────────────────────────────────────────────────────────
+    return 0;
+  });
 
-  const handleCreate = async (data: CreateAchievementRequest) => {
-    try {
-      setIsSubmitting(true);
-      await createAchievement(data);
-      showToast('Achievement created! 🏆');
-      setShowCreateForm(false);
-      await loadAchievements();
-    } catch (err: any) {
-      showToast(err.message || 'Failed to create achievement', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCategory, showStatus]);
 
-  const handleUpdate = async (id: string, data: UpdateAchievementRequest) => {
-    try {
-      setIsSubmitting(true);
-      await updateAchievement(id, data);
-      showToast('Achievement updated!');
-      setEditingAchievement(null);
-      await loadAchievements();
-    } catch (err: any) {
-      showToast(err.message || 'Failed to update achievement', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Pagination
+  const totalPages = Math.ceil(filteredAchievements.length / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedAchievements = filteredAchievements.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this achievement?')) return;
-    try {
-      await deleteAchievement(id);
-      showToast('Achievement deleted');
-      await loadAchievements();
-    } catch (err: any) {
-      showToast(err.message || 'Failed to delete', 'error');
-    }
-  };
+  // ── XP to next level calculation ──────────────────────────────────────────
 
-  const handleProgressUpdate = async (id: string, progress: number) => {
-    try {
-      await updateAchievementProgress(id, { progress });
-      setAchievements(prev =>
-        prev.map(a => a._id === id ? { ...a, progress } : a)
-      );
-      if (progress === 100) showToast('Achievement completed! 🎉');
-    } catch (err: any) {
-      showToast('Failed to update progress', 'error');
-    }
-  };
+  const xpForLevel = (lvl: number) => lvl * 100;
+  const currentLevelXp = stats ? stats.experience - Array.from({ length: stats.level - 1 }, (_, i) => xpForLevel(i + 1)).reduce((a: number, b: number) => a + b, 0) : 0;
+  const nextLevelXp = stats ? xpForLevel(stats.level) : 100;
+  const levelProgress = stats ? Math.min((currentLevelXp / nextLevelXp) * 100, 100) : 0;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -186,71 +146,134 @@ const Achievements: React.FC = () => {
   }
 
   return (
-    <div className={styles.pageContent}>
+    <div className={`${styles.pageContent} page-entrance`}>
 
       {/* ── HEADER ── */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Achievements</h1>
-          <p className={styles.subtitle}>Track your progress and unlock rewards as you master English</p>
-          <p className={styles.description}>
-            Every milestone counts. Create personal achievements, track your progress,
-            and celebrate your learning journey one step at a time.
-          </p>
+          <p className={styles.subtitle}>Achievements unlock automatically as you use the app</p>
         </div>
         <div className={styles.huskyContainer}>
-          <video
-            className={styles.huskyVideo}
-            src={huskyVideo}
-            autoPlay loop muted playsInline
-          />
+          <video className={styles.huskyVideo} src={huskyVideo} autoPlay loop muted playsInline />
         </div>
       </header>
 
+      {/* ── LEVEL & XP BAR ── */}
+      {stats && (
+        <div className={styles.levelSection}>
+          <div className={styles.levelHeader}>
+            <div className={styles.levelBadge}>
+              <Sparkles size={20} />
+              <span>Level {stats.level}</span>
+            </div>
+            <span className={styles.xpText}>{stats.experience} XP</span>
+          </div>
+          <div className={styles.xpBar}>
+            <div className={styles.xpFill} style={{ width: `${levelProgress}%` }} />
+          </div>
+          <div className={styles.xpSubtext}>
+            {currentLevelXp} / {nextLevelXp} XP to Level {stats.level + 1}
+          </div>
+        </div>
+      )}
+
       {/* ── STATS ── */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-            <Trophy size={26} />
+      {stats && (
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <Trophy size={24} />
+            </div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{stats.unlockedAchievements}/{stats.totalAchievements}</span>
+              <span className={styles.statLabel}>Unlocked</span>
+            </div>
           </div>
-          <div className={styles.statContent}>
-            <p className={styles.statLabel}>Total</p>
-            <span className={styles.statValue}>{stats?.totalAchievements ?? achievements.length}</span>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
+              <Target size={24} />
+            </div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{stats.completionPercentage}%</span>
+              <span className={styles.statLabel}>Completion</span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' }}>
+              <Zap size={24} />
+            </div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{stats.totalXpFromAchievements}</span>
+              <span className={styles.statLabel}>XP Earned</span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)' }}>
+              <Flame size={24} />
+            </div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{stats.streak?.current ?? 0}</span>
+              <span className={styles.statLabel}>Day Streak</span>
+            </div>
           </div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
-            <CheckCircle2 size={26} />
-          </div>
-          <div className={styles.statContent}>
-            <p className={styles.statLabel}>Completed</p>
-            <span className={styles.statValue}>{stats?.completedAchievements ?? achievements.filter(a => a.progress === 100).length}</span>
+      )}
+
+      {/* ── CATEGORY PROGRESS ── */}
+      {stats?.byCategory && stats.byCategory.length > 0 && (
+        <div className={styles.categorySection}>
+          <h2 className={styles.sectionHeading}>Progress by Category</h2>
+          <div className={styles.categoryGrid}>
+            {stats.byCategory.map((cat: any) => {
+              const pct = cat.total > 0 ? Math.round((cat.unlocked / cat.total) * 100) : 0;
+              const color = CATEGORY_COLORS[cat._id as AchievementCategory] || '#667eea';
+              return (
+                <div key={cat._id} className={styles.categoryCard}>
+                  <div className={styles.categoryHeader}>
+                    <span className={styles.categoryIcon} style={{ color }}>
+                      {CATEGORY_ICONS[cat._id as AchievementCategory] || <Star size={16} />}
+                    </span>
+                    <span className={styles.categoryName}>
+                      {CATEGORY_LABELS[cat._id as AchievementCategory] || cat._id}
+                    </span>
+                    <span className={styles.categoryCount}>{cat.unlocked}/{cat.total}</span>
+                  </div>
+                  <div className={styles.categoryBar}>
+                    <div className={styles.categoryFill} style={{ width: `${pct}%`, background: color }} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-            <Award size={26} />
-          </div>
-          <div className={styles.statContent}>
-            <p className={styles.statLabel}>Total Points</p>
-            <span className={styles.statValue}>{stats?.totalPoints ?? achievements.reduce((s, a) => s + a.points, 0)}</span>
+      )}
+
+      {/* ── RECENT UNLOCKS ── */}
+      {stats?.recentAchievements && stats.recentAchievements.length > 0 && (
+        <div className={styles.recentSection}>
+          <h2 className={styles.sectionHeading}>Recent Unlocks</h2>
+          <div className={styles.recentList}>
+            {stats.recentAchievements.map((a: any) => (
+              <div key={a._id} className={styles.recentItem}>
+                <span className={styles.recentIcon}>
+                  {a.category === 'streak' ? a.icon : CATEGORY_ICONS[a.category as AchievementCategory] || a.icon}
+                </span>
+                <div className={styles.recentInfo}>
+                  <span className={styles.recentTitle}>{a.title}</span>
+                  <span className={styles.recentDate}>
+                    {new Date(a.unlockedDate).toLocaleDateString()} · +{a.xpReward} XP
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #a8edea 0%, #00d4ff 100%)' }}>
-            <TrendingUp size={26} />
-          </div>
-          <div className={styles.statContent}>
-            <p className={styles.statLabel}>Avg Progress</p>
-            <span className={styles.statValue}>{stats?.averageProgress ? `${Math.round(Number(stats.averageProgress))}%` : '—'}</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* ── CONTROLS ── */}
       <div className={styles.controls}>
         <div className={styles.searchBar}>
-          <Search size={18} className={styles.searchIcon} />
           <input
             type="text"
             placeholder="Search achievements..."
@@ -260,179 +283,139 @@ const Achievements: React.FC = () => {
           />
         </div>
         <div className={styles.filters}>
-          <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className={styles.filterSelect}>
-            <option value="all">All Types</option>
-            {(Object.keys(TYPE_LABELS) as AchievementType[]).map(k => (
-              <option key={k} value={k}>{TYPE_LABELS[k]}</option>
+          <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className={styles.filterSelect}>
+            <option value="all">All Categories</option>
+            {(Object.keys(CATEGORY_LABELS) as AchievementCategory[]).map(k => (
+              <option key={k} value={k}>{CATEGORY_LABELS[k]}</option>
             ))}
           </select>
-          <select value={showCompleted} onChange={e => setShowCompleted(e.target.value as any)} className={styles.filterSelect}>
+          <select value={showStatus} onChange={e => setShowStatus(e.target.value as any)} className={styles.filterSelect}>
             <option value="all">All Status</option>
-            <option value="done">Completed</option>
-            <option value="pending">In Progress</option>
+            <option value="unlocked">Unlocked</option>
+            <option value="locked">Locked</option>
           </select>
         </div>
-        <button className={styles.createButton} onClick={() => setShowCreateForm(true)}>
-          <Plus size={20} /> Add Achievement
-        </button>
       </div>
 
-      {/* ── ERROR ── */}
-      {error && (
-        <div className={styles.errorBanner}>
-          <AlertCircle size={18} /> {error}
-        </div>
-      )}
-
       {/* ── RESULTS INFO ── */}
-      {achievements.length > 0 && (
-        <div className={styles.resultsInfo}>
-          <span className={styles.resultsCount}>
-            Showing {filteredAchievements.length} of {achievements.length} achievements
-          </span>
-        </div>
-      )}
+      <div className={styles.resultsInfo}>
+        <span className={styles.resultsCount}>
+          Showing {startIdx + 1}–{Math.min(startIdx + ITEMS_PER_PAGE, filteredAchievements.length)} of {filteredAchievements.length} achievements
+        </span>
+      </div>
 
-      {/* ── GRID ── */}
-      {filteredAchievements.length === 0 && !loading ? (
+      {/* ── ACHIEVEMENTS GRID ── */}
+      {filteredAchievements.length === 0 ? (
         <div className={styles.emptyState}>
           <Trophy size={48} style={{ opacity: 0.25, marginBottom: '1rem' }} />
-          <p>{achievements.length === 0 ? 'No achievements yet. Create your first one!' : 'No achievements match your filters.'}</p>
-          {achievements.length > 0 && (
-            <button className={styles.clearFiltersBtn} onClick={() => { setSearchTerm(''); setSelectedType('all'); setShowCompleted('all'); }}>
-              Clear filters
-            </button>
-          )}
+          <p>No achievements match your filters.</p>
+          <button className={styles.clearFiltersBtn} onClick={() => { setSearchTerm(''); setSelectedCategory('all'); setShowStatus('all'); }}>
+            Clear filters
+          </button>
         </div>
       ) : (
         <div className={styles.achievementsGrid}>
-          {filteredAchievements.map(achievement => {
-            const isComplete = achievement.progress === 100;
-            return (
-              <div
-                key={achievement._id}
-                className={`${styles.achievementCard} ${isComplete ? styles.cardComplete : ''}`}
-              >
-                {/* Card Header */}
-                <div className={styles.cardTop}>
-                  <div className={styles.iconWrapper}>
-                    <span className={styles.emojiIcon}>{achievement.icon || '🏆'}</span>
-                    {isComplete && <span className={styles.completedRing} />}
-                  </div>
-                  <div className={styles.cardTopRight}>
-                    <span className={`${styles.typeBadge} ${TYPE_COLORS[achievement.type]}`}>
-                      {TYPE_ICONS[achievement.type]} {TYPE_LABELS[achievement.type]}
+          {paginatedAchievements.map(achievement => (
+            <div
+              key={achievement._id}
+              className={`${styles.achievementCard} ${achievement.unlocked ? styles.cardUnlocked : styles.cardLocked}`}
+            >
+              {/* Card Top: Central Icon + Category + Status */}
+              <div className={styles.cardHeaderVertical}>
+                <div className={styles.iconWrapperLarge}>
+                  {achievement.category === 'streak' ? (
+                    <span className={styles.emojiIconLarge}>{achievement.icon || '🔥'}</span>
+                  ) : (
+                    <span className={styles.lucideIconLarge}>
+                      {React.cloneElement(CATEGORY_ICONS[achievement.category] as React.ReactElement<any>, { size: 28 })}
                     </span>
-                    <div className={styles.cardActions}>
-                      <button
-                        className={`${styles.iconBtn} ${styles.iconBtnEdit}`}
-                        onClick={() => setEditingAchievement(achievement)}
-                        title="Editar"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
-                        onClick={() => handleDelete(achievement._id)}
-                        title="Eliminar"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
+                  )}
+                  {achievement.unlocked && <span className={styles.unlockedGlow} />}
                 </div>
 
-                {/* Card Body */}
-                <div className={styles.cardBody}>
-                  <h3 className={styles.achievementTitle}>{achievement.title}</h3>
-                  {achievement.description && (
-                    <p className={styles.achievementDesc}>{achievement.description}</p>
-                  )}
-                  {achievement.notes && (
-                    <p className={styles.achievementNotes}>📝 {achievement.notes}</p>
-                  )}
+                <div className={styles.cardMetaVertical}>
+                  <span className={styles.categoryNameVertical}>
+                    {CATEGORY_LABELS[achievement.category]}
+                  </span>
+                  <span className={`${styles.statusBadge} ${achievement.unlocked ? styles.statusUnlocked : styles.statusLocked}`}>
+                    {achievement.unlocked ? <><Unlock size={12} /> Unlocked</> : <><Lock size={12} /> Locked</>}
+                  </span>
                 </div>
+              </div>
 
-                {/* Progress Bar */}
+              {/* Card Body */}
+              <div className={styles.cardBody}>
+                <h3 className={styles.achievementTitle}>{achievement.title}</h3>
+                {achievement.description && (
+                  <p className={styles.achievementDesc}>{achievement.description}</p>
+                )}
+              </div>
+
+              {/* Progress */}
+              {achievement.progress !== undefined && !achievement.unlocked && (
                 <div className={styles.progressSection}>
                   <div className={styles.progressHeader}>
                     <span className={styles.progressLabel}>Progress</span>
-                    <span className={`${styles.progressPct} ${isComplete ? styles.progressPctDone : ''}`}>
-                      {achievement.progress}%
+                    <span className={styles.progressPct}>
+                      {Math.round(achievement.progress)}%
                     </span>
                   </div>
                   <div className={styles.progressTrack}>
                     <div
-                      className={`${styles.progressFill} ${isComplete ? styles.progressFillDone : ''}`}
-                      style={{ width: `${achievement.progress}%` }}
+                      className={styles.progressFill}
+                      style={{ width: `${Math.min(achievement.progress, 100)}%` }}
                     />
                   </div>
-                  {/* Quick progress buttons */}
-                  {!isComplete && (
-                    <div className={styles.progressBtns}>
-                      {[25, 50, 75, 100].map(pct => (
-                        <button
-                          key={pct}
-                          className={`${styles.progressQuickBtn} ${achievement.progress >= pct ? styles.progressQuickBtnActive : ''}`}
-                          onClick={() => handleProgressUpdate(achievement._id, pct)}
-                        >
-                          {pct}%
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
+              )}
 
-                {/* Card Footer */}
-                <div className={styles.cardFooter}>
-                  <div className={styles.footerLeft}>
-                    <span className={styles.pointsBadge}>
-                      <Award size={14} /> {achievement.points} pts
-                    </span>
-                    {achievement.details?.value !== undefined && (
-                      <span className={styles.detailsBadge}>
-                        {achievement.details.value}
-                        {achievement.details.target ? ` / ${achievement.details.target}` : ''}
-                        {achievement.details.unit ? ` ${achievement.details.unit}` : ''}
-                      </span>
-                    )}
-                  </div>
-                  {isComplete ? (
-                    <span className={styles.completedBadge}>
-                      <CheckCircle2 size={13} /> Completed
-                    </span>
-                  ) : (
-                    <span className={styles.pendingBadge}>
-                      <Calendar size={13} />
-                      {new Date(achievement.unlockedDate).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
+              {/* Card Footer */}
+              <div className={styles.cardFooter}>
+                <span className={styles.xpBadge}>
+                  <Zap size={14} /> {achievement.xpReward} XP
+                </span>
+                <span className={styles.milestoneBadge}>
+                  Milestone: {achievement.milestone}
+                </span>
+                {achievement.unlocked && achievement.unlockedDate && (
+                  <span className={styles.dateBadge}>
+                    <CheckCircle2 size={13} />
+                    {new Date(achievement.unlockedDate).toLocaleDateString()}
+                  </span>
+                )}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ── CREATE MODAL ── */}
-      {showCreateForm && (
-        <AchievementFormModal
-          onClose={() => setShowCreateForm(false)}
-          onSubmit={handleCreate}
-          title="Add New Achievement"
-          isLoading={isSubmitting}
-        />
-      )}
-
-      {/* ── EDIT MODAL ── */}
-      {editingAchievement && (
-        <AchievementFormModal
-          achievement={editingAchievement}
-          onClose={() => setEditingAchievement(null)}
-          onSubmit={(data) => handleUpdate(editingAchievement._id, data)}
-          title="Edit Achievement"
-          isLoading={isSubmitting}
-        />
+      {/* ── PAGINATION ── */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${currentPage === page ? styles.pageBtnActive : ''}`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
       )}
 
       {/* ── TOAST ── */}
@@ -442,196 +425,6 @@ const Achievements: React.FC = () => {
           {toast.message}
         </div>
       )}
-    </div>
-  );
-};
-
-// ── Achievement Form Modal ───────────────────────────────────────────────────
-
-interface AchievementFormModalProps {
-  achievement?: Achievement;
-  onClose: () => void;
-  onSubmit: (data: CreateAchievementRequest) => Promise<void>;
-  title: string;
-  isLoading?: boolean;
-}
-
-const EMPTY_FORM: CreateAchievementRequest = {
-  title: '',
-  description: '',
-  type: 'custom',
-  icon: '🏆',
-  progress: 0,
-  points: 10,
-  notes: '',
-  details: {},
-};
-
-const AchievementFormModal: React.FC<AchievementFormModalProps> = ({
-  achievement, onClose, onSubmit, title, isLoading = false
-}) => {
-  const [formData, setFormData] = useState<CreateAchievementRequest>(EMPTY_FORM);
-
-  useEffect(() => {
-    if (achievement) {
-      setFormData({
-        title: achievement.title,
-        description: achievement.description || '',
-        type: achievement.type,
-        icon: achievement.icon || '🏆',
-        progress: achievement.progress,
-        points: achievement.points,
-        notes: achievement.notes || '',
-        details: achievement.details || {},
-      });
-    } else {
-      setFormData(EMPTY_FORM);
-    }
-  }, [achievement]);
-
-  const set = (field: keyof CreateAchievementRequest, value: any) =>
-    setFormData(prev => ({ ...prev, [field]: value }));
-
-  const setDetail = (field: keyof NonNullable<CreateAchievementRequest['details']>, value: any) =>
-    setFormData(prev => ({ ...prev, details: { ...prev.details, [field]: value || undefined } }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSubmit(formData);
-  };
-
-  return (
-    <div className={styles.modalOverlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.modal}>
-        <header className={styles.modalHeader}>
-          <h2>
-            {achievement ? <Edit2 size={22} /> : <Plus size={22} />}
-            {title}
-          </h2>
-          <button className={styles.closeButton} onClick={onClose}><X size={22} /></button>
-        </header>
-
-        <form onSubmit={handleSubmit} className={styles.modalForm}>
-
-          {/* Icon picker */}
-          <div className={styles.formGroup}>
-            <label>Icon</label>
-            <div className={styles.iconPicker}>
-              {POPULAR_ICONS.map(emoji => (
-                <button
-                  key={emoji}
-                  type="button"
-                  className={`${styles.iconOption} ${formData.icon === emoji ? styles.iconOptionActive : ''}`}
-                  onClick={() => set('icon', emoji)}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Row: Title + Type */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Title *</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={e => set('title', e.target.value)}
-                required
-                placeholder="e.g., Vocabulary Master"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Type *</label>
-              <select value={formData.type} onChange={e => set('type', e.target.value as AchievementType)}>
-                {(Object.entries(TYPE_LABELS) as [AchievementType, string][]).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className={styles.formGroup}>
-            <label>Description <span className={styles.optional}>(optional)</span></label>
-            <textarea
-              value={formData.description}
-              onChange={e => set('description', e.target.value)}
-              rows={2}
-              placeholder="What is this achievement about?"
-            />
-          </div>
-
-          {/* Row: Progress + Points */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Progress (0–100)</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={formData.progress}
-                onChange={e => set('progress', Number(e.target.value))}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Points</label>
-              <input
-                type="number"
-                min={0}
-                value={formData.points}
-                onChange={e => set('points', Number(e.target.value))}
-              />
-            </div>
-          </div>
-
-          {/* Details */}
-          <div className={styles.formGroup}>
-            <label>Details <span className={styles.optional}>(optional)</span></label>
-            <div className={styles.formRow}>
-              <input
-                type="number"
-                placeholder="Value (e.g. 50)"
-                value={formData.details?.value ?? ''}
-                onChange={e => setDetail('value', e.target.value ? Number(e.target.value) : undefined)}
-              />
-              <input
-                type="number"
-                placeholder="Target (e.g. 100)"
-                value={formData.details?.target ?? ''}
-                onChange={e => setDetail('target', e.target.value ? Number(e.target.value) : undefined)}
-              />
-              <input
-                type="text"
-                placeholder="Unit (e.g. words)"
-                value={formData.details?.unit ?? ''}
-                onChange={e => setDetail('unit', e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className={styles.formGroup}>
-            <label>Notes <span className={styles.optional}>(optional)</span></label>
-            <textarea
-              value={formData.notes}
-              onChange={e => set('notes', e.target.value)}
-              rows={2}
-              placeholder="Personal notes about this achievement..."
-            />
-          </div>
-
-          <div className={styles.modalFooter}>
-            <button type="button" className={styles.cancelButton} onClick={onClose} disabled={isLoading}>
-              Cancel
-            </button>
-            <button type="submit" className={styles.submitButton} disabled={isLoading}>
-              {isLoading ? 'Saving...' : <><Save size={16} /> {achievement ? 'Update' : 'Create'}</>}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 };

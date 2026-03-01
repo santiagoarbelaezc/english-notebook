@@ -1,64 +1,31 @@
-export type AchievementType =
+// ── Achievement Types (Auto-unlock system) ───────────────────────────────────
+
+export type AchievementCategory =
     | 'vocabulary'
     | 'grammar'
     | 'conversation'
-    | 'reading'
-    | 'milestone'
-    | 'streak'
-    | 'custom';
-
-export interface AchievementDetails {
-    value?: number;   // e.g. 50 words learned
-    target?: number;  // e.g. 100 words
-    unit?: string;    // e.g. "words", "days"
-}
+    | 'text'
+    | 'song'
+    | 'movie'
+    | 'flashcard'
+    | 'irregularVerb'
+    | 'streak';
 
 export interface Achievement {
     _id: string;
     user: string;
+    category: AchievementCategory;
+    milestone: number;
     title: string;
     description: string;
-    type: AchievementType;
     icon: string;
-    unlockedDate: string;
-    details: AchievementDetails;
-    progress: number;      // 0-100
-    points: number;
-    notes: string;
+    unlocked: boolean;
+    unlockedDate: string | null;
+    xpReward: number;
+    progress?: number; // calculated by backend
+    currentCount?: number; // current count for this category
     createdAt: string;
     updatedAt: string;
-}
-
-// --- Request types ---
-
-export interface CreateAchievementRequest {
-    title: string;
-    description?: string;
-    type: AchievementType;
-    icon?: string;
-    details?: AchievementDetails;
-    progress?: number;
-    points?: number;
-    notes?: string;
-}
-
-export interface UpdateAchievementRequest {
-    title?: string;
-    description?: string;
-    icon?: string;
-    details?: AchievementDetails;
-    progress?: number;
-    points?: number;
-    notes?: string;
-}
-
-export interface UpdateProgressRequest {
-    progress: number;
-}
-
-export interface GetAllAchievementsParams {
-    type?: AchievementType;
-    search?: string;
 }
 
 // --- Response types ---
@@ -66,27 +33,48 @@ export interface GetAllAchievementsParams {
 export interface AchievementsResponse {
     success: boolean;
     count: number;
+    totalUnlocked: number;
     achievements: Achievement[];
 }
 
-export interface AchievementResponse {
+export interface AchievementByCategoryResponse {
     success: boolean;
-    message?: string;
-    achievement: Achievement;
+    category: AchievementCategory;
+    count: number;
+    unlocked: number;
+    achievements: Achievement[];
 }
 
-export interface AchievementDeleteResponse {
-    success: boolean;
-    message: string;
+export interface CategoryStats {
+    _id: AchievementCategory;
+    total: number;
+    unlocked: number;
+}
+
+export interface RecentAchievement {
+    _id: string;
+    title: string;
+    icon: string;
+    category: AchievementCategory;
+    xpReward: number;
+    unlockedDate: string;
 }
 
 export interface AchievementStatsResponse {
     success: boolean;
     stats: {
         totalAchievements: number;
-        completedAchievements: number;
-        totalPoints: number;
-        averageProgress: number | string;
-        byType: Array<{ _id: string; count: number }>;
+        unlockedAchievements: number;
+        completionPercentage: number;
+        experience: number;
+        level: number;
+        totalXpFromAchievements: number;
+        streak: {
+            current: number;
+            longest: number;
+            lastLogin: string | null;
+        };
+        byCategory: CategoryStats[];
+        recentAchievements: RecentAchievement[];
     };
 }

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen, Trophy, Files, MessageCircle, Music,
-  Star, Target, Film, FileText, Flame, Award,
-  Layers, PenTool, TrendingUp, Zap, RefreshCw,
-  AlertCircle, Check,
+  Star, Target, FileText, Flame,
+  Library, TrendingUp, Zap, RefreshCw,
+  AlertCircle, Check, Sparkles, CheckSquare,
 } from 'lucide-react';
 
 import styles from './Dashboard.module.css';
@@ -13,7 +13,7 @@ import { getRandomPhrase } from '../../api/dailyPhrases.api';
 import type { DailyPhrase } from '../../types';
 
 // ── Stats API imports ────────────────────────────────────────────────────────
-import { getProfileSummary, getLearningProgress, recalculateStats } from '../../api/profiles.api';
+import { getProfileSummary, recalculateStats } from '../../api/profiles.api';
 import { getVocabularyStats } from '../../api/vocabulary.api';
 import { getGrammarStats } from '../../api/grammar.api';
 import { getConversationStats } from '../../api/conversations.api';
@@ -48,6 +48,7 @@ export const Dashboard = () => {
 
   // Data
   const [profileSummary, setProfileSummary] = useState<any>(null);
+  const [achievementStats, setAchievementStats] = useState<any>(null);
   const [dailyPhrase, setDailyPhrase] = useState<DailyPhrase | null>(null);
   const [stats, setStats] = useState<StatBlock[]>([]);
   const [progress, setProgress] = useState<ProgressBar[]>([]);
@@ -69,6 +70,18 @@ export const Dashboard = () => {
     try { return await fn(); } catch { return null; }
   };
 
+  // ── XP helpers ─────────────────────────────────────────────────────────
+
+  const xpForLevel = (lvl: number) => lvl * 100;
+  const getXpProgress = (stats: any) => {
+    if (!stats) return { currentLevelXp: 0, nextLevelXp: 100, pct: 0 };
+    const spent = Array.from({ length: stats.level - 1 }, (_, i) => xpForLevel(i + 1))
+      .reduce((a: number, b: number) => a + b, 0);
+    const currentLevelXp = stats.experience - spent;
+    const nextLevelXp = xpForLevel(stats.level);
+    return { currentLevelXp, nextLevelXp, pct: Math.min((currentLevelXp / nextLevelXp) * 100, 100) };
+  };
+
   // ── Load All Data ──────────────────────────────────────────────────────
 
   const loadData = useCallback(async () => {
@@ -85,7 +98,6 @@ export const Dashboard = () => {
       flashRes,
       commitRes,
       achieveRes,
-      progressRes,
     ] = await Promise.all([
       safe(getProfileSummary),
       safe(getRandomPhrase),
@@ -97,11 +109,13 @@ export const Dashboard = () => {
       safe(getFlashcardStats),
       safe(getCommitmentStats),
       safe(getAchievementStats),
-      safe(getLearningProgress),
     ]);
 
     if (profileRes) setProfileSummary(profileRes);
     if (phraseRes) setDailyPhrase((phraseRes as any).phrase || phraseRes);
+
+    const aStats = (achieveRes as any)?.stats || achieveRes;
+    setAchievementStats(aStats);
 
     // ── Build stat blocks ───────────────────────────────────────────────
     const blocks: StatBlock[] = [];
@@ -121,8 +135,8 @@ export const Dashboard = () => {
     const gStats = (gramRes as any)?.stats || gramRes;
     const gramTotal = gStats?.totalRules ?? gStats?.total ?? 0;
     if (gStats) {
-      blocks.push({ label: 'Grammar Rules', value: gramTotal, icon: <PenTool size={26} />, gradient: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)' });
-      bars.push({ label: 'Grammar', icon: <PenTool size={16} />, current: gramTotal, max: 100, color: '#764ba2' });
+      blocks.push({ label: 'Grammar Rules', value: gramTotal, icon: <Library size={26} />, gradient: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)' });
+      bars.push({ label: 'Grammar', icon: <Library size={16} />, current: gramTotal, max: 100, color: '#764ba2' });
       chart.push({ label: 'Grammar', value: gramTotal, color: '#764ba2' });
     }
 
@@ -130,8 +144,8 @@ export const Dashboard = () => {
     const fStats = (flashRes as any)?.stats || flashRes;
     const flashTotal = fStats?.totalCards ?? fStats?.total ?? 0;
     if (fStats) {
-      blocks.push({ label: 'Flashcards', value: flashTotal, icon: <Layers size={26} />, gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', extra: fStats.accuracyRate ? `${fStats.accuracyRate} accuracy` : undefined });
-      bars.push({ label: 'Flashcards', icon: <Layers size={16} />, current: flashTotal, max: 200, color: '#fcb69f' });
+      blocks.push({ label: 'Flashcards', value: flashTotal, icon: <Files size={26} />, gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', extra: fStats.accuracyRate ? `${fStats.accuracyRate} accuracy` : undefined });
+      bars.push({ label: 'Flashcards', icon: <Files size={16} />, current: flashTotal, max: 200, color: '#fcb69f' });
       chart.push({ label: 'Flash', value: flashTotal, color: '#fcb69f' });
     }
 
@@ -160,18 +174,26 @@ export const Dashboard = () => {
       chart.push({ label: 'Texts', value: textTotal, color: '#00d4ff' });
     }
 
+    // Movies
+    // Movies don't have a separate stats API in the dashboard yet, but we keep the pattern
+    // They'll show through the profile stats
+
     // Commitments
     const cmStats = (commitRes as any)?.stats || commitRes;
     const commitTotal = cmStats?.totalCommitments ?? cmStats?.total ?? 0;
     if (cmStats) {
-      blocks.push({ label: 'Commitments', value: commitTotal, icon: <Target size={26} />, gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)', extra: cmStats.completedCommitments ? `${cmStats.completedCommitments} done` : undefined });
+      blocks.push({ label: 'Commitments', value: commitTotal, icon: <CheckSquare size={26} />, gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)', extra: cmStats.completedCommitments ? `${cmStats.completedCommitments} done` : undefined });
     }
 
     // Achievements
-    const aStats = (achieveRes as any)?.stats || achieveRes;
-    const achieveTotal = aStats?.totalAchievements ?? aStats?.total ?? 0;
     if (aStats) {
-      blocks.push({ label: 'Achievements', value: achieveTotal, icon: <Award size={26} />, gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' });
+      blocks.push({
+        label: 'Achievements',
+        value: `${aStats.unlockedAchievements ?? 0}/${aStats.totalAchievements ?? 0}`,
+        icon: <Trophy size={26} />,
+        gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+        extra: `${aStats.completionPercentage ?? 0}% complete`,
+      });
     }
 
     setStats(blocks);
@@ -199,9 +221,11 @@ export const Dashboard = () => {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  const streakDays = profileSummary?.statistics?.streakDays ?? 0;
+  const streakCurrent = achievementStats?.streak?.current ?? profileSummary?.statistics?.streakDays ?? 0;
+  const streakLongest = achievementStats?.streak?.longest ?? 0;
   const totalActivities = stats.reduce((sum, s) => sum + (typeof s.value === 'number' ? s.value : 0), 0);
   const maxBarValue = Math.max(...barChart.map(b => b.value), 1);
+  const xpData = getXpProgress(achievementStats);
 
   // ── Render ─────────────────────────────────────────────────────────────
 
@@ -225,7 +249,26 @@ export const Dashboard = () => {
         </div>
       </header>
 
-      {/* ── TOP ROW: Streak + Total + Refresh ── */}
+      {/* ── LEVEL & XP BAR ── */}
+      {achievementStats && (
+        <div className={styles.levelSection}>
+          <div className={styles.levelHeader}>
+            <div className={styles.levelBadge}>
+              <Sparkles size={20} />
+              <span>Level {achievementStats.level ?? 1}</span>
+            </div>
+            <span className={styles.xpText}>{achievementStats.experience ?? 0} XP</span>
+          </div>
+          <div className={styles.xpBar}>
+            <div className={styles.xpFill} style={{ width: `${xpData.pct}%` }} />
+          </div>
+          <div className={styles.xpSubtext}>
+            {xpData.currentLevelXp} / {xpData.nextLevelXp} XP to Level {(achievementStats.level ?? 1) + 1}
+          </div>
+        </div>
+      )}
+
+      {/* ── TOP ROW: Streak + Total + Achievements + Refresh ── */}
       <div className={styles.topRow}>
         <div className={styles.highlightCard}>
           <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #f5af19 0%, #f12711 100%)' }}>
@@ -233,7 +276,10 @@ export const Dashboard = () => {
           </div>
           <div>
             <p className={styles.highlightLabel}>Day Streak</p>
-            <span className={styles.highlightValue}>{streakDays}</span>
+            <span className={styles.highlightValue}>{streakCurrent}</span>
+            {streakLongest > 0 && (
+              <span className={styles.highlightExtra}>Best: {streakLongest}</span>
+            )}
           </div>
         </div>
         <div className={styles.highlightCard}>
@@ -246,12 +292,26 @@ export const Dashboard = () => {
           </div>
         </div>
         <div className={styles.highlightCard}>
+          <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' }}>
+            <Trophy size={30} />
+          </div>
+          <div>
+            <p className={styles.highlightLabel}>Achievements</p>
+            <span className={styles.highlightValue}>
+              {achievementStats?.unlockedAchievements ?? 0}/{achievementStats?.totalAchievements ?? 0}
+            </span>
+            <span className={styles.highlightExtra}>
+              {achievementStats?.totalXpFromAchievements ?? 0} XP earned
+            </span>
+          </div>
+        </div>
+        <div className={styles.highlightCard}>
           <div className={styles.highlightIcon} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
             <Zap size={30} />
           </div>
           <div>
             <p className={styles.highlightLabel}>Components Active</p>
-            <span className={styles.highlightValue}>{stats.filter(s => Number(s.value) > 0).length}</span>
+            <span className={styles.highlightValue}>{stats.filter(s => Number(s.value) > 0 || String(s.value).includes('/')).length}</span>
           </div>
         </div>
         <button
