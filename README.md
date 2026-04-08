@@ -20,6 +20,7 @@
 ---
 
 ##  **PENDIENTE MEJORAS EN LA INTERFAZ**
+componente de conversaciones (implemntacion de )
 
 ---
 
