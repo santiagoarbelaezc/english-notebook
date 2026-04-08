@@ -20,7 +20,8 @@
 ---
 
 ##  **PENDIENTE MEJORAS EN LA INTERFAZ**
-componente de conversaciones (implemntacion de )
+componente de conversaciones (implemntacion de groq)
+componente de profile
 
 ---
 
