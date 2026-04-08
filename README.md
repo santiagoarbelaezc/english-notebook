@@ -19,6 +19,10 @@
 
 ---
 
+##  **PENDIENTE MEJORAS EN LA INTERFAZ**
+
+---
+
 ## ✨ **Características Principales**
 
 ### **📚 Secciones de Estudio**
